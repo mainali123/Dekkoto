@@ -29,3 +29,18 @@ func (db *databaseConn) registerUser(userName string, email string, password str
 	}
 	return nil
 }
+
+func (db *databaseConn) loginUser(email string, password string) error {
+	queryToLoginUser := "SELECT * FROM users WHERE Email = ? AND Password = ?"
+	rows, err := db.DB.Query(queryToLoginUser, email, password)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		// User with the provided email and password does not exist in the database
+		return errors.New("user does not exist")
+	}
+	return nil
+}

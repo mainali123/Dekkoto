@@ -36,6 +36,20 @@ func (app *application) register(c *gin.Context) {
 
 }
 
+func (app *application) admin(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
 func (app *application) registerPostRequest(c *gin.Context) {
 	// Response struct
 	type User struct {
@@ -74,4 +88,43 @@ func (app *application) registerPostRequest(c *gin.Context) {
 		"message": "User created successfully",
 	})
 
+}
+
+func (app *application) loginPostRequest(c *gin.Context) {
+
+	// Response struct
+	type User struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	var userData User
+
+	// Bind the JSON data from the request to the userData struct
+	if err := c.BindJSON(&userData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err := app.database.loginUser(userData.Email, userData.Password)
+
+	if err != nil {
+		if err.Error() == "user does not exist" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "User does not exist",
+			})
+			return
+		}
+		// For other errors during login, return a generic error response
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to login user",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User logged in successfully",
+	})
 }

@@ -8,6 +8,8 @@ func (app *application) routes(router *gin.Engine) {
 	router.GET("/", app.login)
 	router.GET("/login", app.login)
 	router.GET("/register", app.register)
-	router.POST("/login", app.login)
+	router.POST("/login", app.loginPostRequest)
 	router.POST("/register", app.registerPostRequest)
+
+	router.GET("/adminPanel", app.admin)
 }

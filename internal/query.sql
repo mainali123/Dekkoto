@@ -1,9 +1,10 @@
 -- Create Users table
 CREATE TABLE Users (
-                       UserID INT PRIMARY KEY,
+                       UserID INT PRIMARY KEY AUTO_INCREMENT,
                        UserName VARCHAR(50),
                        Email VARCHAR(100),
-                       Password VARCHAR(100)
+                       Password VARCHAR(100),
+                       Admin BOOLEAN DEFAULT FALSE
 );
 
 -- Create Categories table
