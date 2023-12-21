@@ -1,0 +1,69 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.header-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.image {
+    width: 361px;
+    height: 361px;
+}
+
+.profile label{
+    cursor: pointer;
+    padding-top: 1rem;
+}
+
+.profile label:hover{
+    color: #adadad;
+    transition: color 0.3s ease;
+}
+
+.tnc{
+    display: block;
+    padding: 1rem 0;
+    color: #adadad;
+}
+
+
+.images {
+    z-index: 100;
+    width: 27px;
+    height: 29px;
+    position: absolute;
+    bottom: 1.3rem;
+    left: 35%;
+}
+
+.name-error-msg,
+.email-error-msg,
+.password-error-msg,
+.Conpassword-error-msg,
+.Conpassword-match-error-msg{
+    opacity: 0;
+    display: flex;
+    color: rgb(154, 37, 37);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 1rem;
+    margin-left: 0;
+}
+
+@media only screen and (max-width:700px){
+    .password,
+    .Conpassword{
+        background-position: 19rem;
+    }
+
+    .images{
+        left: 20%;
+    }
+}
