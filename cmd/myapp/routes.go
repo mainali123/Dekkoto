@@ -1,6 +1,9 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"Dekkoto/cmd/myapp/handler"
+	"github.com/gin-gonic/gin"
+)
 
 func (app *application) routes(router *gin.Engine) {
 
@@ -12,4 +15,5 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/register", app.registerPostRequest)
 
 	router.GET("/adminPanel", app.admin)
+	router.POST("/upload", handler.HandleVideoUpload)
 }
