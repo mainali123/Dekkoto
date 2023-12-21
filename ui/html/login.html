@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<script src="../static/js/login.js" defer></script>
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../static/css/login.css">
+    <title>LogIn Page</title>
+</head>
+<body>
+<div class="login-container">
+    <div class="register">
+        <h1 class="header">Log In</h1>
+        <a href="register.html" class="reg">Register</a>
+    </div>
+
+    <form action="" method="" class="form">
+        <div class="form-container">
+            <label for="Email">email</label>
+            <input
+                    type="text"
+                    id="email"
+                    class="email form"
+                    placeholder="Enter your email"
+            />
+
+            <span class="error-msg">please enter correct email</span>
+
+            <label for="password"> Password</label>
+            <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    class="password form"
+            />
+
+            <span class="password-error-msg">your password must be more than 8 characters</span>
+
+            <a href="#" class="forgot-pass">Forgot Password?</a>
+
+<!--            <input type="button" value="Log In"/>-->
+            <input type="submit" value="Log In"/>
+            <div class="buttons">
+                <img src="../static/images/Gimage.png" alt="google image" class="images"/>
+                <input type="button" class="btn" value="Log In"/>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
