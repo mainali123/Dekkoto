@@ -100,10 +100,9 @@ function registerValidation() {
 
             // Convert the data to a JSON string
             let jsonData = JSON.stringify(data);
-            console.log(jsonData)
 
             // Send a POST request with the data
-            fetch('/registerPostRequest', {
+            fetch('/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -113,15 +112,20 @@ function registerValidation() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        // Display the error message
                         console.error('Error:', data.error);
                     } else {
                         // Redirect the user to another page or display a success message
-                        console.log('Success:', data);
+                        // console.log('Success:', data);
+                        alert("Register successfully. Please login now.")
+                        window.location.href = "/login";
                     }
                 })
                 .catch((error) => {
-                    console.error('Error:', error);
+                    // console.error('Error:', error);
+                    if (error === "User already exists") {
+                        // show popup message to user
+                        alert("User already exists")
+                    }
                 });
         }
     });

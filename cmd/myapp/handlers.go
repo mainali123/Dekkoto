@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"net/http"
@@ -38,7 +37,6 @@ func (app *application) register(c *gin.Context) {
 }
 
 func (app *application) registerPostRequest(c *gin.Context) {
-	fmt.Println("registerPostRequest")
 	// Response struct
 	type User struct {
 		Name            string `json:"name"`
@@ -48,7 +46,7 @@ func (app *application) registerPostRequest(c *gin.Context) {
 	}
 
 	var userData User
-	// Bind  the JSON data from the request to the userData struct
+	// Bind the JSON data from the request to the userData struct
 	if err := c.BindJSON(&userData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid JSON",
@@ -56,8 +54,24 @@ func (app *application) registerPostRequest(c *gin.Context) {
 		return
 	}
 
-	// TODO: Handle user data, validate it, and perform action as needed
-	// HACK: Temporary solution until validation is done, echoing back the received data as JSON
-	c.JSON(http.StatusOK, userData)
-	fmt.Println(userData)
+	err := app.database.registerUser(userData.Name, userData.Email, userData.Password)
+
+	if err != nil {
+		if err.Error() == "user already exists" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "User already exists",
+			})
+			return
+		}
+		// For other errors during registration, return a generic error response
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to register user",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User created successfully",
+	})
+
 }
