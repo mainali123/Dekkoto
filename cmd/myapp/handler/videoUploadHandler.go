@@ -48,15 +48,60 @@ func HandleVideoUpload(c *gin.Context) {
 		return
 	}
 
-	cmd := exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-		"-i",
-		"./userUploadDatas/videos/"+fileName,
-		"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-		"-b:v", "6M",
-		"-crf", "26", // Lower CRF for better quality
-		"-preset", "fast", // Adjust preset according to speed/quality trade-off
-		"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
+	// Before encoding the video, get its duration and quality
+	videoFilePath := "./userUploadDatas/videos/" + fileName
+	duration, quality, err := getVideoInfo(videoFilePath)
+	if err != nil {
+		c.String(500, "Failed to get video info")
+		return
+	}
 
+	// convert quality from string to int
+	qualityInt, err := strconv.Atoi(quality)
+	// convert duration from string to float64
+	durationFloat, err := strconv.ParseFloat(duration, 64)
+	fmt.Println("Duration:", durationFloat, "Quality:", qualityInt)
+
+	// Encode the video
+	// if the quality of video is 1080p or higher
+	var cmd *exec.Cmd
+	if qualityInt >= 1080 {
+		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
+			"-i",
+			"./userUploadDatas/videos/"+fileName,
+			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
+			"-b:v", "6M",
+			"-crf", "26", // Lower CRF for better quality
+			"-preset", "fast", // Adjust preset according to speed/quality trade-off
+			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
+	} else if qualityInt > 720 && qualityInt < 1080 {
+		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
+			"-i",
+			"./userUploadDatas/videos/"+fileName,
+			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
+			"-b:v", "4M",
+			"-crf", "12", // Lower CRF for better quality
+			"-preset", "fast", // Adjust preset according to speed/quality trade-off
+			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
+	} else if qualityInt > 480 && qualityInt <= 720 {
+		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
+			"-i",
+			"./userUploadDatas/videos/"+fileName,
+			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
+			"-b:v", "2M",
+			"-crf", "8", // Lower CRF for better quality
+			"-preset", "fast", // Adjust preset according to speed/quality trade-off
+			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
+	} else {
+		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
+			"-i",
+			"./userUploadDatas/videos/"+fileName,
+			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
+			"-b:v", "0.3M",
+			"-crf", "2", // Lower CRF for better quality
+			"-preset", "fast", // Adjust preset according to speed/quality trade-off
+			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
+	}
 	//// Set hardware acceleration flags if supported
 	cmd.Env = append(os.Environ(),
 		"CUDA_VISIBLE_DEVICES=0",                  // Utilize the first GPU device
@@ -86,6 +131,24 @@ func HandleVideoUpload(c *gin.Context) {
 	}
 
 	c.String(200, "File uploaded, converted to AV1, and old file deleted successfully")
+}
+
+func getVideoInfo(filePath string) (string, string, error) {
+	// Run ffprobe to get video info
+	cmd := exec.Command("ffprobe", "-v", "error", "-show_entries", "format=duration:stream=height", "-of", "default=noprint_wrappers=1:nokey=1", filePath)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", "", err
+	}
+
+	// The output will be two lines: the duration and the quality
+	lines := strings.Split(string(output), "\n")
+	if len(lines) < 2 {
+		return "", "", fmt.Errorf("unexpected ffprobe output: %s", output)
+	}
+
+	// Return duration and quality
+	return strings.TrimSpace(lines[0]), strings.TrimSpace(lines[1]), nil
 }
 
 func HandleThumbnailUpload(c *gin.Context) {
