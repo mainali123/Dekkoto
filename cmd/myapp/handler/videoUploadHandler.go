@@ -4,11 +4,16 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"math/rand"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -42,17 +47,6 @@ func HandleVideoUpload(c *gin.Context) {
 		c.String(500, "Failed to save file")
 		return
 	}
-
-	// encoding the video
-	//cmd := exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-	//	"-i",
-	//	"./userUploadDatas/videos/"+fileName,
-	//	"-c:v", "libvpx-vp9",
-	//	//"-preset", "ultrafast", // Use a faster preset
-	//	//"-hwaccel", "auto", // Use hardware acceleration if available
-	//	"-b:v", "45M", // Increase bitrate for better quality
-	//	"-crf", "0", // Lower CRF for better quality
-	//	"./userUploadDatas/videos/"+fileName+"_encoded"+".webm")
 
 	cmd := exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
 		"-i",
@@ -95,15 +89,33 @@ func HandleVideoUpload(c *gin.Context) {
 }
 
 func HandleThumbnailUpload(c *gin.Context) {
-	file, _, err := c.Request.FormFile("thumbnail")
+	file, header, err := c.Request.FormFile("thumbnail")
 	if err != nil {
 		c.String(500, "Failed to read file from request")
 		return
 	}
 	defer file.Close()
 
-	fileName := GfileName
+	var img image.Image
+	switch strings.ToLower(filepath.Ext(header.Filename)) {
+	case ".jpg", ".jpeg":
+		img, err = jpeg.Decode(file)
+		if err != nil {
+			c.String(500, "Failed to decode JPEG file")
+			return
+		}
+	case ".png":
+		img, err = png.Decode(file)
+		if err != nil {
+			c.String(500, "Failed to decode PNG file")
+			return
+		}
+	default:
+		c.String(500, "Unsupported file format")
+		return
+	}
 
+	fileName := GfileName + ".png"
 	out, err := os.Create("./userUploadDatas/thumbnails/" + fileName)
 	if err != nil {
 		c.String(500, "Failed to create file")
@@ -111,13 +123,13 @@ func HandleThumbnailUpload(c *gin.Context) {
 	}
 	defer out.Close()
 
-	_, err = io.Copy(out, file)
+	err = png.Encode(out, img)
 	if err != nil {
-		c.String(500, "Failed to save file")
+		c.String(500, "Failed to encode image to PNG")
 		return
 	}
 
-	c.String(200, "File uploaded successfully")
+	c.String(200, "File uploaded and converted to PNG successfully")
 }
 
 func VideoDetails(c *gin.Context) {
