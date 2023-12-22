@@ -19,6 +19,7 @@ CREATE TABLE Videos (
                         Title VARCHAR(100),
                         Description TEXT,
                         URL VARCHAR(255),
+                        ThumbnailURL VARCHAR(255),
                         UploaderID INT,
                         UploadDate DATE,
                         ViewsCount INT DEFAULT 0,

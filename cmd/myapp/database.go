@@ -44,3 +44,5 @@ func (db *databaseConn) loginUser(email string, password string) error {
 	}
 	return nil
 }
+
+//func uploadVideoDetails(videoId string, title string, description string, videoURL string, thumbnailURL string)

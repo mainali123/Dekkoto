@@ -127,4 +127,6 @@ func (app *application) loginPostRequest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "User logged in successfully",
 	})
+
+	userInfo.Email = userData.Email
 }

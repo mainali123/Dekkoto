@@ -17,6 +17,12 @@ type application struct {
 	database *databaseConn
 }
 
+type userInfoStruct struct {
+	Email string
+}
+
+var userInfo userInfoStruct
+
 func main() {
 
 	addr := flag.String("addr", ":8080", "HTTP network address")
