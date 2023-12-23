@@ -1,11 +1,13 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func VideoDetails(c *gin.Context) {
 	type videoDetails struct {
-		VideoName        string `json:"videoName"`
-		VideoDescription string `json:"videoDescription"`
+		VideoDescription string `json:"description"`
+		VideoName        string `json:"title"`
 	}
 
 	var videoDetailsStruct videoDetails
@@ -18,4 +20,14 @@ func VideoDetails(c *gin.Context) {
 		return
 	}
 
+	// if title and description is not empty
+	if videoDetailsStruct.VideoName == "" || videoDetailsStruct.VideoDescription == "" {
+		c.JSON(400, gin.H{
+			"error": "Video title or description cannot be empty",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"message": "Video details uploaded successfully",
+	})
 }

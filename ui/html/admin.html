@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+<script src="../static/js/admin.js" defer></script>
 <head>
     <meta charset="UTF-8">
     <title>Admin</title>
 </head>
 <body>
+<form action="" method="" class="form">
+    <label for="title">Title</label>
+    <input type="text" name="title" id="title" class="title" placeholder="Enter title">
+    <label for="description">Description</label>
+    <input type="text" name="description" id="description" class="desc" placeholder="Enter description">
 
+    <button type="submit">Add description</button>
+</form>
+
+<br><br>
 
 <form action="/uploadVideo" method="post" enctype="multipart/form-data">
-    <label for="title">Title</label>
-    <input type="text" name="title" id="title" placeholder="Enter title">
-    <label for="description">Description</label>
-    <input type="text" name="description" id="description" placeholder="Enter description">
-
     <input type="file" name="video">
   <button type="submit">Upload video</button>
 </form>
+
+<br><br>
 
 <form action="/uploadThumbnail" method="post" enctype="multipart/form-data">
     <input type="file" name="thumbnail">

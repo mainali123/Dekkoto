@@ -1,73 +1,82 @@
-// sending video details to server
+console.log('admin.js loaded');
+document.addEventListener('DOMContentLoaded', videoValueValidation);
 
-function sendVideoDetails(title, description) {
+function videoValueValidation() {
+    const title = document.getElementById('title');
+    const description = document.getElementById('description');
 
-    // Create an object with the form data
-    let videoDetails = {
-        title: title,
-        description: description
-    };
-
-    // Convert the data to a JSON string
-    let jsonData = JSON.stringify(videoDetails);
-
-    // Send a POST request with the data
-    fetch('/VideoDetails', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: jsonData
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                if (data.error === "User does not exist") {
-                    // show popup message to user
-                    alert("User does not exist. Please register first.")
-                    window.location.href = "/register";
-                }
-            } else {
-                // window.location.href = "/login";
-                console.log("logged in");
-            }
-        })
-        .catch((error) => {
-            // console.error('Error:', error);
-            if (error === "User does not exist") {
-                // show popup message to user
-                alert("User does not exist. Please register first.")
-                window.location.href = "/register";
-            }
-        });
-}
-
-// title and description
-let title = document.getElementById("title");
-let description = document.getElementById("description");
-
-// Function to validate input against SQL injection and XSS attacks
-function validateInput(input) {
-    // Regular expression to detect SQL injection and XSS attacks
-    const regex = /(\b(FROM|SELECT|INSERT|DELETE|WHERE|DROP|EXEC|UNION|CREATE|ALTER|UPDATE|JOIN)\b)|[<>]/i;
-
-    // Check if input is not empty and doesn't match the regex
-    if (input && !regex.test(input)) {
-        return true;
-    } else {
-        return false;
+    function validateTitle(title) {
+        // Validate email
+        if (title.value === '') {
+            // titleErrorMsg.innerHTML = 'Title is required';
+            alert('Title is required');
+            return false;
+        } else {
+            // titleErrorMsg.innerHTML = '';
+            return true;
+        }
     }
-}
 
-// Check if the data is valid
-if (validateInput(title.value) && validateInput(description.value)) {
-    // If valid, call the sendVideoDetails function
-    sendVideoDetails(title.value, description.value);
-} else {
-    // If not valid, show an error message
-    if (!title.value) {
-        alert("Title cannot be empty.");
-    } else {
-        alert("Invalid input. Please avoid using special characters.");
+    function validateDescription(description) {
+        // Validate password
+        if (description.value === '') {
+            // descriptionErrorMsg.innerHTML = 'Description is required';
+            alert('Description is required');
+            return false;
+        } else {
+            // descriptionErrorMsg.innerHTML = '';
+            return true;
+        }
     }
+
+    form = document.querySelector('.form');
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        console.log("submitting form");
+        // print the form data to the console
+        console.log("title: " + title.value);
+        console.log("description: " + description.value);
+        let isValid = true;
+
+        if (!validateTitle(title)) {
+            // titleErrorMsg.style.opacity = "1";
+            isValid = false;
+        }
+
+        else if (!validateDescription(description)) {
+            // descriptionErrorMsg.style.opacity = "1";
+            isValid = false;
+        }
+        console.log("isValid: " + isValid);
+
+        if (isValid) {
+            // Create an object with the form data
+            let data = {
+                title: title.value,
+                description: description.value
+            };
+
+            // Send a POST request
+            fetch('/videoDetails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data),
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (jsonResponse) {
+                    // Display response back to user
+                    console.log(jsonResponse);
+                    alert(jsonResponse.message);
+                    // window.location.href = jsonResponse.redirect;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+    });
 }
