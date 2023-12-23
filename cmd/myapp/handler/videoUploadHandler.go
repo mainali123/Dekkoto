@@ -133,22 +133,62 @@ func HandleVideoUpload(c *gin.Context) {
 	c.String(200, "File uploaded, converted to AV1, and old file deleted successfully")
 }
 
+func getVideoQuality(height int) string {
+	switch {
+	case height <= 240:
+		return "240"
+	case height <= 480:
+		return "480"
+	case height <= 720:
+		return "720"
+	case height <= 1080:
+		return "1080"
+	// Add more cases as needed for higher resolutions
+	default:
+		return "2160"
+	}
+}
+
 func getVideoInfo(filePath string) (string, string, error) {
-	// Run ffprobe to get video info
-	cmd := exec.Command("ffprobe", "-v", "error", "-show_entries", "format=duration:stream=height", "-of", "default=noprint_wrappers=1:nokey=1", filePath)
+	// Get video height
+	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=height", "-of", "default=noprint_wrappers=1:nokey=1", filePath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", "", err
 	}
 
-	// The output will be two lines: the duration and the quality
 	lines := strings.Split(string(output), "\n")
-	if len(lines) < 2 {
+	if len(lines) < 1 {
 		return "", "", fmt.Errorf("unexpected ffprobe output: %s", output)
 	}
 
-	// Return duration and quality
-	return strings.TrimSpace(lines[0]), strings.TrimSpace(lines[1]), nil
+	heightStr := strings.TrimSpace(lines[0])
+	height, err := strconv.Atoi(heightStr)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to convert height to integer: %s", err)
+	}
+
+	quality := getVideoQuality(height)
+
+	// Get video duration
+	cmd = exec.Command("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", filePath)
+	output, err = cmd.CombinedOutput()
+	if err != nil {
+		return "", "", err
+	}
+
+	lines = strings.Split(string(output), "\n")
+	if len(lines) < 1 {
+		return "", "", fmt.Errorf("unexpected ffprobe output: %s", output)
+	}
+
+	durationStr := strings.TrimSpace(lines[0])
+	duration, err := strconv.ParseFloat(durationStr, 64)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to convert duration to float: %s", err)
+	}
+
+	return strconv.FormatFloat(duration, 'f', 2, 64), quality, nil
 }
 
 func HandleThumbnailUpload(c *gin.Context) {
