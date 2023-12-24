@@ -155,23 +155,28 @@ func (app *application) uploadVideo(c *gin.Context) {
 
 	// Convert arrays to comma-separated strings
 	genresStr := strings.Join(videoInfo.Genres, ",")
-	typesStr := strings.Join(videoInfo.Types, ",")
+	//typesStr := strings.Join(videoInfo.Types, ",")
 
 	// Map genre and category strings to their respective IDs
-	categoryID, err := app.database.getCategoryID(videoInfo.Types[0])
-	if err != nil {
-		c.String(500, "Failed to get category ID")
-	}
+	var categoryID int
+	fmt.Println("Sending to database (types): ", videoInfo.Types)
+	categoryID, err := app.database.getCategoryID(videoInfo.Types)
+
+	// check if category is empty
+	//if err != nil {
+	//	c.String(500, "Failed to get category ID with error: "+err.Error())
+	//}
 
 	//genreID, err := app.database.getGenreID(videoInfo.Genres[0])
 	// there are multiple genres do it for all
-	genreID, err := app.database.getGenreID(videoInfo.Genres[0])
-	if err != nil {
-		c.String(500, "Failed to get genre ID")
-	}
+	fmt.Println("Sending to database (genres): ", genresStr)
+	genreID, err := app.database.getGenreID(genresStr)
+	//if err != nil {
+	//	c.String(500, "Failed to get genre ID with error: "+err.Error())
+	//}
 
 	// print all the data
-	fmt.Println(videoInfo.VideoTitle, videoInfo.VideoDescription, videoInfo.VideoStoragePath, videoInfo.ThumbnailStoragePath, videoInfo.UploaderId, currentDate, videoInfo.VideoDuration, genresStr, typesStr)
+	fmt.Println(videoInfo.VideoTitle, videoInfo.VideoDescription, videoInfo.VideoStoragePath, videoInfo.ThumbnailStoragePath, videoInfo.UploaderId, currentDate, videoInfo.VideoDuration, genreID, categoryID)
 
 	err = app.database.uploadVideo(
 		videoInfo.VideoTitle,
@@ -189,7 +194,7 @@ func (app *application) uploadVideo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to upload video",
 		})
-		c.String(500, "Failed to upload video")
+		c.String(500, "Failed to upload video with error "+err.Error())
 		return
 	}
 }

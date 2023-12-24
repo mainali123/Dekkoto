@@ -26,7 +26,7 @@ type videoDetails struct {
 	UploaderId           string   `json:"uploaderId"`
 	VideoDuration        string   `json:"videoDuration"`
 	Genres               []string `json:"genres"`
-	Types                []string `json:"types"`
+	Types                string   `json:"types"`
 }
 
 var VideoDetailsInfo videoDetails

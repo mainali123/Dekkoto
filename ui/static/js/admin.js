@@ -100,6 +100,3 @@ console.log(selectedGenres);
         }
     });
 }
-
-
-//bye bye i am out of here

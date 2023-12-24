@@ -10,7 +10,7 @@ func VideoDetails(c *gin.Context) {
 		VideoDescription string   `json:"description"`
 		VideoName        string   `json:"title"`
 		Genres           []string `json:"genres"`
-		Types            []string `json:"types"`
+		Types            string   `json:"types"`
 	}
 
 	var videoDetailsStruct videoDetails
