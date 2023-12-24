@@ -18,7 +18,8 @@ type application struct {
 }
 
 type userInfoStruct struct {
-	Email string
+	Email  string
+	UserId int
 }
 
 var userInfo userInfoStruct

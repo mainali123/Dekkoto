@@ -1,10 +1,25 @@
 console.log('admin.js loaded');
 document.addEventListener('DOMContentLoaded', videoValueValidation);
+ let selectedGenres = Array.from(document.querySelectorAll('input[name="genre"]:checked')).map(checkbox => checkbox.value);
+  const genreSelect = document.querySelectorAll('input[name="genre"]');
+    genreSelect.forEach(function (genre) {
+        genre.addEventListener('change', function () {
+           selectedGenres = Array.from(document.querySelectorAll('input[name="genre"]:checked')).map(checkbox => checkbox.value);
+            console.log(selectedGenres);
+        });
+    });
+
 
 function videoValueValidation() {
     const title = document.getElementById('title');
     const description = document.getElementById('description');
+    const selectedTypes = document.querySelector('input[name="type"]:checked').value;
 
+    // const selectedGenres = Array.from(document.querySelectorAll('input[name="genre"]:checked')).map(checkbox => checkbox.value);
+    // const selectedTypes = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(checkbox => checkbox.value);
+
+
+console.log(selectedGenres);
     function validateTitle(title) {
         // Validate email
         if (title.value === '') {
@@ -48,13 +63,18 @@ function videoValueValidation() {
             // descriptionErrorMsg.style.opacity = "1";
             isValid = false;
         }
+
         console.log("isValid: " + isValid);
+        console.log("selectedGenres: " + selectedGenres);
+        console.log("selectedTypes: " + selectedTypes);
 
         if (isValid) {
             // Create an object with the form data
             let data = {
                 title: title.value,
-                description: description.value
+                description: description.value,
+                genres : selectedGenres,
+                types : selectedTypes
             };
 
             // Send a POST request
@@ -80,3 +100,6 @@ function videoValueValidation() {
         }
     });
 }
+
+
+//bye bye i am out of here

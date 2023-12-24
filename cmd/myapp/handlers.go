@@ -1,9 +1,15 @@
 package main
 
 import (
+	"Dekkoto/cmd/myapp/handler"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"net/http"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 )
 
 func (app *application) login(c *gin.Context) {
@@ -128,5 +134,78 @@ func (app *application) loginPostRequest(c *gin.Context) {
 		"message": "User logged in successfully",
 	})
 
+	// Get user id from the database
+	userID, err := app.database.userId(userData.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get user id",
+		})
+		return
+	}
+
+	userInfo.UserId = userID
 	userInfo.Email = userData.Email
+	handler.VideoDetailsInfo.UploaderId = strconv.Itoa(userID)
+}
+
+func (app *application) uploadVideo(c *gin.Context) {
+	videoInfo := handler.VideoDetailsInfo
+	// get current date
+	currentDate := time.Now().Format("2006-01-02")
+
+	// Convert arrays to comma-separated strings
+	genresStr := strings.Join(videoInfo.Genres, ",")
+	typesStr := strings.Join(videoInfo.Types, ",")
+
+	// Map genre and category strings to their respective IDs
+	categoryID, err := app.database.getCategoryID(videoInfo.Types[0])
+	if err != nil {
+		c.String(500, "Failed to get category ID")
+	}
+
+	//genreID, err := app.database.getGenreID(videoInfo.Genres[0])
+	// there are multiple genres do it for all
+	genreID, err := app.database.getGenreID(videoInfo.Genres[0])
+	if err != nil {
+		c.String(500, "Failed to get genre ID")
+	}
+
+	// print all the data
+	fmt.Println(videoInfo.VideoTitle, videoInfo.VideoDescription, videoInfo.VideoStoragePath, videoInfo.ThumbnailStoragePath, videoInfo.UploaderId, currentDate, videoInfo.VideoDuration, genresStr, typesStr)
+
+	err = app.database.uploadVideo(
+		videoInfo.VideoTitle,
+		videoInfo.VideoDescription,
+		videoInfo.VideoStoragePath,
+		videoInfo.ThumbnailStoragePath,
+		videoInfo.UploaderId,
+		currentDate,
+		videoInfo.VideoDuration,
+		categoryID, // Use mapped category ID
+		genreID,    // Use mapped genre ID
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to upload video",
+		})
+		c.String(500, "Failed to upload video")
+		return
+	}
+}
+
+func (app *application) terminateVideo(c *gin.Context) {
+	// Delete the video file
+	err := os.Remove(handler.VideoDetailsInfo.VideoStoragePath)
+	if err != nil {
+		c.String(500, "Failed to delete video file")
+	}
+
+	// Delete the thumbnail file
+	err = os.Remove(handler.VideoDetailsInfo.ThumbnailStoragePath)
+	if err != nil {
+		c.String(500, "Failed to delete thumbnail file")
+	}
+
+	c.String(200, "Terminated successfully")
 }

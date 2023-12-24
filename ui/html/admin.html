@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <script src="../static/js/admin.js" defer></script>
+
 <head>
     <meta charset="UTF-8">
     <title>Admin</title>
@@ -18,16 +20,72 @@
 <br><br>
 
 <form action="/uploadVideo" method="post" enctype="multipart/form-data">
-    <input type="file" name="video">
+    <input type="file" name="video" required>
   <button type="submit">Upload video</button>
 </form>
 
 <br><br>
 
 <form action="/uploadThumbnail" method="post" enctype="multipart/form-data">
-    <input type="file" name="thumbnail">
+    <input type="file" name="thumbnail" required>
     <button type="submit">Upload thumbnail</button>
 </form>
 
-</body>
-</html>
+<br><br>
+
+<!-- Checkboxes to select genre(s) of the video -->
+<fieldset>
+    <legend>Genre</legend>
+    <label for="action">
+        <input type="checkbox" name="genre" id="action" value="action">
+        Action
+    </label>
+    <label for="comedy">
+        <input type="checkbox" name="genre" id="comedy" value="comedy">
+        Comedy
+    </label>
+    <label for="drama">
+        <input type="checkbox" name="genre" id="drama" value="drama">
+        Drama
+    </label>
+    <label for="horror">
+        <input type="checkbox" name="genre" id="horror" value="horror">
+        Horror
+    </label>
+    <label for="romance">
+        <input type="checkbox" name="genre" id="romance" value="romance">
+        Romance
+    </label>
+    <label for="thriller">
+        <input type="checkbox" name="genre" id="thriller" value="thriller">
+        Thriller
+    </label>
+</fieldset>
+
+<!-- Checkboxes for types -->
+<fieldset>
+    <legend>Type</legend>
+    <label for="movie">
+        <input type="radio" name="type" id="movie" value="movie" checked>
+        Movie
+    </label>
+    <label for="series">
+        <input type="radio" name="type" id="series" value="series">
+        Series
+    </label>
+    <label for="anime">
+        <input type="radio" name="type" id="anime" value="anime">
+        Anime
+    </label>
+</fieldset>
+
+
+<br><br>
+
+<!--Give an option to select yes and no button to confirm video upload-->
+<form action="/confirmVideo" method="post">
+    <button type="submit">Confirm video</button>
+</form>
+<form action="/terminateVideo" method="post">
+    <button type="button">Cancel video</button>
+</form>

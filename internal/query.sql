@@ -9,8 +9,13 @@ CREATE TABLE Users (
 
 -- Create Categories table
 CREATE TABLE Categories (
-                            CategoryID INT PRIMARY KEY,
+                            CategoryID INT PRIMARY KEY AUTO_INCREMENT,
                             CategoryName VARCHAR(50)
+);
+
+CREATE TABLE Genres (
+                        GenreID INT PRIMARY KEY AUTO_INCREMENT,
+                        GenreName VARCHAR(50)
 );
 
 -- Create Videos table
@@ -27,13 +32,15 @@ CREATE TABLE Videos (
                         DislikesCount INT DEFAULT 0,
                         Duration TIME,
                         CategoryID INT,
+                        GenreID INT,
                         FOREIGN KEY (UploaderID) REFERENCES Users(UserID),
-                        FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+                        FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID),
+                        FOREIGN KEY (GenreID) REFERENCES Genres(GenreID)
 );
 
 -- Create VideoActions table
 CREATE TABLE VideoActions (
-                              ActionID INT PRIMARY KEY,
+                              ActionID INT PRIMARY KEY AUTO_INCREMENT,
                               UserID INT,
                               VideoID INT,
                               ActionType VARCHAR(20),
@@ -43,7 +50,7 @@ CREATE TABLE VideoActions (
 
 -- Create Comments table
 CREATE TABLE Comments (
-                          CommentID INT PRIMARY KEY,
+                          CommentID INT PRIMARY KEY AUTO_INCREMENT,
                           UserID INT,
                           VideoID INT,
                           CommentText TEXT,
@@ -52,3 +59,9 @@ CREATE TABLE Comments (
                           FOREIGN KEY (UserID) REFERENCES Users(UserID),
                           FOREIGN KEY (VideoID) REFERENCES Videos(VideoID)
 );
+
+
+-- Insert Action, Comedy, Drama, Horror, Romance, Thriller in categories table
+INSERT INTO Categories (CategoryName) VALUES ('Action'), ('Comedy'), ('Drama'), ('Horror'), ('Romance'), ('Thriller');
+-- Insert Movie, Series, Anime in genres table
+INSERT INTO Genres (GenreName) VALUES ('Movie'), ('Series'), ('Anime');

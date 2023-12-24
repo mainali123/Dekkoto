@@ -50,6 +50,7 @@ func HandleThumbnailUpload(c *gin.Context) {
 		c.String(500, "Failed to encode image to PNG")
 		return
 	}
+	VideoDetailsInfo.ThumbnailStoragePath = "./userUploadDatas/thumbnails/" + fileName
 
 	c.String(200, "File uploaded and converted to PNG successfully")
 }

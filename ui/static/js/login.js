@@ -82,6 +82,8 @@ function loginValidation() {
                     } else {
                         // window.location.href = "/login";
                         console.log("logged in");
+                        alert("Go to admin page.")
+                        window.location.href = "/adminPanel";
                     }
                 })
                 .catch((error) => {
@@ -96,4 +98,5 @@ function loginValidation() {
     });
 
 }
+
 

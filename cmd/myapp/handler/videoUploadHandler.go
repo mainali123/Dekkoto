@@ -2,8 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"io"
 	"math/rand"
 	"os"
@@ -11,10 +9,27 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // Declare fileName as a global variable
 var GfileName string
+
+type videoDetails struct {
+	FileName             string   `json:"fileName"`
+	VideoTitle           string   `json:"videoTitle"`
+	VideoDescription     string   `json:"videoDescription"`
+	VideoStoragePath     string   `json:"videoStoragePath"`
+	ThumbnailStoragePath string   `json:"thumbnailStoragePath"`
+	UploaderId           string   `json:"uploaderId"`
+	VideoDuration        string   `json:"videoDuration"`
+	Genres               []string `json:"genres"`
+	Types                []string `json:"types"`
+}
+
+var VideoDetailsInfo videoDetails
 
 func HandleVideoUpload(c *gin.Context) {
 	file, _, err := c.Request.FormFile("video")
@@ -126,7 +141,12 @@ func HandleVideoUpload(c *gin.Context) {
 		return
 	}
 
+	VideoDetailsInfo.FileName = fileName
+	VideoDetailsInfo.VideoStoragePath = "./userUploadDatas/videos/" + fileName + "_encoded" + ".mp4"
+	VideoDetailsInfo.VideoDuration = duration
+
 	c.String(200, "File uploaded, converted to AV1, and old file deleted successfully")
+
 }
 
 func getVideoQuality(height int) string {
