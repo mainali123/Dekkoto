@@ -100,3 +100,26 @@ console.log(selectedGenres);
         }
     });
 }
+
+
+
+// Get all the video details from the server
+/*
+function getVideoDetails() {
+    // Send a GET request to /videoDetails
+    fetch('/showVideoDetails', {
+        method: 'GET',
+    })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (jsonResponse) {
+            // Display response back to user
+            console.log(jsonResponse);
+            alert(jsonResponse.message);
+            // window.location.href = jsonResponse.redirect;
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+}*/

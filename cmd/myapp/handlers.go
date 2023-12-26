@@ -154,26 +154,27 @@ func (app *application) uploadVideo(c *gin.Context) {
 	currentDate := time.Now().Format("2006-01-02")
 
 	// Convert arrays to comma-separated strings
-	genresStr := strings.Join(videoInfo.Genres, ",")
-	//typesStr := strings.Join(videoInfo.Types, ",")
+	categoryString := strings.Join(videoInfo.Genres, ",")
 
 	// Map genre and category strings to their respective IDs
 	var categoryID int
-	fmt.Println("Sending to database (types): ", videoInfo.Types)
-	categoryID, err := app.database.getCategoryID(videoInfo.Types)
+	// remove all the whitespaces
+	videoInfo.Types = strings.ReplaceAll(videoInfo.Types, " ", "")
+	categoryID, err := app.database.getCategoryID(categoryString)
 
 	// check if category is empty
-	//if err != nil {
-	//	c.String(500, "Failed to get category ID with error: "+err.Error())
-	//}
+	if err != nil {
+		c.String(500, "Failed to get category ID with error: "+err.Error())
+	}
 
 	//genreID, err := app.database.getGenreID(videoInfo.Genres[0])
 	// there are multiple genres do it for all
-	fmt.Println("Sending to database (genres): ", genresStr)
-	genreID, err := app.database.getGenreID(genresStr)
-	//if err != nil {
-	//	c.String(500, "Failed to get genre ID with error: "+err.Error())
-	//}
+	// remove all the whitespaces
+	categoryString = strings.ReplaceAll(categoryString, " ", "")
+	genreID, err := app.database.getGenreID(videoInfo.Types)
+	if err != nil {
+		c.String(500, "Failed to get genre ID with error: "+err.Error())
+	}
 
 	// print all the data
 	fmt.Println(videoInfo.VideoTitle, videoInfo.VideoDescription, videoInfo.VideoStoragePath, videoInfo.ThumbnailStoragePath, videoInfo.UploaderId, currentDate, videoInfo.VideoDuration, genreID, categoryID)
@@ -197,6 +198,10 @@ func (app *application) uploadVideo(c *gin.Context) {
 		c.String(500, "Failed to upload video with error "+err.Error())
 		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video uploaded in the database successfully",
+	})
 }
 
 func (app *application) terminateVideo(c *gin.Context) {
@@ -214,3 +219,33 @@ func (app *application) terminateVideo(c *gin.Context) {
 
 	c.String(200, "Terminated successfully")
 }
+
+/*func (app *application) sendVideoDetailsToShow(c *gin.Context) {
+	// Response struct
+	type Video struct {
+		VideoTitle           string   `json:"title"`
+		VideoDescription     string   `json:"description"`
+		VideoStoragePath     string   `json:"videoStoragePath"`
+		ThumbnailStoragePath string   `json:"thumbnailStoragePath"`
+		UploaderId           string   `json:"uploaderId"`
+		VideoDuration        string   `json:"videoDuration"`
+		Genres               []string `json:"genres"`
+		Types                string   `json:"types"`
+	}
+
+	var videoData Video
+
+	videoData.VideoTitle = handler.VideoDetailsInfo.VideoTitle
+	videoData.VideoDescription = handler.VideoDetailsInfo.VideoDescription
+	videoData.VideoStoragePath = handler.VideoDetailsInfo.VideoStoragePath
+	videoData.ThumbnailStoragePath = handler.VideoDetailsInfo.ThumbnailStoragePath
+	videoData.UploaderId = handler.VideoDetailsInfo.UploaderId
+	videoData.VideoDuration = handler.VideoDetailsInfo.VideoDuration
+	videoData.Genres = handler.VideoDetailsInfo.Genres
+	videoData.Types = handler.VideoDetailsInfo.Types
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video details uploaded successfully",
+		"data":    videoData,
+	})
+}*/

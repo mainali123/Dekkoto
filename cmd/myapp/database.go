@@ -78,13 +78,15 @@ func (db *databaseConn) getCategoryID(categoryName string) (int, error) {
 	fmt.Println("From database: ", categoryName)
 	var categoryID int
 	query := "SELECT CategoryID FROM categories WHERE CategoryName = ?"
+	fmt.Println("Category query: ", query)
 	err := db.DB.QueryRow(query, categoryName).Scan(&categoryID)
+	fmt.Println("From database (cat id1): ", err)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 1, sql.ErrNoRows
+			return 0, sql.ErrNoRows
 		}
-		return 1, err
+		return 0, err
 	}
 	fmt.Println("From database (cat id): ", categoryID)
 	return categoryID, nil
@@ -95,12 +97,14 @@ func (db *databaseConn) getGenreID(genreName string) (int, error) {
 	fmt.Println("From database: ", genreName)
 	var genreID int
 	query := "SELECT GenreID FROM genres WHERE GenreName = ?"
+	fmt.Println("Genre query: ", query)
 	err := db.DB.QueryRow(query, genreName).Scan(&genreID)
+	fmt.Println("From database (genre id1): ", err)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 1, sql.ErrNoRows
+			return 0, sql.ErrNoRows
 		}
-		return 1, err
+		return 0, err
 	}
 	fmt.Println("From database (genre id): ", genreID)
 	return genreID, nil
