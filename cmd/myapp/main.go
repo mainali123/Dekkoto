@@ -17,6 +17,13 @@ type application struct {
 	database *databaseConn
 }
 
+type userInfoStruct struct {
+	Email  string
+	UserId int
+}
+
+var userInfo userInfoStruct
+
 func main() {
 
 	addr := flag.String("addr", ":8080", "HTTP network address")
@@ -53,7 +60,7 @@ func main() {
 		ErrorLog: errorLog,
 		Handler:  router,
 	}
-	infoLog.Printf("Starting server on localhost:%s", *addr)
+	infoLog.Printf("Starting server on localhost%s", *addr)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<script src="../static/js/register.js" defer></script>
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../static/css/login.css">
+    <link rel="stylesheet" href="../static/css/register.css">
+    <title>Register Page</title>
+</head>
+
+<body>
+<div class="header-container">
+    <h1 class="header">Register</h1>
+    <img src="../static/images/default-profile.png" alt="default-profile" id="updateImg" class="image"/>
+    <div class="profile">
+        <label for="files">Upload a profile picture</label>
+        <input id="files" style="visibility: hidden" type="file" onchange="displayImage(this)" accept="image/*"/>
+    </div>
+</div>
+<form action="" method="POST">
+
+    <label for="name">Name</label>
+    <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Enter your name"
+    />
+    <span class="name-error-msg">please enter a valid name</span>
+
+    <label for="email">Email</label>
+    <input
+            type="text"
+            name="email"
+            id="email"
+            placeholder="Enter your email"
+    />
+
+    <span class="email-error-msg">please enter a valid email</span>
+
+    <label for="Password">Password</label>
+    <input
+            type="password"
+            name="password"
+            id="password"
+            class="password"
+            placeholder="Enter your password"
+    />
+    <span class="password-error-msg">your password must be more than 8 characters</span>
+
+    <label for="Password">Confirm Password</label>
+    <input
+            type="password"
+            name="Conpassword"
+            id="Conpassword"
+            class="Conpassword"
+           placeholder="Enter your password again"
+    />
+    <span class="Conpassword-error-msg">your password must be more than 8 characters</span>
+    <span class="Conpassword-match-error-msg">your password must be the same as the password</span>
+
+    <a href="#" class="tnc">Terms and Conditions</a>
+
+    <input type="submit" value="Register"/>
+    <div class="buttons">
+        <img src="../static/images/Gimage.png" alt="google image" class="images"/>
+        <input type="button" class="btn" value="Google register"/>
+    </div>
+</form>
+
+</body>
+
+</html>

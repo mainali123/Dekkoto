@@ -19,6 +19,7 @@ function loginValidation() {
             return false;
         } else {
             emailErrorMsg.innerHTML = '';
+            return true;
         }
     }
 
@@ -32,6 +33,7 @@ function loginValidation() {
             return false;
         } else {
             passwordErrorMsg.innerHTML = '';
+            return true;
         }
     }
 
@@ -45,15 +47,56 @@ function loginValidation() {
             isValid = false;
         }
 
-        if (!validatePassword(password)) {
+       else if (!validatePassword(password)) {
             passwordErrorMsg.style.opacity = "1";
             isValid = false;
         }
+        console.log("isValid: " + isValid);
 
-        if (!isValid) {
-            console.log("form is invalid");
+        if (isValid) {
+            // Create an object with the form data
+            let data = {
+                email: email.value,
+                password: password.value
+            };
+
+            // Convert the data to a JSON string
+            let jsonData = JSON.stringify(data);
+
+            // Send a POST request with the data
+          fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        if (data.error === "User does not exist") {
+                            // show popup message to user
+                            alert("User does not exist. Please register first.")
+                            window.location.href = "/register";
+                        }
+                    } else {
+                        // window.location.href = "/login";
+                        console.log("logged in");
+                        alert("Go to admin page.")
+                        window.location.href = "/adminPanel";
+                    }
+                })
+                .catch((error) => {
+                    // console.error('Error:', error);
+                    if (error === "User does not exist") {
+                        // show popup message to user
+                        alert("User does not exist. Please register first.")
+                        window.location.href = "/register";
+                    }
+                });
         }
     });
 
 }
+
 

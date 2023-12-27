@@ -1,23 +1,30 @@
 -- Create Users table
 CREATE TABLE Users (
-                       UserID INT PRIMARY KEY,
+                       UserID INT PRIMARY KEY AUTO_INCREMENT,
                        UserName VARCHAR(50),
                        Email VARCHAR(100),
-                       Password VARCHAR(100)
+                       Password VARCHAR(100),
+                       Admin BOOLEAN DEFAULT FALSE
 );
 
 -- Create Categories table
 CREATE TABLE Categories (
-                            CategoryID INT PRIMARY KEY,
+                            CategoryID INT PRIMARY KEY AUTO_INCREMENT,
                             CategoryName VARCHAR(50)
+);
+
+CREATE TABLE Genres (
+                        GenreID INT PRIMARY KEY AUTO_INCREMENT,
+                        GenreName VARCHAR(50)
 );
 
 -- Create Videos table
 CREATE TABLE Videos (
-                        VideoID INT PRIMARY KEY,
+                        VideoID INT PRIMARY KEY AUTO_INCREMENT,
                         Title VARCHAR(100),
                         Description TEXT,
                         URL VARCHAR(255),
+                        ThumbnailURL VARCHAR(255),
                         UploaderID INT,
                         UploadDate DATE,
                         ViewsCount INT DEFAULT 0,
@@ -25,13 +32,15 @@ CREATE TABLE Videos (
                         DislikesCount INT DEFAULT 0,
                         Duration TIME,
                         CategoryID INT,
+                        GenreID INT,
                         FOREIGN KEY (UploaderID) REFERENCES Users(UserID),
-                        FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+                        FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID),
+                        FOREIGN KEY (GenreID) REFERENCES Genres(GenreID)
 );
 
 -- Create VideoActions table
 CREATE TABLE VideoActions (
-                              ActionID INT PRIMARY KEY,
+                              ActionID INT PRIMARY KEY AUTO_INCREMENT,
                               UserID INT,
                               VideoID INT,
                               ActionType VARCHAR(20),
@@ -41,7 +50,7 @@ CREATE TABLE VideoActions (
 
 -- Create Comments table
 CREATE TABLE Comments (
-                          CommentID INT PRIMARY KEY,
+                          CommentID INT PRIMARY KEY AUTO_INCREMENT,
                           UserID INT,
                           VideoID INT,
                           CommentText TEXT,
@@ -50,3 +59,77 @@ CREATE TABLE Comments (
                           FOREIGN KEY (UserID) REFERENCES Users(UserID),
                           FOREIGN KEY (VideoID) REFERENCES Videos(VideoID)
 );
+
+
+-- Insert Action, Comedy, Drama, Horror, Romance, Thriller in categories table
+# INSERT INTO Categories (CategoryName) VALUES ('Action'), ('Comedy'), ('Drama'), ('Horror'), ('Romance'), ('Thriller');
+
+INSERT INTO Categories (CategoryName)
+VALUES
+    ('action'),
+    ('comedy'),
+    ('drama'),
+    ('horror'),
+    ('romance'),
+    ('thriller'),
+    ('action,comedy'),
+    ('action,drama'),
+    ('action,horror'),
+    ('action,romance'),
+    ('action,thriller'),
+    ('comedy,drama'),
+    ('comedy,horror'),
+    ('comedy,romance'),
+    ('comedy,thriller'),
+    ('drama,horror'),
+    ('drama,romance'),
+    ('drama,thriller'),
+    ('horror,romance'),
+    ('horror,thriller'),
+    ('romance,thriller'),
+    ('action,comedy,drama'),
+    ('action,comedy,horror'),
+    ('action,comedy,romance'),
+    ('action,comedy,thriller'),
+    ('action,drama,horror'),
+    ('action,drama,romance'),
+    ('action,drama,thriller'),
+    ('action,horror,romance'),
+    ('action,horror,thriller'),
+    ('action,romance,thriller'),
+    ('comedy,drama,horror'),
+    ('comedy,drama,romance'),
+    ('comedy,drama,thriller'),
+    ('comedy,horror,romance'),
+    ('comedy,horror,thriller'),
+    ('comedy,romance,thriller'),
+    ('drama,horror,romance'),
+    ('drama,horror,thriller'),
+    ('drama,romance,thriller'),
+    ('horror,romance,thriller'),
+    ('action,comedy,drama,horror'),
+    ('action,comedy,drama,romance'),
+    ('action,comedy,drama,thriller'),
+    ('action,comedy,horror,romance'),
+    ('action,comedy,horror,thriller'),
+    ('action,comedy,romance,thriller'),
+    ('action,drama,horror,romance'),
+    ('action,drama,horror,thriller'),
+    ('action,drama,romance,thriller'),
+    ('action,horror,romance,thriller'),
+    ('comedy,drama,horror,romance'),
+    ('comedy,drama,horror,thriller'),
+    ('comedy,drama,romance,thriller'),
+    ('comedy,horror,romance,thriller'),
+    ('drama,horror,romance,thriller'),
+    ('action,comedy,drama,horror,romance'),
+    ('action,comedy,drama,horror,thriller'),
+    ('action,comedy,drama,romance,thriller'),
+    ('action,comedy,horror,romance,thriller'),
+    ('action,drama,horror,romance,thriller'),
+    ('comedy,drama,horror,romance,thriller'),
+    ('action,comedy,drama,horror,romance,thriller');
+
+
+-- Insert Movie, Series, Anime in genres table
+INSERT INTO Genres (GenreName) VALUES ('movie'), ('series'), ('anime');
