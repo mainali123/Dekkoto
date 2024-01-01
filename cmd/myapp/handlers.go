@@ -193,14 +193,15 @@ func (app *application) uploadVideo(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to upload video",
+			"message": "Failed to upload video",
+			"success": false,
 		})
-		c.String(500, "Failed to upload video with error "+err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Video uploaded in the database successfully",
+		"success": true,
 	})
 }
 
@@ -220,32 +221,42 @@ func (app *application) terminateVideo(c *gin.Context) {
 	c.String(200, "Terminated successfully")
 }
 
-/*func (app *application) sendVideoDetailsToShow(c *gin.Context) {
-	// Response struct
-	type Video struct {
-		VideoTitle           string   `json:"title"`
-		VideoDescription     string   `json:"description"`
-		VideoStoragePath     string   `json:"videoStoragePath"`
-		ThumbnailStoragePath string   `json:"thumbnailStoragePath"`
-		UploaderId           string   `json:"uploaderId"`
-		VideoDuration        string   `json:"videoDuration"`
-		Genres               []string `json:"genres"`
-		Types                string   `json:"types"`
+// Data := map[string]interface{}
+var Data map[string]interface{}
+
+func (app *application) showVideos(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/adminTables.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
 	}
 
-	var videoData Video
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
 
-	videoData.VideoTitle = handler.VideoDetailsInfo.VideoTitle
-	videoData.VideoDescription = handler.VideoDetailsInfo.VideoDescription
-	videoData.VideoStoragePath = handler.VideoDetailsInfo.VideoStoragePath
-	videoData.ThumbnailStoragePath = handler.VideoDetailsInfo.ThumbnailStoragePath
-	videoData.UploaderId = handler.VideoDetailsInfo.UploaderId
-	videoData.VideoDuration = handler.VideoDetailsInfo.VideoDuration
-	videoData.Genres = handler.VideoDetailsInfo.Genres
-	videoData.Types = handler.VideoDetailsInfo.Types
+	// Get the userID from the context or session
+	userID := userInfo.UserId
 
+	// Call the videoDescForTable function with the userID
+	videos, err := app.database.videoDescForTable(userID)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Create a data map to hold the videos data
+	Data = map[string]interface{}{
+		"Videos": videos,
+	}
+}
+
+func (app *application) showVideosPost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Video details uploaded successfully",
-		"data":    videoData,
+		"message": "Video uploaded in the database successfully",
+		"success": true,
+		"videos":  Data,
 	})
-}*/
+}

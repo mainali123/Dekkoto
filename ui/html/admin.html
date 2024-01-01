@@ -2,10 +2,16 @@
 <html lang="en">
 
 <script src="../static/js/admin.js" defer></script>
+<script src="../static/js/viewTables.js" defer></script>
 
 <head>
     <meta charset="UTF-8">
     <title>Admin</title>
+
+<!--    Include necessary CSS and JS libraries-->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 </head>
 <body>
 <form action="" method="" class="form">
@@ -19,7 +25,7 @@
 
 <br><br>
 
-<form action="/uploadVideo" method="post" enctype="multipart/form-data">
+<form action="/uploadVideo" method="post" enctype="multipart/form-data" id="uploadVideoForm">
     <input type="file" name="video" required>
   <button type="submit">Upload video</button>
 </form>
@@ -89,3 +95,10 @@
 <form action="/terminateVideo" method="post">
     <button type="button">Cancel video</button>
 </form>
+
+<br><br>
+<button type="button" id="showVideos">Show videos</button>
+
+
+</body>
+</html>

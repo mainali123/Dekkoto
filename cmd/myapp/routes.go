@@ -14,10 +14,16 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/login", app.loginPostRequest)
 	router.POST("/register", app.registerPostRequest)
 
+	// For admin panel
 	router.GET("/adminPanel", app.admin)
 	router.POST("/uploadVideo", handler.HandleVideoUpload)
 	router.POST("/uploadThumbnail", handler.HandleThumbnailUpload)
 	router.POST("/videoDetails", handler.VideoDetails)
 	router.POST("/confirmVideo", app.uploadVideo)
 	router.POST("/terminateVideo", app.terminateVideo)
+
+	// For admin video RUD operations
+	router.GET("/showVideos", app.showVideos)
+	router.POST("/showVideosPost", app.showVideosPost)
+	router.POST("/editSelectedVideo", handler.EditSelectedVideo)
 }
