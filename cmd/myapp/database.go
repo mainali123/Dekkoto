@@ -92,6 +92,20 @@ func (db *databaseConn) getCategoryID(categoryName string) (int, error) {
 	return categoryID, nil
 }
 
+// Function to get category name based on category id
+func (db *databaseConn) getCategoryName(categoryID int) (string, error) {
+	var categoryName string
+	query := "SELECT CategoryName FROM categories WHERE CategoryID = ?"
+	err := db.DB.QueryRow(query, categoryID).Scan(&categoryName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", sql.ErrNoRows
+		}
+		return "", err
+	}
+	return categoryName, nil
+}
+
 // Function to fetch GenreID based on GenreName
 func (db *databaseConn) getGenreID(genreName string) (int, error) {
 	fmt.Println("From database: ", genreName)
@@ -108,6 +122,20 @@ func (db *databaseConn) getGenreID(genreName string) (int, error) {
 	}
 	fmt.Println("From database (genre id): ", genreID)
 	return genreID, nil
+}
+
+// Function to get genre name based on genre id
+func (db *databaseConn) getGenreName(genreID int) (string, error) {
+	var genreName string
+	query := "SELECT GenreName FROM genres WHERE GenreID = ?"
+	err := db.DB.QueryRow(query, genreID).Scan(&genreName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", sql.ErrNoRows
+		}
+		return "", err
+	}
+	return genreName, nil
 }
 
 type VideoDesc struct {

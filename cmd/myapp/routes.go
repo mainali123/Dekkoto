@@ -25,5 +25,11 @@ func (app *application) routes(router *gin.Engine) {
 	// For admin video RUD operations
 	router.GET("/showVideos", app.showVideos)
 	router.POST("/showVideosPost", app.showVideosPost)
-	router.POST("/editSelectedVideo", handler.EditSelectedVideo)
+	//router.GET("/editVideo/:videoID/:title/:description/:categoryID/:genreID", app.editVideo)
+	router.GET("/editVideo", app.editVideo)
+	router.POST("/editVideo", app.editVideoPost)
+	//router.POST("/editSelectedVideo", app.editVideoPost)
+
+	router.POST("/showCategoriesName", app.showCategoriesName)
+	router.POST("/showGenresName", app.showGenresName)
 }

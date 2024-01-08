@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="../static/js/viewTables.js" defer></script>
+    <script src="../static/js/adminEditVideo.js" defer></script>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form action="" method="post" enctype="multipart/form-data" id="editVideoForm">
+    <label for="title">Title</label>
+    <input type="text" name="title" id="title" required>
+
+    <label for="description">Description</label>
+    <input type="text" name="description" id="description" required>
+
+    <!-- Checkboxes to select genre(s) of the video -->
+    <fieldset>
+        <legend>Genre</legend>
+        <label for="action">
+            <input type="checkbox" name="genre" id="action" value="action">
+            Action
+        </label>
+        <label for="comedy">
+            <input type="checkbox" name="genre" id="comedy" value="comedy">
+            Comedy
+        </label>
+        <label for="drama">
+            <input type="checkbox" name="genre" id="drama" value="drama">
+            Drama
+        </label>
+        <label for="horror">
+            <input type="checkbox" name="genre" id="horror" value="horror">
+            Horror
+        </label>
+        <label for="romance">
+            <input type="checkbox" name="genre" id="romance" value="romance">
+            Romance
+        </label>
+        <label for="thriller">
+            <input type="checkbox" name="genre" id="thriller" value="thriller">
+            Thriller
+        </label>
+    </fieldset>
+
+    <!-- Checkboxes for types -->
+    <fieldset>
+        <legend>Type</legend>
+        <label for="movie">
+            <input type="radio" name="type" id="movie" value="movie" checked>
+            Movie
+        </label>
+        <label for="series">
+            <input type="radio" name="type" id="series" value="series">
+            Series
+        </label>
+        <label for="anime">
+            <input type="radio" name="type" id="anime" value="anime">
+            Anime
+        </label>
+    </fieldset>
+
+    <label for="thumbnail">Thumbnail</label>
+    <input type="file" name="thumbnail" id="thumbnail" required>
+
+    <button type="submit" id="submitEditedVideo">Submit</button>
+</form>
+
+</body>
+</html>
