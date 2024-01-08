@@ -27,6 +27,35 @@ function editVideo(videoID, title, description, categoryID, genreID, categoryNam
     window.location.href = '/editVideo'; // Change the URL to your desired location
 }
 
+function deleteVideo(videoID) {
+    console.log(videoID);
+    fetch('/deleteVideo', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // Specify content type as JSON
+        },
+        body: JSON.stringify({videoID: videoID}),
+    })
+        .then(response => {
+            // Check if the response is valid
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            alert('Video deleted successfully');
+            window.location.href = '/showVideos';
+        })
+        .then(data => {
+        })
+        .catch(error => {
+            // Handle errors
+            console.error('There was a problem with the fetch operation:', error);
+            // If error is TypeError: tableBody is null then don't show error in console
+            if (error.name !== 'TypeError') {
+                alert('There was a problem with the fetch operation:' + error);
+            }
+        });
+}
+
 fetch('/showVideosPost', {
     method: 'POST',
     headers: {
@@ -79,8 +108,6 @@ fetch('/showVideosPost', {
                         })
                         .then(data => {
                             // Data received from the backend
-                            console.log("Inside getCatName()")
-
                             categoryName = data.categoryName
                             return categoryName;
                         })
@@ -93,6 +120,7 @@ fetch('/showVideosPost', {
                             }
                         });
                 }
+
                 categoryName = await getCatName(video.CategoryID);
 
                 // Get the genre name
@@ -113,8 +141,6 @@ fetch('/showVideosPost', {
                         })
                         .then(data => {
                             // Data received from the backend
-                            console.log("Inside getGenreName()")
-
                             genreName = data.genreName
                             return genreName;
                         })
@@ -127,6 +153,7 @@ fetch('/showVideosPost', {
                             }
                         });
                 }
+
                 genreName = await getGenreName(video.GenreID);
 
 
@@ -140,11 +167,12 @@ fetch('/showVideosPost', {
                 <td>${video.Duration}</td>
                 <td>${categoryName}</td>
                 <td>${genreName}</td>
-<td><button class="btn btn-primary" onclick="editVideo('${video.VideoID}', '${video.Title}', '${video.Description}', '${video.CategoryID}', '${video.GenreID}', '${categoryName}', '${genreName}')">Edit</button></td>
+                <td><button class="btn btn-primary" onclick="editVideo('${video.VideoID}', '${video.Title}', '${video.Description}', '${video.CategoryID}', '${video.GenreID}', '${categoryName}', '${genreName}')">Edit</button></td>
                 <td><button class="btn btn-danger" onclick="deleteVideo(${video.VideoID})">Delete</button></td>
                 `;
             }
         }
+
         // Call the function to populate the table
         populateTable();
     })

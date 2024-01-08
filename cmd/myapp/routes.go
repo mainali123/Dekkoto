@@ -32,4 +32,7 @@ func (app *application) routes(router *gin.Engine) {
 
 	router.POST("/showCategoriesName", app.showCategoriesName)
 	router.POST("/showGenresName", app.showGenresName)
+
+	router.POST("/editVideoPost", app.updateVideoDetails)
+	router.POST("/deleteVideo", app.deleteVideo)
 }

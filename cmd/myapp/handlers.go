@@ -383,3 +383,97 @@ func (app *application) editVideoPost(c *gin.Context) {
 	})
 
 }
+
+func (app *application) updateVideoDetails(c *gin.Context) {
+	type Video struct {
+		VideoID     string `json:"videoID"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Genre       string `json:"genre"`
+		Type        string `json:"type"`
+	}
+
+	var videoData Video
+
+	// Bind the JSON data from the request to the userData struct
+	if err := c.ShouldBindJSON(&videoData); err != nil {
+		fmt.Println("Error binding JSON data")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+	fmt.Println(videoData)
+
+	// get the genre id
+	categoryID, err := app.database.getCategoryID(videoData.Genre)
+	if err != nil {
+		fmt.Println("Error getting genre id" + err.Error())
+		return
+	}
+
+	// get the category id
+	genreID, err := app.database.getGenreID(videoData.Type)
+	if err != nil {
+		fmt.Println("Error getting category id" + err.Error())
+		return
+	}
+
+	// convert video id to int
+	videoIDInt, err := strconv.Atoi(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error converting videoID to int" + err.Error())
+	}
+
+	// update the video details
+	err = app.database.videoDescForEdit(videoIDInt, videoData.Title, videoData.Description, categoryID, genreID)
+	if err != nil {
+		fmt.Println("Error updating video details" + err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video details updated successfully",
+		"success": true,
+	})
+}
+
+func (app *application) deleteVideo(c *gin.Context) {
+	type Video struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var videoData Video
+
+	if err := c.ShouldBindJSON(&videoData); err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	// convert video id to int
+	/*videoIDInt, err := strconv.Atoi(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error converting videoID to int:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid Video ID",
+		})
+		return
+	}*/
+
+	err := app.database.deleteVideo(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error deleting video:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete video",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video deleted successfully",
+		"success": true,
+	})
+}

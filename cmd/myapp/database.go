@@ -173,3 +173,22 @@ func (db *databaseConn) videoDescForTable(userID int) ([]VideoDesc, error) {
 	}
 	return videos, nil
 }
+
+func (db *databaseConn) videoDescForEdit(videoID int, title string, description string, category int, genre int) error {
+	// Update the video details in the database based on the videoID
+	query := "UPDATE videos SET Title = ?, Description = ?, CategoryID = ?, GenreID = ? WHERE VideoID = ?"
+	_, err := db.DB.Exec(query, title, description, category, genre, videoID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *databaseConn) deleteVideo(videoID int) error {
+	query := "DELETE FROM videos WHERE VideoID = ?"
+	_, err := db.DB.Exec(query, videoID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
