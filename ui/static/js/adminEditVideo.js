@@ -14,16 +14,20 @@ let typeElements = document.querySelectorAll('input[name="type"]');
 titleElement.value = vid_data.title;
 descriptionElement.value = vid_data.description;
 
+// Split the genres and types strings into arrays
+let genresArray = vid_data.categoryName.split(',');
+let typesArray = [vid_data.genreName];
+
 // Set the checked property of the genre checkboxes
 genreElements.forEach((checkbox) => {
-    if (vid_data.genres.includes(checkbox.value)) {
+    if (genresArray.includes(checkbox.value)) {
         checkbox.checked = true;
     }
 });
 
 // Set the checked property of the type radio buttons
 typeElements.forEach((radio) => {
-    if (vid_data.types === radio.value) {
+    if (typesArray.includes(radio.value)) {
         radio.checked = true;
     }
 });
