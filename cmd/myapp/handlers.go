@@ -193,14 +193,15 @@ func (app *application) uploadVideo(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to upload video",
+			"message": "Failed to upload video",
+			"success": false,
 		})
-		c.String(500, "Failed to upload video with error "+err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Video uploaded in the database successfully",
+		"success": true,
 	})
 }
 
@@ -220,32 +221,259 @@ func (app *application) terminateVideo(c *gin.Context) {
 	c.String(200, "Terminated successfully")
 }
 
-/*func (app *application) sendVideoDetailsToShow(c *gin.Context) {
-	// Response struct
+// Data := map[string]interface{}
+var Data map[string]interface{}
+
+func (app *application) showVideos(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/adminTables.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Get the userID from the context or session
+	userID := userInfo.UserId
+
+	// Call the videoDescForTable function with the userID
+	videos, err := app.database.videoDescForTable(userID)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Create a data map to hold the videos data
+	Data = map[string]interface{}{
+		"Videos": videos,
+	}
+}
+
+func (app *application) showVideosPost(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video uploaded in the database successfully",
+		"success": true,
+		"videos":  Data,
+	})
+}
+
+func (app *application) editVideo(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/adminEditVideo.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) showCategoriesName(c *gin.Context) {
+	type category struct {
+		CategoryID int `json:"categoryID"`
+	}
+	var categoryData category
+	if err := c.BindJSON(&categoryData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	categoryName, err := app.database.getCategoryName(categoryData.CategoryID)
+	if err != nil {
+		fmt.Println("Error getting category name")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":      "Category data fetched successfully",
+		"success":      true,
+		"categoryName": categoryName,
+	})
+}
+
+func (app *application) showGenresName(c *gin.Context) {
+	type genre struct {
+		GenreID int `json:"genreID"`
+	}
+	var genreData genre
+	if err := c.BindJSON(&genreData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	genreName, err := app.database.getGenreName(genreData.GenreID)
+	if err != nil {
+		fmt.Println("Error getting genre name")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "Genre data fetched successfully",
+		"success":   true,
+		"genreName": genreName,
+	})
+}
+
+func (app *application) editVideoPost(c *gin.Context) {
+	fmt.Println("edit video post")
+
+	//app.editVideo(c)
+
+	// get the data from the post request that was sent by JS
 	type Video struct {
-		VideoTitle           string   `json:"title"`
-		VideoDescription     string   `json:"description"`
-		VideoStoragePath     string   `json:"videoStoragePath"`
-		ThumbnailStoragePath string   `json:"thumbnailStoragePath"`
-		UploaderId           string   `json:"uploaderId"`
-		VideoDuration        string   `json:"videoDuration"`
-		Genres               []string `json:"genres"`
-		Types                string   `json:"types"`
+		VideoID     string `json:"videoID"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		CategoryID  string `json:"categoryID"`
+		GenreID     string `json:"genreID"`
 	}
 
 	var videoData Video
 
-	videoData.VideoTitle = handler.VideoDetailsInfo.VideoTitle
-	videoData.VideoDescription = handler.VideoDetailsInfo.VideoDescription
-	videoData.VideoStoragePath = handler.VideoDetailsInfo.VideoStoragePath
-	videoData.ThumbnailStoragePath = handler.VideoDetailsInfo.ThumbnailStoragePath
-	videoData.UploaderId = handler.VideoDetailsInfo.UploaderId
-	videoData.VideoDuration = handler.VideoDetailsInfo.VideoDuration
-	videoData.Genres = handler.VideoDetailsInfo.Genres
-	videoData.Types = handler.VideoDetailsInfo.Types
+	rawData, _ := c.GetRawData()
+	fmt.Println(string(rawData))
+
+	// Bind the JSON data from the request to the userData struct
+	if err := c.ShouldBindJSON(&videoData); err != nil {
+		fmt.Println("Error binding JSON data")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	fmt.Println(videoData)
+
+	// convert id to int
+	videoIDInt, err := strconv.Atoi(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error converting videoID to int")
+	}
+
+	genreIDInt, err := strconv.Atoi(videoData.GenreID)
+	if err != nil {
+		fmt.Println("Error converting genreID to int")
+	}
+
+	genreName, err := app.database.getGenreName(genreIDInt)
+	if err != nil {
+		fmt.Println("Error getting genre name")
+		return
+	}
+
+	// send the post request to the another js file to show the data in the form
+	c.JSON(http.StatusOK, gin.H{
+		"message":     "Video data fetched successfully",
+		"success":     true,
+		"videoID":     videoIDInt,
+		"title":       videoData.Title,
+		"description": videoData.Description,
+		"genreID":     genreName,
+	})
+
+}
+
+func (app *application) updateVideoDetails(c *gin.Context) {
+	type Video struct {
+		VideoID     string `json:"videoID"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Genre       string `json:"genre"`
+		Type        string `json:"type"`
+	}
+
+	var videoData Video
+
+	// Bind the JSON data from the request to the userData struct
+	if err := c.ShouldBindJSON(&videoData); err != nil {
+		fmt.Println("Error binding JSON data")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+	fmt.Println(videoData)
+
+	// get the genre id
+	categoryID, err := app.database.getCategoryID(videoData.Genre)
+	if err != nil {
+		fmt.Println("Error getting genre id" + err.Error())
+		return
+	}
+
+	// get the category id
+	genreID, err := app.database.getGenreID(videoData.Type)
+	if err != nil {
+		fmt.Println("Error getting category id" + err.Error())
+		return
+	}
+
+	// convert video id to int
+	videoIDInt, err := strconv.Atoi(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error converting videoID to int" + err.Error())
+	}
+
+	// update the video details
+	err = app.database.videoDescForEdit(videoIDInt, videoData.Title, videoData.Description, categoryID, genreID)
+	if err != nil {
+		fmt.Println("Error updating video details" + err.Error())
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Video details uploaded successfully",
-		"data":    videoData,
+		"message": "Video details updated successfully",
+		"success": true,
 	})
-}*/
+}
+
+func (app *application) deleteVideo(c *gin.Context) {
+	type Video struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var videoData Video
+
+	if err := c.ShouldBindJSON(&videoData); err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	// convert video id to int
+	/*videoIDInt, err := strconv.Atoi(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error converting videoID to int:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid Video ID",
+		})
+		return
+	}*/
+
+	err := app.database.deleteVideo(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error deleting video:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete video",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video deleted successfully",
+		"success": true,
+	})
+}

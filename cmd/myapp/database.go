@@ -92,6 +92,20 @@ func (db *databaseConn) getCategoryID(categoryName string) (int, error) {
 	return categoryID, nil
 }
 
+// Function to get category name based on category id
+func (db *databaseConn) getCategoryName(categoryID int) (string, error) {
+	var categoryName string
+	query := "SELECT CategoryName FROM categories WHERE CategoryID = ?"
+	err := db.DB.QueryRow(query, categoryID).Scan(&categoryName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", sql.ErrNoRows
+		}
+		return "", err
+	}
+	return categoryName, nil
+}
+
 // Function to fetch GenreID based on GenreName
 func (db *databaseConn) getGenreID(genreName string) (int, error) {
 	fmt.Println("From database: ", genreName)
@@ -108,4 +122,73 @@ func (db *databaseConn) getGenreID(genreName string) (int, error) {
 	}
 	fmt.Println("From database (genre id): ", genreID)
 	return genreID, nil
+}
+
+// Function to get genre name based on genre id
+func (db *databaseConn) getGenreName(genreID int) (string, error) {
+	var genreName string
+	query := "SELECT GenreName FROM genres WHERE GenreID = ?"
+	err := db.DB.QueryRow(query, genreID).Scan(&genreName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", sql.ErrNoRows
+		}
+		return "", err
+	}
+	return genreName, nil
+}
+
+type VideoDesc struct {
+	VideoID       int
+	Title         string
+	Description   string
+	URL           string
+	ThumbnailURL  string
+	UploaderID    int
+	UploadDate    string
+	ViewsCount    int
+	LikesCount    int
+	DislikesCount int
+	Duration      string
+	CategoryID    int
+	GenreID       int
+}
+
+func (db *databaseConn) videoDescForTable(userID int) ([]VideoDesc, error) {
+	query := "SELECT * FROM videos WHERE UploaderID = ?"
+	rows, err := db.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}
+
+func (db *databaseConn) videoDescForEdit(videoID int, title string, description string, category int, genre int) error {
+	// Update the video details in the database based on the videoID
+	query := "UPDATE videos SET Title = ?, Description = ?, CategoryID = ?, GenreID = ? WHERE VideoID = ?"
+	_, err := db.DB.Exec(query, title, description, category, genre, videoID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *databaseConn) deleteVideo(videoID int) error {
+	query := "DELETE FROM videos WHERE VideoID = ?"
+	_, err := db.DB.Exec(query, videoID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

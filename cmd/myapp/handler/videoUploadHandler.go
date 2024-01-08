@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -137,7 +138,11 @@ func HandleVideoUpload(c *gin.Context) {
 	err = os.Remove("./userUploadDatas/videos/" + fileName)
 	if err != nil {
 		fmt.Println("Failed to delete old file:", err) // Print out the error
-		c.String(500, "Failed to delete old file")
+		//c.String(500, "Failed to delete old file")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to delete old file",
+			"success": false,
+		})
 		return
 	}
 
@@ -145,8 +150,11 @@ func HandleVideoUpload(c *gin.Context) {
 	VideoDetailsInfo.VideoStoragePath = "./userUploadDatas/videos/" + fileName + "_encoded" + ".mp4"
 	VideoDetailsInfo.VideoDuration = duration
 
-	c.String(200, "File uploaded, converted to AV1, and old file deleted successfully")
-
+	//c.String(200, "File uploaded, converted to AV1, and old file deleted successfully")
+	c.JSON(http.StatusOK, gin.H{
+		"message": "File uploaded, converted to H.265, and old file deleted successfully",
+		"success": true,
+	})
 }
 
 func getVideoQuality(height int) string {

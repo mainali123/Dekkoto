@@ -15,10 +15,6 @@ function videoValueValidation() {
     const description = document.getElementById('description');
     const selectedTypes = document.querySelector('input[name="type"]:checked').value;
 
-    // const selectedGenres = Array.from(document.querySelectorAll('input[name="genre"]:checked')).map(checkbox => checkbox.value);
-    // const selectedTypes = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(checkbox => checkbox.value);
-
-
 console.log(selectedGenres);
     function validateTitle(title) {
         // Validate email
@@ -101,25 +97,35 @@ console.log(selectedGenres);
     });
 }
 
+document.getElementById('uploadVideoForm').addEventListener('submit', function(event) {
+    event.preventDefault();
 
+    var formData = new FormData();
+    var fileField = document.querySelector('input[type="file"]');
 
-// Get all the video details from the server
-/*
-function getVideoDetails() {
-    // Send a GET request to /videoDetails
-    fetch('/showVideoDetails', {
-        method: 'GET',
+    formData.append('video', fileField.files[0]);
+
+    fetch('/uploadVideo', {
+        method: 'POST',
+        body: formData
     })
         .then(function (response) {
             return response.json();
         })
         .then(function (jsonResponse) {
             // Display response back to user
-            console.log(jsonResponse);
-            alert(jsonResponse.message);
-            // window.location.href = jsonResponse.redirect;
+            if (jsonResponse.success) {
+                alert('Video upload successful: ' + jsonResponse.message);
+            } else {
+                alert('Video upload failed: ' + jsonResponse.message);
+            }
         })
         .catch(function (error) {
             console.log(error);
+            alert('An error occurred while uploading the video.');
         });
-}*/
+});
+
+document.getElementById('showVideos').addEventListener('click', function(event) {
+    window.location.href = "/showVideos";
+});
