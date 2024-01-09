@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// login handles the GET request from the /login and / routes. It also renders the login.html template.
 func (app *application) login(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/login.html")
 	if err != nil {
@@ -490,4 +491,19 @@ func (app *application) homePage(c *gin.Context) {
 		app.serverError(c.Writer, err)
 		return
 	}
+
+	videos, err := app.database.videosBrowser()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Create a data map to hold the videos data
+	Data = map[string]interface{}{
+		"Videos": videos,
+	}
+}
+
+func (app *application) homePageVideos(c *gin.Context) {
+
 }

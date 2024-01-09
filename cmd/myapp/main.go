@@ -52,6 +52,9 @@ func main() {
 	// load all the static files
 	router.Static("/static", "./ui/static")
 
+	// load all the images and videos from ./userUploadDatas
+	router.StaticFS("/userUploadDatas", http.Dir("./userUploadDatas"))
+
 	// call the routes function from routes.go
 	app.routes(router)
 

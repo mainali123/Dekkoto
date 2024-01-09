@@ -38,4 +38,5 @@ func (app *application) routes(router *gin.Engine) {
 
 	// For homepage
 	router.GET("/home", app.homePage)
+	router.POST("/home", app.homePageVideos)
 }

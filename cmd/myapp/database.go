@@ -174,6 +174,26 @@ func (db *databaseConn) videoDescForTable(userID int) ([]VideoDesc, error) {
 	return videos, nil
 }
 
+func (db *databaseConn) videosBrowser() ([]VideoDesc, error) {
+	query := "SELECT * FROM videos"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}
+
 func (db *databaseConn) videoDescForEdit(videoID int, title string, description string, category int, genre int) error {
 	// Update the video details in the database based on the videoID
 	query := "UPDATE videos SET Title = ?, Description = ?, CategoryID = ?, GenreID = ? WHERE VideoID = ?"
