@@ -477,3 +477,17 @@ func (app *application) deleteVideo(c *gin.Context) {
 		"success": true,
 	})
 }
+
+func (app *application) homePage(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/homePage.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}

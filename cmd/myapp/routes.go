@@ -35,4 +35,7 @@ func (app *application) routes(router *gin.Engine) {
 
 	router.POST("/editVideoPost", app.updateVideoDetails)
 	router.POST("/deleteVideo", app.deleteVideo)
+
+	// For homepage
+	router.GET("/home", app.homePage)
 }
