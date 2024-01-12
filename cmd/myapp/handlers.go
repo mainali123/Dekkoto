@@ -507,3 +507,17 @@ func (app *application) homePage(c *gin.Context) {
 func (app *application) homePageVideos(c *gin.Context) {
 
 }
+
+func (app *application) watchVideo(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/watchVideo.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}

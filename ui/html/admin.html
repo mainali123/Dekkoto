@@ -21,6 +21,7 @@
 </head>
 <body>
 
+<!--DON'T CHANGE THIS NAVIGATION BAR!!!-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="/home">Dekkoto</a>
@@ -47,20 +48,6 @@
     <input type="text" name="description" id="description" class="desc" placeholder="Enter description">
 
     <button type="submit">Add description</button>
-</form>
-
-<br><br>
-
-<form action="/uploadVideo" method="post" enctype="multipart/form-data" id="uploadVideoForm">
-    <input type="file" name="video" required>
-  <button type="submit">Upload video</button>
-</form>
-
-<br><br>
-
-<form action="/uploadThumbnail" method="post" enctype="multipart/form-data">
-    <input type="file" name="thumbnail" required>
-    <button type="submit">Upload thumbnail</button>
 </form>
 
 <br><br>
@@ -111,6 +98,21 @@
     </label>
 </fieldset>
 
+<br><br>
+
+<form action="/uploadVideo" method="post" enctype="multipart/form-data" id="uploadVideoForm">
+    <input type="file" name="video" required>
+  <button type="submit">Upload video</button>
+</form>
+
+<br><br>
+
+<form action="/uploadThumbnail" method="post" enctype="multipart/form-data">
+    <input type="file" name="thumbnail" required>
+    <button type="submit">Upload thumbnail</button>
+</form>
+
+<br><br>
 
 <br><br>
 
