@@ -212,3 +212,15 @@ func (db *databaseConn) deleteVideo(videoID int) error {
 	}
 	return nil
 }
+
+func (db *databaseConn) deleteVideoFromFile(videoID int) (string, string, error) {
+	// URL and ThumbnailURL of the video to be deleted
+	var videoURL string
+	var thumbnailURL string
+	query := "SELECT URL, ThumbnailURL FROM videos WHERE VideoID = ?"
+	err := db.DB.QueryRow(query, videoID).Scan(&videoURL, &thumbnailURL)
+	if err != nil {
+		return "", "", err
+	}
+	return videoURL, thumbnailURL, nil
+}

@@ -464,7 +464,34 @@ func (app *application) deleteVideo(c *gin.Context) {
 		return
 	}*/
 
-	err := app.database.deleteVideo(videoData.VideoID)
+	videoName, thumbnailName, err := app.database.deleteVideoFromFile(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error getting video name:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get video name",
+		})
+		return
+	}
+
+	deleteVideo := os.Remove(videoName)
+	if deleteVideo != nil {
+		fmt.Println("Error deleting video:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete video",
+		})
+		return
+	}
+
+	deleteThumbnail := os.Remove(thumbnailName)
+	if deleteThumbnail != nil {
+		fmt.Println("Error deleting thumbnail:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete thumbnail",
+		})
+		return
+	}
+
+	err = app.database.deleteVideo(videoData.VideoID)
 	if err != nil {
 		fmt.Println("Error deleting video:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
