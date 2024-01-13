@@ -1,6 +1,7 @@
 console.log("Homepage.js loaded")
 
-fetch('/showVideosPost', {
+// Recently Added Videos
+fetch('/recentlyAdded', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -15,7 +16,7 @@ fetch('/showVideosPost', {
 .then(data => {
     console.log(data)
     const videos = data.videos.Videos;
-    const videoContainer = document.querySelector('.card-video'); // Select the HTML element where you want to display the videos
+    const videoContainer = document.querySelector('.card-video-recently-added'); // Select the HTML element where you want to display the videos
 
     // Check if there are videos
     if (videos.length > 0) {
@@ -68,3 +69,6 @@ fetch('/showVideosPost', {
 .catch((error) => {
     console.error('Error:', error);
 });
+
+
+// Recommended Videos

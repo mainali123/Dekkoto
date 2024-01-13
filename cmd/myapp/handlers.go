@@ -548,3 +548,22 @@ func (app *application) watchVideo(c *gin.Context) {
 		return
 	}
 }
+
+func (app *application) recentlyAdded(c *gin.Context) {
+	videos, err := app.database.videosBrowser()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Create a data map to hold the videos data
+	Data = map[string]interface{}{
+		"Videos": videos,
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video uploaded in the database successfully",
+		"success": true,
+		"videos":  Data,
+	})
+}
