@@ -243,3 +243,23 @@ func (db *databaseConn) recentlyAddedVideos() ([]VideoDesc, error) {
 	}
 	return videos, nil
 }
+
+func (db *databaseConn) recommendedVideos() ([]VideoDesc, error) {
+	// show random 10 videos
+	query := "SELECT * FROM videos ORDER BY RAND() LIMIT 10"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}

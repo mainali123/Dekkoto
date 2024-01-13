@@ -562,8 +562,24 @@ func (app *application) recentlyAdded(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Video uploaded in the database successfully",
+		"message": "Recently added videos fetched successfully",
 		"success": true,
 		"videos":  Data,
+	})
+}
+
+func (app *application) recommendedVideos(c *gin.Context) {
+	// Call the recommendedVideos function with the userID
+	videos, err := app.database.recommendedVideos()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Recommended videos fetched successfully",
+		"success": true,
+		"videos":  videos,
 	})
 }
