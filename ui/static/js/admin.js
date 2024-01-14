@@ -40,9 +40,9 @@ console.log(selectedGenres);
         }
     }
 
-    form = document.querySelector('.form');
+    form = document.querySelector('.submit');
 
-    form.addEventListener('submit', function (event) {
+    form.addEventListener('click', function (event) {
         event.preventDefault();
         console.log("submitting form");
         // print the form data to the console
