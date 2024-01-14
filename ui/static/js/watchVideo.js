@@ -1,12 +1,28 @@
 console.log("hello world")
 
-// videoDetails:"{"VideoID":39,"Title":"Nezuko","Description":"desc","URL":"./userUploadDatas/videos/20240109161922.406048_0b177be7-2f42-4dcf-b4de-2399eb452b29_323500696560_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240109161922.406048_0b177be7-2f42-4dcf-b4de-2399eb452b29_323500696560.png","UploaderID":1,"UploadDate":"2024-01-09T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":6,"GenreID":1}"
-// get the video details from local storage
-
 let videoDetails = localStorage.getItem('videoDetails');
 // convert to JSON
 videoDetails = JSON.parse(videoDetails);
 console.log(videoDetails)
+
+// send a post request to the server only once
+fetch('/watchVideoPost', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json', // Specify content type as JSON
+    },
+    body: JSON.stringify(videoDetails),
+}).then(response => {
+    // Check if the response is valid
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+}).catch((error) => {
+    console.error('Error:', error);
+});
+
+// videoDetails:"{"VideoID":39,"Title":"Nezuko","Description":"desc","URL":"./userUploadDatas/videos/20240109161922.406048_0b177be7-2f42-4dcf-b4de-2399eb452b29_323500696560_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240109161922.406048_0b177be7-2f42-4dcf-b4de-2399eb452b29_323500696560.png","UploaderID":1,"UploadDate":"2024-01-09T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":6,"GenreID":1}"
+// get the video details from local storage
 
 // Select the video player and source elements
 let videoPlayer = document.getElementById('videoPlayer');

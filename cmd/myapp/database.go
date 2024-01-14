@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 )
 
 type databaseConn struct {
@@ -262,4 +263,46 @@ func (db *databaseConn) recommendedVideos() ([]VideoDesc, error) {
 		videos = append(videos, video)
 	}
 	return videos, nil
+}
+
+func (db *databaseConn) weeklyTop() ([]VideoDesc, error) {
+	query := "SELECT V.VideoID, V.Title, V.Description, V.URL, V.ThumbnailURL, V.UploaderID, V.UploadDate, V.ViewsCount, V.LikesCount, V.DislikesCount, V.Duration, V.CategoryID, V.GenreID FROM Videos V JOIN VideoActions VA ON V.VideoID = VA.VideoID WHERE VA.ActionsDate BETWEEN CURRENT_DATE - INTERVAL DAYOFWEEK(CURRENT_DATE) + 6 DAY AND CURRENT_DATE ORDER BY V.ViewsCount DESC LIMIT 10"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}
+
+func (db *databaseConn) videoActions(videoID int, userID int) error {
+	// check if the user have already action on the video
+	query := "SELECT * FROM videoactions WHERE VideoID = ? AND UserID = ?"
+	rows, err := db.DB.Query(query, videoID, userID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		// user have already action on the video
+	} else {
+		// user has not actioned on the video, so add the video to the VideoActions table
+		currentDate := time.Now().Format("2006-01-02") // format the date as YYYY-MM-DD
+		insertQuery := "INSERT INTO videoactions (UserID, VideoID, Watching, ActionsDate) VALUES (?, ?, 1, ?)"
+		_, err := db.DB.Exec(insertQuery, userID, videoID, currentDate)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

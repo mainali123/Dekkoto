@@ -549,6 +549,47 @@ func (app *application) watchVideo(c *gin.Context) {
 	}
 }
 
+func (app *application) watchVideoPost(c *gin.Context) {
+	type Video struct {
+		VideoID       int       `json:"VideoID"`
+		Title         string    `json:"Title"`
+		Description   string    `json:"Description"`
+		URL           string    `json:"URL"`
+		ThumbnailURL  string    `json:"ThumbnailURL"`
+		UploaderID    int       `json:"UploaderID"`
+		UploadDate    time.Time `json:"UploadDate"`
+		ViewsCount    int       `json:"ViewsCount"`
+		LikesCount    int       `json:"LikesCount"`
+		DislikesCount int       `json:"DislikesCount"`
+		Duration      string    `json:"Duration"`
+		CategoryID    int       `json:"CategoryID"`
+		GenreID       int       `json:"GenreID"`
+	}
+
+	var videoData Video
+
+	if err := c.ShouldBindJSON(&videoData); err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	// Now you can use videoData in your code
+	fmt.Println(videoData)
+
+	// send the videoID and the userID to the database
+	err := app.database.videoActions(videoData.VideoID, userInfo.UserId)
+	if err != nil {
+		fmt.Println("Error updating video actions:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to update video actions",
+		})
+		return
+	}
+}
+
 func (app *application) recentlyAdded(c *gin.Context) {
 	videos, err := app.database.videosBrowser()
 	if err != nil {
@@ -579,6 +620,21 @@ func (app *application) recommendedVideos(c *gin.Context) {
 	// Send the videos data as a JSON response
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Recommended videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) weeklyTop(c *gin.Context) {
+	videos, err := app.database.weeklyTop()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Weekly top videos fetched successfully",
 		"success": true,
 		"videos":  videos,
 	})

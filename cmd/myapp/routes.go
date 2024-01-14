@@ -42,6 +42,8 @@ func (app *application) routes(router *gin.Engine) {
 
 	// For watching videos
 	router.GET("/watchVideo", app.watchVideo)
+	router.POST("/watchVideoPost", app.watchVideoPost)
 	router.POST("/recentlyAdded", app.recentlyAdded)
 	router.POST("/recommendedVideos", app.recommendedVideos)
+	router.POST("/weeklyTop", app.weeklyTop)
 }
