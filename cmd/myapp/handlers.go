@@ -610,7 +610,6 @@ func (app *application) recentlyAdded(c *gin.Context) {
 }
 
 func (app *application) recommendedVideos(c *gin.Context) {
-	// Call the recommendedVideos function with the userID
 	videos, err := app.database.recommendedVideos()
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -660,6 +659,21 @@ func (app *application) continueWatching(c *gin.Context) {
 	// Send the videos data as a JSON response
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Continue watching videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) caroselSlide(c *gin.Context) {
+	videos, err := app.database.caroselSlide()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Recommended videos fetched successfully",
 		"success": true,
 		"videos":  videos,
 	})

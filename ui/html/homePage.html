@@ -14,23 +14,15 @@
 <body>
 
 <!--Video carousel-->
-<div id="carouselExample" class="carousel slide">
+<div id="carousel_video" class="carousel slide">
     <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img src="..." class="d-block w-100" alt="...">
-        </div>
-        <div class="carousel-item">
-            <img src="..." class="d-block w-100" alt="...">
-        </div>
-        <div class="carousel-item">
-            <img src="..." class="d-block w-100" alt="...">
-        </div>
+        <!-- Carousel items will be added here by JavaScript -->
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+    <button class="carousel-control-prev" type="button" data-bs-target="#carousel_video" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Previous</span>
     </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+    <button class="carousel-control-next" type="button" data-bs-target="#carousel_video" data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Next</span>
     </button>
@@ -132,4 +124,38 @@
         position: relative;
         z-index: 2;
     }
+
+
+/* Adjust the size of the carousel items */
+#carousel_video .carousel-item {
+    height: 50%; /* Make the carousel items take up the full height of the carousel */
+    max-height: 600px;
+    content: initial;
+}
+
+    #carousel_video .carousel-item {
+        position: relative; /* Make the carousel item a relative container for the mask */
+    }
+
+    #carousel_video .carousel-item::before {
+        content: ""; /* Create a pseudo-element */
+        position: absolute; /* Position it absolutely to cover the carousel item */
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.2); /* Black background with 50% opacity */
+        transition: opacity 0.3s; /* Transition for smooth fading */
+    }
+
+    #carousel_video .carousel-item:hover::before {
+        opacity: 0; /* Hide the mask on hover */
+    }
+
+/* Adjust the size of the images inside the carousel items */
+#carousel_video .carousel-item img {
+    width: 50%; /* Make the images take up the full width of the carousel item */
+    height: 50%; /* Make the images take up the full height of the carousel item */
+    object-fit: cover; /* Scale the images to cover the carousel item */
+}
 </style>

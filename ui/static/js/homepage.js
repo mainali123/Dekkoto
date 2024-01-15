@@ -277,3 +277,44 @@ fetch('/continueWatching', {
     .catch((error) => {
         console.error('Error:', error);
     });
+
+// carousel
+fetch('/caroselSlide', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+})
+.then(data => {
+    const videos = data.videos;
+    const videoContainer = document.querySelector('.carousel-inner'); // Select the HTML element where you want to display the videos
+
+    // Check if there are videos
+    if (videos.length > 0) {
+        videos.forEach((video, index) => {
+            // Create HTML elements for each video
+            const carouselItem = document.createElement('div');
+            carouselItem.className = index === 0 ? 'carousel-item active' : 'carousel-item';
+
+            const img = document.createElement('img');
+            img.className = 'd-block w-100';
+            img.src = '../../' + video.ThumbnailURL; // Adjust the path relative to the HTML file
+            img.alt = video.Title;
+
+            // Append the created HTML elements to the carousel item
+            carouselItem.appendChild(img);
+
+            // Append the carousel item to the video container
+            videoContainer.appendChild(carouselItem);
+        });
+    }
+})
+.catch((error) => {
+    console.error('Error:', error);
+});
