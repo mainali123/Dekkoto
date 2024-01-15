@@ -249,7 +249,7 @@ func (db *databaseConn) recentlyAddedVideos() ([]VideoDesc, error) {
 
 func (db *databaseConn) recommendedVideos() ([]VideoDesc, error) {
 	// show random 10 videos
-	query := "SELECT * FROM videos ORDER BY RAND() LIMIT 10"
+	query := "SELECT * FROM videos ORDER BY RAND() LIMIT 1"
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -297,11 +297,21 @@ func (db *databaseConn) videoActions(videoID int, userID int) error {
 
 	if rows.Next() {
 		// user have already action on the video
+		// update the ActionDate to current date
+		currentDate := time.Now().Format("2006-01-02") // format the date as YYYY-MM-DD
+		currentTime := time.Now().Format("15:04:05")   // format the time as HH:MM:SS
+		// update the ActionDate and ActionTime to current date and time
+		updateQuery := "UPDATE videoactions SET ActionsDate = ?, ActionTime = ? WHERE VideoID = ? AND UserID = ?"
+		_, err := db.DB.Exec(updateQuery, currentDate, currentTime, videoID, userID)
+		if err != nil {
+			return err
+		}
 	} else {
 		// user has not actioned on the video, so add the video to the VideoActions table
 		currentDate := time.Now().Format("2006-01-02") // format the date as YYYY-MM-DD
-		insertQuery := "INSERT INTO videoactions (UserID, VideoID, Watching, ActionsDate) VALUES (?, ?, 1, ?)"
-		_, err := db.DB.Exec(insertQuery, userID, videoID, currentDate)
+		currentTime := time.Now().Format("15:04:05")   // format the time as HH:MM:SS
+		insertQuery := "INSERT INTO videoactions (UserID, VideoID, Watching, ActionsDate, ActionTime) VALUES (?, ?, 1, ?, ?)"
+		_, err := db.DB.Exec(insertQuery, userID, videoID, currentDate, currentTime)
 		if err != nil {
 			return err
 		}
@@ -310,7 +320,7 @@ func (db *databaseConn) videoActions(videoID int, userID int) error {
 }
 
 func (db *databaseConn) continueWatching(userID int) ([]VideoDesc, error) {
-	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Watching = 1 ORDER BY ActionsDate DESC LIMIT 10", userID)
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Watching = 1 ORDER BY ActionsDate DESC, ActionTime DESC LIMIT 10", userID)
 	if err != nil {
 		return nil, err
 	}
@@ -335,7 +345,7 @@ func (db *databaseConn) continueWatching(userID int) ([]VideoDesc, error) {
 	}
 	videoIDsStr := strings.Join(videoIDStrs, ",")
 
-	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s)", videoIDsStr))
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s) ORDER BY FIELD(VideoID, %s)", videoIDsStr, videoIDsStr))
 	if err != nil {
 		return nil, err
 	}

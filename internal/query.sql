@@ -55,6 +55,7 @@ CREATE TABLE VideoActions
     Considering   TINYINT DEFAULT 0,
     Dropped       TINYINT DEFAULT 0,
     ActionsDate   DATE,
+    ActionTime    TIME,
     FOREIGN KEY (UserID) REFERENCES Users (UserID),
     FOREIGN KEY (VideoID) REFERENCES Videos (VideoID)
 );
