@@ -51,4 +51,5 @@ func (app *application) routes(router *gin.Engine) {
 
 	// For search page
 	router.GET("/search", app.search)
+	router.POST("/searchData", app.searchData)
 }

@@ -692,3 +692,43 @@ func (app *application) search(c *gin.Context) {
 		return
 	}
 }
+
+func (app *application) searchData(c *gin.Context) {
+	// get the value from the search bar
+	type Search struct {
+		SearchValue string `json:"search"`
+	}
+
+	var searchData Search
+
+	err := c.ShouldBindJSON(&searchData)
+	// if the value is empty then do nothing else return error
+	if err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	videos, err := app.database.searchVideos(searchData.SearchValue)
+
+	// print the json data
+	fmt.Println(videos)
+
+	if err != nil {
+		fmt.Println("Error getting search videos:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch search videos",
+			"success": false,
+		})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Search videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}

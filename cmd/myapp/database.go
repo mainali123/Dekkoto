@@ -382,3 +382,44 @@ func (db *databaseConn) caroselSlide() ([]VideoDesc, error) {
 	}
 	return videos, nil
 }
+
+func (db *databaseConn) searchVideos(searchQuery string) ([]VideoDesc, error) {
+	fmt.Println("Search query: ", searchQuery)
+	// IF the searchQuery is empty, return all the videos in ascending order of their title
+	if searchQuery == "" {
+		query1 := "SELECT * FROM videos ORDER BY Title ASC LIMIT 10"
+		rows, err := db.DB.Query(query1)
+		if err != nil {
+			return nil, err
+		}
+
+		var videos []VideoDesc
+		for rows.Next() {
+			var video VideoDesc
+			err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+			if err != nil {
+				return nil, err
+			}
+			videos = append(videos, video)
+		}
+		return videos, nil
+	}
+
+	query := "SELECT * FROM videos WHERE Title LIKE ?"
+	rows, err := db.DB.Query(query, "%"+searchQuery+"%")
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
