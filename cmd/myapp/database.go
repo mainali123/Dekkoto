@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -305,4 +307,48 @@ func (db *databaseConn) videoActions(videoID int, userID int) error {
 		}
 	}
 	return nil
+}
+
+func (db *databaseConn) continueWatching(userID int) ([]VideoDesc, error) {
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Watching = 1 ORDER BY ActionsDate DESC LIMIT 10", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videoIDs []int
+	for rows.Next() {
+		var videoID int
+		if err := rows.Scan(&videoID); err != nil {
+			return nil, err
+		}
+		videoIDs = append(videoIDs, videoID)
+	}
+
+	if len(videoIDs) == 0 {
+		return []VideoDesc{}, nil
+	}
+
+	videoIDStrs := make([]string, len(videoIDs))
+	for i, videoID := range videoIDs {
+		videoIDStrs[i] = strconv.Itoa(videoID)
+	}
+	videoIDsStr := strings.Join(videoIDStrs, ",")
+
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s)", videoIDsStr))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		if err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID); err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
 }

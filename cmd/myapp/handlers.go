@@ -639,3 +639,28 @@ func (app *application) weeklyTop(c *gin.Context) {
 		"videos":  videos,
 	})
 }
+
+func (app *application) continueWatching(c *gin.Context) {
+	videos, err := app.database.continueWatching(userInfo.UserId)
+	if err != nil {
+		if err.Error() == "no videos found" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "No videos found",
+				"success": false,
+			})
+			return // Add this line
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch continue watching videos",
+			"success": false,
+		})
+		return // And this line
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Continue watching videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}

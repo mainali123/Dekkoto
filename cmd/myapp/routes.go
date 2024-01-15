@@ -46,4 +46,5 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/recentlyAdded", app.recentlyAdded)
 	router.POST("/recommendedVideos", app.recommendedVideos)
 	router.POST("/weeklyTop", app.weeklyTop)
+	router.POST("/continueWatching", app.continueWatching)
 }
