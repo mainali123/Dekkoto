@@ -678,3 +678,17 @@ func (app *application) caroselSlide(c *gin.Context) {
 		"videos":  videos,
 	})
 }
+
+func (app *application) search(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/search.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
