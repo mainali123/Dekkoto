@@ -58,6 +58,13 @@ function createVideoElement(video) {
     newImg.alt = video.Title + " cover image"; // Use the Title property of the video object
     newImg.classList.add('cover-img');
 
+    // Add an event listener to the image
+    newImg.addEventListener('click', function() {
+        // save the video details in local storage
+        localStorage.setItem('videoDetails', JSON.stringify(video));
+        window.location.href = '/watchVideo'; // Redirect to the watch video page
+    });
+
     // Create a new div element for the info
     const infoDiv = document.createElement("div");
     infoDiv.classList.add('info');
