@@ -78,12 +78,16 @@ function createVideoElement(video) {
 
     // Create a new span element for the type
     const typeSpan = document.createElement("span");
-    typeSpan.textContent = "TV"; // Assuming the type is always "TV"
+    typeSpan.textContent = video.Genre; // Assuming the type is always "TV"
     typeSpan.classList.add('type');
 
     // Create a new span element for the status
     const statusSpan = document.createElement("span");
-    statusSpan.textContent = "completed"; // Assuming the status is always "completed"
+    // if video.Status is empty, set it to "Not watched"
+    if (video.Status === "") {
+        video.Status = "Not watched";
+    }
+    statusSpan.textContent = video.Status; // Assuming the status is always "completed"
     statusSpan.classList.add('status');
 
     // Append the type and status spans to the minor-infos div

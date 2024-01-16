@@ -383,41 +383,81 @@ func (db *databaseConn) caroselSlide() ([]VideoDesc, error) {
 	return videos, nil
 }
 
-func (db *databaseConn) searchVideos(searchQuery string) ([]VideoDesc, error) {
-	fmt.Println("Search query: ", searchQuery)
-	// IF the searchQuery is empty, return all the videos in ascending order of their title
+type VideosearchDesc struct {
+	VideoID       int
+	Title         string
+	Description   string
+	URL           string
+	ThumbnailURL  string
+	UploaderID    int
+	UploadDate    string
+	ViewsCount    int
+	LikesCount    int
+	DislikesCount int
+	Duration      string
+	CategoryID    int
+	GenreID       int
+	Genre         string
+	Status        string
+}
+
+func (db *databaseConn) searchVideos(searchQuery string, userID int) ([]VideosearchDesc, error) {
+	// Define the status fields
+	statusFields := []string{"Watching", "Completed", "On_hold", "Considering", "Dropped"}
+
+	// If the searchQuery is empty, return all the videos in ascending order of their title
 	if searchQuery == "" {
-		query1 := "SELECT * FROM videos ORDER BY Title ASC LIMIT 10"
-		rows, err := db.DB.Query(query1)
+		query1 := "SELECT V.*, G.GenreName, VA.Watching, VA.Completed, VA.On_hold, VA.Considering, VA.Dropped FROM videos V JOIN genres G ON V.GenreID = G.GenreID LEFT JOIN videoactions VA ON V.VideoID = VA.VideoID AND VA.UserID = ? ORDER BY V.Title ASC LIMIT 10"
+		rows, err := db.DB.Query(query1, userID)
 		if err != nil {
 			return nil, err
 		}
 
-		var videos []VideoDesc
+		var videos []VideosearchDesc
 		for rows.Next() {
-			var video VideoDesc
-			err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+			var video VideosearchDesc
+			var statusValues [5]*int
+			err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID, &video.Genre, &statusValues[0], &statusValues[1], &statusValues[2], &statusValues[3], &statusValues[4])
 			if err != nil {
 				return nil, err
 			}
+
+			// Set the status of the video
+			for i, status := range statusValues {
+				if status != nil && *status == 1 {
+					video.Status = statusFields[i]
+					break
+				}
+			}
+
 			videos = append(videos, video)
 		}
 		return videos, nil
 	}
 
-	query := "SELECT * FROM videos WHERE Title LIKE ?"
-	rows, err := db.DB.Query(query, "%"+searchQuery+"%")
+	query := "SELECT V.*, G.GenreName, VA.Watching, VA.Completed, VA.On_hold, VA.Considering, VA.Dropped FROM videos V JOIN genres G ON V.GenreID = G.GenreID LEFT JOIN videoactions VA ON V.VideoID = VA.VideoID AND VA.UserID = ? WHERE V.Title LIKE ?"
+	rows, err := db.DB.Query(query, userID, "%"+searchQuery+"%")
 	if err != nil {
 		return nil, err
 	}
 
-	var videos []VideoDesc
+	var videos []VideosearchDesc
 	for rows.Next() {
-		var video VideoDesc
-		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		var video VideosearchDesc
+		var statusValues [5]*int
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID, &video.Genre, &statusValues[0], &statusValues[1], &statusValues[2], &statusValues[3], &statusValues[4])
 		if err != nil {
 			return nil, err
 		}
+
+		// Set the status of the video
+		for i, status := range statusValues {
+			if status != nil && *status == 1 {
+				video.Status = statusFields[i]
+				break
+			}
+		}
+
 		videos = append(videos, video)
 	}
 

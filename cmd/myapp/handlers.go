@@ -711,7 +711,7 @@ func (app *application) searchData(c *gin.Context) {
 		return
 	}
 
-	videos, err := app.database.searchVideos(searchData.SearchValue)
+	videos, err := app.database.searchVideos(searchData.SearchValue, userInfo.UserId)
 
 	if err != nil {
 		fmt.Println("Error getting search videos:", err)
