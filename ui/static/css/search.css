@@ -6,7 +6,8 @@
 }
 
 .logo {
-    width: 5%
+    width: 30%;
+    height: 100%;
 }
 
 li {
@@ -15,27 +16,34 @@ li {
 
 h1 {
     color: #ec0033;
-    font-size: 36px;
+    font-size: 2.5rem;
     text-transform: uppercase;
-    padding: 0 2rem 0 1rem;
+    margin: 0 2rem 0 0;
 }
 
 .nav-bar,
 .head {
     display: flex;
-    align-items: center;;
+    align-items: center;
+    justify-content: space-between;
 }
+.head{
+    justify-content: flex-start;
+}
+
 .nav-bar{
     width: 100%;
-    height: 8vh;
+    height: 12vh;
+    margin: 20px 0;
 }
 
 ul {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    align-items: center;
-    width: 40%;
+    align-items: flex-end;
+    gap: 40px;
+    margin: 0 30px;
 }
 
 li a {

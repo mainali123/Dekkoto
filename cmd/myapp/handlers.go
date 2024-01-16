@@ -713,9 +713,6 @@ func (app *application) searchData(c *gin.Context) {
 
 	videos, err := app.database.searchVideos(searchData.SearchValue)
 
-	// print the json data
-	fmt.Println(videos)
-
 	if err != nil {
 		fmt.Println("Error getting search videos:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
