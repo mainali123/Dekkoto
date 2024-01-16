@@ -49,6 +49,10 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/continueWatching", app.continueWatching)
 	router.POST("/caroselSlide", app.caroselSlide)
 
+	// For video player
+	router.POST("/videoAction", app.videoAction)
+	router.POST("/videoActionChanged", app.videoActionChanged)
+
 	// For search page
 	router.GET("/search", app.search)
 	router.POST("/searchData", app.searchData)

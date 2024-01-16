@@ -729,3 +729,59 @@ func (app *application) searchData(c *gin.Context) {
 		"videos":  videos,
 	})
 }
+
+func (app *application) videoAction(c *gin.Context) {
+	type VideoID struct {
+		ID int `json:"id"`
+	}
+
+	var id VideoID
+
+	err := c.ShouldBindJSON(&id)
+	// if the value is empty then do nothing else return error
+	if err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	action, err := app.database.videoAction(id.ID, userInfo.UserId)
+	if err != nil {
+		fmt.Println("Error getting video action:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch video action",
+			"success": false,
+		})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video action fetched successfully",
+		"success": true,
+		"action":  action,
+	})
+}
+
+func (app *application) videoActionChanged(c *gin.Context) {
+	type UpdateValues struct {
+		VideoID int    `json:"videoID"`
+		Action  string `json:"action"`
+	}
+
+	var updateValues UpdateValues
+
+	err := c.ShouldBindJSON(&updateValues)
+	// if the value is empty then do nothing else return error
+	if err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.videoActionChanged(updateValues.VideoID, userInfo.UserId, updateValues.Action)
+}

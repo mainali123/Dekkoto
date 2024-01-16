@@ -463,3 +463,69 @@ func (db *databaseConn) searchVideos(searchQuery string, userID int) ([]Videosea
 
 	return videos, nil
 }
+
+func (db *databaseConn) videoAction(videoID int, userID int) (string, error) {
+	query := "SELECT Watching, Completed, On_hold, Considering, Dropped FROM videoactions WHERE VideoID = ? AND UserID = ?"
+	rows, err := db.DB.Query(query, videoID, userID)
+	if err != nil {
+		return "", err
+	}
+
+	var status string
+	for rows.Next() {
+		var watching, completed, onHold, considering, dropped int
+		err := rows.Scan(&watching, &completed, &onHold, &considering, &dropped)
+		if err != nil {
+			return "", err
+		}
+		if watching == 1 {
+			status = "Watching"
+		} else if completed == 1 {
+			status = "Completed"
+		} else if onHold == 1 {
+			status = "On_hold"
+		} else if considering == 1 {
+			status = "Considering"
+		} else if dropped == 1 {
+			status = "Dropped"
+		}
+	}
+	// convert the status to lowercase
+	status = strings.ToLower(status)
+	return status, nil
+}
+
+func (db *databaseConn) videoActionChanged(videoID int, userID int, status string) error {
+	// Convert the status to lowercase
+	status = strings.ToLower(status)
+
+	// Prepare the query
+	query := "UPDATE videoactions SET Watching = ?, Completed = ?, On_hold = ?, Considering = ?, Dropped = ? WHERE VideoID = ? AND UserID = ?"
+
+	// Initialize all status values to 0
+	watching, completed, onHold, considering, dropped := 0, 0, 0, 0, 0
+
+	// Depending on the status, set the corresponding value to 1
+	switch status {
+	case "watching":
+		watching = 1
+	case "completed":
+		completed = 1
+	case "on_hold":
+		onHold = 1
+	case "considering":
+		considering = 1
+	case "dropped":
+		dropped = 1
+	default:
+		return errors.New("invalid status")
+	}
+
+	// Execute the query
+	_, err := db.DB.Exec(query, watching, completed, onHold, considering, dropped, videoID, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

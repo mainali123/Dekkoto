@@ -5,6 +5,54 @@ let videoDetails = localStorage.getItem('videoDetails');
 videoDetails = JSON.parse(videoDetails);
 console.log(videoDetails)
 
+// Video action changed
+let videoID = videoDetails.VideoID;
+
+// Get the 'statusSelect' dropdown element
+let statusSelect = document.getElementById('statusSelect');
+
+// Send a POST request to the '/videoAction' endpoint
+fetch('/videoAction', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({id: videoID}),
+})
+    .then(response => response.json())
+    .then(data => {
+        // Use the returned string value to set the selected option in the 'statusSelect' dropdown
+        statusSelect.value = data.action;
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+
+// Update the value of changed action
+document.addEventListener('DOMContentLoaded', (event) => {
+    const statusSelect = document.getElementById('statusSelect');
+
+    statusSelect.addEventListener('change', () => {
+        let selectedStatus = statusSelect.value;
+        let videoID = videoDetails.VideoID; // Assuming videoDetails is globally available
+
+        fetch('/videoActionChanged', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({VideoID: videoID, Action: selectedStatus}),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+});
+
 // send a post request to the server only once
 fetch('/watchVideoPost', {
     method: 'POST',
