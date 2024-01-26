@@ -158,17 +158,17 @@ fetch('/showVideosPost', {
 
 
                 row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${video.Title}</td>
-                <td>${video.Description}</td>
-                <td>${new Date(video.UploadDate).toDateString()}</td>
-                <td>${video.ViewsCount}</td>
-                <td>${video.LikesCount}</td>
-                <td>${video.Duration}</td>
-                <td>${categoryName}</td>
-                <td>${genreName}</td>
-                <td><button class="btn btn-primary" onclick="editVideo('${video.VideoID}', '${video.Title}', '${video.Description}', '${video.CategoryID}', '${video.GenreID}', '${categoryName}', '${genreName}')">Edit</button></td>
-                <td><button class="btn btn-danger" onclick="deleteVideo(${video.VideoID})">Delete</button></td>
+                <td class="tdata">${index + 1}</td>
+                <td class="tdata">${video.Title}</td>
+                <td class="tdata">${video.Description}</td>
+                <td class="tdata">${new Date(video.UploadDate).toDateString()}</td>
+                <td class="tdata">${video.ViewsCount}</td>
+                <td class="tdata">${video.LikesCount}</td>
+                <td class="tdata">${video.Duration}</td>
+                <td class="tdata">${categoryName}</td>
+                <td class="tdata">${genreName}</td>
+                <td class="tdata"><button class="btn btn-primary submit" onclick="editVideo('${video.VideoID}', '${video.Title}', '${video.Description}', '${video.CategoryID}', '${video.GenreID}', '${categoryName}', '${genreName}')">Edit</button></td>
+                <td class="tdata"><button class="btn btn-danger submit" onclick="deleteVideo(${video.VideoID})">Delete</button></td>
                 `;
             }
         }

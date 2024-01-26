@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="../static/js/watchVideo.js" defer></script>
+</head>
+<body>
+
+<video id="videoPlayer" controls poster="">
+  <source id="videoSource" src="" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+<select id="speedSelect">
+  <option value="0.5">0.5x</option>
+  <option value="1.0" selected>Normal</option>
+  <option value="1.5">1.5x</option>
+  <option value="2.0">2.0x</option>
+</select>
+<button id="skipButton">+85</button>
+<button id="forwardSkipButton">+10</button>
+<button id="backwardSkipButton">-10</button>
+<button id="lockButton">Lock</button>
+<!--create a dropdown for watching, completed, on-hold, dropped-->
+<select id="statusSelect">
+  <option value="watching">Watching</option>
+  <option value="completed">Completed</option>
+  <option value="on-hold">On-Hold</option>
+  <option value="considering">Considering</option>
+  <option value="dropped">Dropped</option>
+</select>
+
+</body>
+</html>
+
+<style>
+  #videoPlayer {
+    /* match the width with browser width*/
+    width: 70%;
+  }
+  </style>

@@ -1,0 +1,143 @@
+.logo {
+    width: 30%;
+    height: 100%;
+}
+
+li {
+    list-style-type: none;
+}
+
+h1 {
+    color: #ec0033;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    margin: 0 2rem 0 0;
+}
+
+.nav-bar,
+.head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 !important;
+    position: relative;
+    z-index: 2;
+}
+
+.nav-bar::before {
+    content: '';
+    top: 0%;
+    position: absolute;
+    background: linear-gradient(rgba(0, 0, 0, 0.7)40%, rgba(0, 0, 0, 0) 60%);
+    height: 20rem;
+    width: 100%;
+
+}
+
+.head {
+    justify-content: flex-start;
+}
+
+.nav-bar {
+    width: 100%;
+    height: 12vh;
+}
+
+ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-end;
+    gap: 40px;
+    margin: 0 30px;
+}
+
+li a {
+    color: #a2a2a2;
+    font-size: 20px;
+    height: 100%;
+    position: relative;
+    text-transform: capitalize;
+}
+
+.active {
+    color: #fff;
+}
+
+li a:before,
+li a:after {
+    content: '';
+    border-bottom: solid 3px #019fb6;
+    transform: scaleX(0);
+    transition: transform 0.3s ease-in-out;
+}
+
+li a:before {
+    position: absolute;
+    bottom: -10px;
+    width: 55px;
+}
+
+li a:hover:after,
+li a:hover:before {
+    transform: scaleX(1);
+}
+
+
+
+.hamburger-menu {
+    width: 30px;
+    height: 40px;
+    opacity: 0;
+}
+
+
+@media only screen and (max-width:750px) {
+    .hamburger-menu {
+        cursor: pointer;
+        position: relative;
+        z-index: 10;
+        opacity: 1;
+        margin-left: 3rem;
+    }
+
+    ul {
+        flex-direction: column;
+        position: absolute;
+        transform: translateX(100%);
+        z-index: 10;
+        background-color: #019fb6;
+        width: 100%;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .nav-bar {
+        margin-top: 2rem;
+        align-items: flex-start;
+    }
+
+    ul li {
+        padding: 2rem;
+    }
+
+    .head {
+        margin-top: 0;
+    }
+
+
+
+    ul.clicked {
+        margin-top: 5rem;
+        transform: translate(-9%, 0%);
+    }
+
+    .nav-bar.clicked::before {
+        content: '';
+        width: 100vw;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+}

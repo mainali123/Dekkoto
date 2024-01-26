@@ -116,8 +116,8 @@ func HandleVideoUpload(c *gin.Context) {
 	}
 	//// Set hardware acceleration flags if supported
 	cmd.Env = append(os.Environ(),
-		"CUDA_VISIBLE_DEVICES=0",                  // Utilize the first GPU device
-		"FFREPORT=file=./ffmpeg_log.log:level=48") // Optional: create a log for debugging ffmpeg
+		"CUDA_VISIBLE_DEVICES=0", // Utilize the first GPU device
+	) // Optional: create a log for debugging ffmpeg
 
 	err = cmd.Run()
 	if err != nil {

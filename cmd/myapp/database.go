@@ -4,6 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type databaseConn struct {
@@ -174,6 +177,26 @@ func (db *databaseConn) videoDescForTable(userID int) ([]VideoDesc, error) {
 	return videos, nil
 }
 
+func (db *databaseConn) videosBrowser() ([]VideoDesc, error) {
+	query := "SELECT * FROM videos"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}
+
 func (db *databaseConn) videoDescForEdit(videoID int, title string, description string, category int, genre int) error {
 	// Update the video details in the database based on the videoID
 	query := "UPDATE videos SET Title = ?, Description = ?, CategoryID = ?, GenreID = ? WHERE VideoID = ?"
@@ -190,5 +213,341 @@ func (db *databaseConn) deleteVideo(videoID int) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (db *databaseConn) deleteVideoFromFile(videoID int) (string, string, error) {
+	// URL and ThumbnailURL of the video to be deleted
+	var videoURL string
+	var thumbnailURL string
+	// Delete related data from the VideoActions table
+	query := "DELETE FROM videoactions WHERE VideoID = ?"
+	_, err := db.DB.Exec(query, videoID)
+	if err != nil {
+		return "", "", err
+	}
+
+	// Delete related data from the Comments table
+	/*query = "DELETE FROM comments WHERE VideoID = ?"
+	_, err = db.DB.Exec(query, videoID)
+	if err != nil {
+		return "", "", err
+	}*/
+
+	query = "SELECT URL, ThumbnailURL FROM videos WHERE VideoID = ?"
+	err = db.DB.QueryRow(query, videoID).Scan(&videoURL, &thumbnailURL)
+	if err != nil {
+		return "", "", err
+	}
+
+	// Delete the video from the Videos table
+	query = "DELETE FROM videos WHERE VideoID = ?"
+	_, err = db.DB.Exec(query, videoID)
+	if err != nil {
+		return "", "", err
+	}
+
+	return videoURL, thumbnailURL, nil
+}
+
+func (db *databaseConn) recentlyAddedVideos() ([]VideoDesc, error) {
+	query := "SELECT * FROM videos ORDER BY UploadDate DESC LIMIT 10"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}
+
+func (db *databaseConn) recommendedVideos() ([]VideoDesc, error) {
+	// show random 10 videos
+	query := "SELECT * FROM videos ORDER BY RAND() LIMIT 1"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}
+
+func (db *databaseConn) weeklyTop() ([]VideoDesc, error) {
+	query := "SELECT V.VideoID, V.Title, V.Description, V.URL, V.ThumbnailURL, V.UploaderID, V.UploadDate, V.ViewsCount, V.LikesCount, V.DislikesCount, V.Duration, V.CategoryID, V.GenreID FROM Videos V JOIN VideoActions VA ON V.VideoID = VA.VideoID WHERE VA.ActionsDate BETWEEN CURRENT_DATE - INTERVAL DAYOFWEEK(CURRENT_DATE) + 6 DAY AND CURRENT_DATE ORDER BY V.ViewsCount DESC LIMIT 10"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}
+
+func (db *databaseConn) videoActions(videoID int, userID int) error {
+	// check if the user have already action on the video
+	query := "SELECT * FROM videoactions WHERE VideoID = ? AND UserID = ?"
+	rows, err := db.DB.Query(query, videoID, userID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		// user have already action on the video
+		// update the ActionDate to current date
+		currentDate := time.Now().Format("2006-01-02") // format the date as YYYY-MM-DD
+		currentTime := time.Now().Format("15:04:05")   // format the time as HH:MM:SS
+		// update the ActionDate and ActionTime to current date and time
+		updateQuery := "UPDATE videoactions SET ActionsDate = ?, ActionTime = ? WHERE VideoID = ? AND UserID = ?"
+		_, err := db.DB.Exec(updateQuery, currentDate, currentTime, videoID, userID)
+		if err != nil {
+			return err
+		}
+	} else {
+		// user has not actioned on the video, so add the video to the VideoActions table
+		currentDate := time.Now().Format("2006-01-02") // format the date as YYYY-MM-DD
+		currentTime := time.Now().Format("15:04:05")   // format the time as HH:MM:SS
+		insertQuery := "INSERT INTO videoactions (UserID, VideoID, Watching, ActionsDate, ActionTime) VALUES (?, ?, 1, ?, ?)"
+		_, err := db.DB.Exec(insertQuery, userID, videoID, currentDate, currentTime)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) continueWatching(userID int) ([]VideoDesc, error) {
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Watching = 1 ORDER BY ActionsDate DESC, ActionTime DESC LIMIT 10", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videoIDs []int
+	for rows.Next() {
+		var videoID int
+		if err := rows.Scan(&videoID); err != nil {
+			return nil, err
+		}
+		videoIDs = append(videoIDs, videoID)
+	}
+
+	if len(videoIDs) == 0 {
+		return []VideoDesc{}, nil
+	}
+
+	videoIDStrs := make([]string, len(videoIDs))
+	for i, videoID := range videoIDs {
+		videoIDStrs[i] = strconv.Itoa(videoID)
+	}
+	videoIDsStr := strings.Join(videoIDStrs, ",")
+
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s) ORDER BY FIELD(VideoID, %s)", videoIDsStr, videoIDsStr))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		if err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID); err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
+
+func (db *databaseConn) caroselSlide() ([]VideoDesc, error) {
+	// show random 10 videos
+	query := "SELECT * FROM videos ORDER BY RAND() LIMIT 10"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	return videos, nil
+}
+
+type VideosearchDesc struct {
+	VideoID       int
+	Title         string
+	Description   string
+	URL           string
+	ThumbnailURL  string
+	UploaderID    int
+	UploadDate    string
+	ViewsCount    int
+	LikesCount    int
+	DislikesCount int
+	Duration      string
+	CategoryID    int
+	GenreID       int
+	Genre         string
+	Status        string
+}
+
+func (db *databaseConn) searchVideos(searchQuery string, userID int) ([]VideosearchDesc, error) {
+	// Define the status fields
+	statusFields := []string{"Watching", "Completed", "On_hold", "Considering", "Dropped"}
+
+	// If the searchQuery is empty, return all the videos in ascending order of their title
+	if searchQuery == "" {
+		query1 := "SELECT V.*, G.GenreName, VA.Watching, VA.Completed, VA.On_hold, VA.Considering, VA.Dropped FROM videos V JOIN genres G ON V.GenreID = G.GenreID LEFT JOIN videoactions VA ON V.VideoID = VA.VideoID AND VA.UserID = ? ORDER BY V.Title ASC LIMIT 10"
+		rows, err := db.DB.Query(query1, userID)
+		if err != nil {
+			return nil, err
+		}
+
+		var videos []VideosearchDesc
+		for rows.Next() {
+			var video VideosearchDesc
+			var statusValues [5]*int
+			err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID, &video.Genre, &statusValues[0], &statusValues[1], &statusValues[2], &statusValues[3], &statusValues[4])
+			if err != nil {
+				return nil, err
+			}
+
+			// Set the status of the video
+			for i, status := range statusValues {
+				if status != nil && *status == 1 {
+					video.Status = statusFields[i]
+					break
+				}
+			}
+
+			videos = append(videos, video)
+		}
+		return videos, nil
+	}
+
+	query := "SELECT V.*, G.GenreName, VA.Watching, VA.Completed, VA.On_hold, VA.Considering, VA.Dropped FROM videos V JOIN genres G ON V.GenreID = G.GenreID LEFT JOIN videoactions VA ON V.VideoID = VA.VideoID AND VA.UserID = ? WHERE V.Title LIKE ?"
+	rows, err := db.DB.Query(query, userID, "%"+searchQuery+"%")
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []VideosearchDesc
+	for rows.Next() {
+		var video VideosearchDesc
+		var statusValues [5]*int
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID, &video.Genre, &statusValues[0], &statusValues[1], &statusValues[2], &statusValues[3], &statusValues[4])
+		if err != nil {
+			return nil, err
+		}
+
+		// Set the status of the video
+		for i, status := range statusValues {
+			if status != nil && *status == 1 {
+				video.Status = statusFields[i]
+				break
+			}
+		}
+
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
+
+func (db *databaseConn) videoAction(videoID int, userID int) (string, error) {
+	query := "SELECT Watching, Completed, On_hold, Considering, Dropped FROM videoactions WHERE VideoID = ? AND UserID = ?"
+	rows, err := db.DB.Query(query, videoID, userID)
+	if err != nil {
+		return "", err
+	}
+
+	var status string
+	for rows.Next() {
+		var watching, completed, onHold, considering, dropped int
+		err := rows.Scan(&watching, &completed, &onHold, &considering, &dropped)
+		if err != nil {
+			return "", err
+		}
+		if watching == 1 {
+			status = "Watching"
+		} else if completed == 1 {
+			status = "Completed"
+		} else if onHold == 1 {
+			status = "On_hold"
+		} else if considering == 1 {
+			status = "Considering"
+		} else if dropped == 1 {
+			status = "Dropped"
+		}
+	}
+	// convert the status to lowercase
+	status = strings.ToLower(status)
+	return status, nil
+}
+
+func (db *databaseConn) videoActionChanged(videoID int, userID int, status string) error {
+	// Convert the status to lowercase
+	status = strings.ToLower(status)
+
+	// Prepare the query
+	query := "UPDATE videoactions SET Watching = ?, Completed = ?, On_hold = ?, Considering = ?, Dropped = ? WHERE VideoID = ? AND UserID = ?"
+
+	// Initialize all status values to 0
+	watching, completed, onHold, considering, dropped := 0, 0, 0, 0, 0
+
+	// Depending on the status, set the corresponding value to 1
+	switch status {
+	case "watching":
+		watching = 1
+	case "completed":
+		completed = 1
+	case "on_hold":
+		onHold = 1
+	case "considering":
+		considering = 1
+	case "dropped":
+		dropped = 1
+	default:
+		return errors.New("invalid status")
+	}
+
+	// Execute the query
+	_, err := db.DB.Exec(query, watching, completed, onHold, considering, dropped, videoID, userID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

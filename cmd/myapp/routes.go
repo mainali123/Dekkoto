@@ -35,4 +35,25 @@ func (app *application) routes(router *gin.Engine) {
 
 	router.POST("/editVideoPost", app.updateVideoDetails)
 	router.POST("/deleteVideo", app.deleteVideo)
+
+	// For homepage
+	router.GET("/home", app.homePage)
+	router.POST("/home", app.homePageVideos)
+
+	// For watching videos
+	router.GET("/watchVideo", app.watchVideo)
+	router.POST("/watchVideoPost", app.watchVideoPost)
+	router.POST("/recentlyAdded", app.recentlyAdded)
+	router.POST("/recommendedVideos", app.recommendedVideos)
+	router.POST("/weeklyTop", app.weeklyTop)
+	router.POST("/continueWatching", app.continueWatching)
+	router.POST("/caroselSlide", app.caroselSlide)
+
+	// For video player
+	router.POST("/videoAction", app.videoAction)
+	router.POST("/videoActionChanged", app.videoActionChanged)
+
+	// For search page
+	router.GET("/search", app.search)
+	router.POST("/searchData", app.searchData)
 }

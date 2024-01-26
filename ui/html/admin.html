@@ -1,130 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <script src="../static/js/admin.js" defer></script>
 <script src="../static/js/viewTables.js" defer></script>
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin</title>
 
-<!--    Include necessary CSS and JS libraries-->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <!--    Include necessary CSS and JS libraries-->
+    <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"
+    />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+    />
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"></script>
+            crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="../static/css/admin.css" />
 </head>
 <body>
-
+<!--DON'T CHANGE THIS NAVIGATION BAR!!!-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Dekkoto</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" href="/home">Dekkoto</a>
+        <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+        >
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Upload</a>
+                    <a class="nav-link active" aria-current="page" href="/adminPanel"
+                    >Upload</a
+                    >
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Videos</a>
+                    <a class="nav-link" href="/showVideos">Videos</a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
 
 <form action="" method="" class="form">
-    <label for="title">Title</label>
-    <input type="text" name="title" id="title" class="title" placeholder="Enter title">
-    <label for="description">Description</label>
-    <input type="text" name="description" id="description" class="desc" placeholder="Enter description">
-
-    <button type="submit">Add description</button>
+    <label for="title" class="titl">Title</label>
+    <input
+            type="text"
+            name="title"
+            id="title"
+            class="title"
+            placeholder="Enter title"
+    />
+    <label for="description" class="descri">Description</label>
+    <input
+            type="text"
+            name="description"
+            id="description"
+            class="desc"
+            placeholder="Enter description"
+    />
 </form>
-
-<br><br>
-
-<form action="/uploadVideo" method="post" enctype="multipart/form-data" id="uploadVideoForm">
-    <input type="file" name="video" required>
-  <button type="submit">Upload video</button>
-</form>
-
-<br><br>
-
-<form action="/uploadThumbnail" method="post" enctype="multipart/form-data">
-    <input type="file" name="thumbnail" required>
-    <button type="submit">Upload thumbnail</button>
-</form>
-
-<br><br>
 
 <!-- Checkboxes to select genre(s) of the video -->
 <fieldset>
-    <legend>Genre</legend>
-    <label for="action">
-        <input type="checkbox" name="genre" id="action" value="action">
-        Action
-    </label>
-    <label for="comedy">
-        <input type="checkbox" name="genre" id="comedy" value="comedy">
-        Comedy
-    </label>
-    <label for="drama">
-        <input type="checkbox" name="genre" id="drama" value="drama">
-        Drama
-    </label>
-    <label for="horror">
-        <input type="checkbox" name="genre" id="horror" value="horror">
-        Horror
-    </label>
-    <label for="romance">
-        <input type="checkbox" name="genre" id="romance" value="romance">
-        Romance
-    </label>
-    <label for="thriller">
-        <input type="checkbox" name="genre" id="thriller" value="thriller">
-        Thriller
-    </label>
+    <div class="genre-div">
+        <legend>Genre</legend>
+        <label for="action">
+            <input type="checkbox" name="genre" id="action" value="action" />
+            Action
+        </label>
+        <label for="comedy">
+            <input type="checkbox" name="genre" id="comedy" value="comedy" />
+            Comedy
+        </label>
+        <label for="drama">
+            <input type="checkbox" name="genre" id="drama" value="drama" />
+            Drama
+        </label>
+        <label for="horror">
+            <input type="checkbox" name="genre" id="horror" value="horror" />
+            Horror
+        </label>
+        <label for="romance">
+            <input type="checkbox" name="genre" id="romance" value="romance" />
+            Romance
+        </label>
+        <label for="thriller">
+            <input type="checkbox" name="genre" id="thriller" value="thriller" />
+            Thriller
+        </label>
+    </div>
+
+    <!-- Checkboxes for types -->
+    <div class="movies-type">
+        <legend>Type</legend>
+        <label for="movie">
+            <input type="radio" name="type" id="movie" value="movie" checked />
+            Movie
+        </label>
+        <label for="series">
+            <input type="radio" name="type" id="series" value="series" />
+            Series
+        </label>
+        <label for="anime">
+            <input type="radio" name="type" id="anime" value="anime" />
+            Anime
+        </label>
+    </div>
 </fieldset>
 
-<!-- Checkboxes for types -->
-<fieldset>
-    <legend>Type</legend>
-    <label for="movie">
-        <input type="radio" name="type" id="movie" value="movie" checked>
-        Movie
-    </label>
-    <label for="series">
-        <input type="radio" name="type" id="series" value="series">
-        Series
-    </label>
-    <label for="anime">
-        <input type="radio" name="type" id="anime" value="anime">
-        Anime
-    </label>
-</fieldset>
+<button type="submit" class="submit">Add description</button>
 
+<div class="videos">
+    <form
+            action="/uploadVideo"
+            method="post"
+            enctype="multipart/form-data"
+            id="uploadVideoForm"
+            class="upload-vid"
+    >
+        <input type="file" name="video" required />
+        <button type="submit" class="upload">Upload video</button>
+    </form>
 
-<br><br>
+    <form
+            action="/uploadThumbnail"
+            method="post"
+            enctype="multipart/form-data"
+            class="upload-thumb"
+    >
+        <input type="file" name="thumbnail" required />
+        <button type="submit" class="thumb">Upload thumbnail</button>
+    </form>
+</div>
 
 <!--Give an option to select yes and no button to confirm video upload-->
-<form action="/confirmVideo" method="post">
-    <button type="submit">Confirm video</button>
-</form>
-<form action="/terminateVideo" method="post">
-    <button type="button">Cancel video</button>
-</form>
+<div class="confirmation">
+    <form action="/confirmVideo" method="post" class="confirm">
+        <button type="submit" class="confirm">Confirm video</button>
+    </form>
 
-<br><br>
-<button type="button" id="showVideos">Show videos</button>
+    <form action="/terminateVideo" method="post" class="cancel">
+        <button type="button" class="cancel">Cancel video</button>
+    </form>
+</div>
 
-
+<button type="button" id="showVideos" class="show">Show videos</button>
 </body>
 </html>

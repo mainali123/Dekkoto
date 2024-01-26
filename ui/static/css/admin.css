@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Sarala:wght@400;700&display=swap');
+:root {
+    --background: #0e121a;
+    --font-family: 'Sarala', sans-serif;
+    --header-color: #8b93ae;
+    --input-bg: #151820;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background);
+    font-family: var(--font-family);
+    color: var(--header-color);
+}
+
+form,
+fieldset {
+    margin-left: 2rem;
+}
+
+.form {
+    margin-top: 1em;
+    display: flex;
+    flex-direction: row;
+}
+
+.submit {
+    width: 91em;
+    padding: 1em;
+    background-color: var(--input-bg);
+    color: var(--header-color);
+    border: none;
+    margin: 1em;
+}
+
+.titl {
+    font-size: 35px;
+    color: var(--header-color);
+}
+
+.descri {
+    font-size: 30px;
+    color: var(--header-color);
+}
+
+input[type='text'] {
+    width: 20em;
+    height: 3em;
+    border: none;
+    background-color: var(--input-bg);
+    color: #fff;
+    padding: 1em;
+    margin-right: 1em;
+    margin-left: 2em;
+}
+
+input[type='text']:focus {
+    outline: none;
+}
+
+fieldset {
+    display: flex;
+    gap: 10em;
+}
+
+legend {
+    font-size: 35px;
+    margin-bottom: 0.5em;
+}
+
+.genre-div,
+.movies-type {
+    margin-top: 3em;
+    display: flex;
+    flex-direction: column;
+}
+
+.genre-div label,
+.movies-type label {
+    padding-bottom: 1em;
+}
+
+.videos,
+.confirmation {
+    margin: 2em 0;
+    display: flex;
+    gap: 10em;
+}
+
+.confirmation {
+    gap: 0;
+}
+
+.upload-vid,
+.upload-thumb {
+    display: flex;
+    flex-direction: column;
+}
+
+.upload,
+.thumb {
+    margin-top: 2em;
+    padding: 1em;
+    background-color: var(--input-bg);
+    color: var(--header-color);
+    border: none;
+}
+
+.confirm,
+.cancel,
+.show {
+    padding: 1em;
+    background-color: var(--input-bg);
+    color: var(--header-color);
+    border: none;
+}
+
+.show {
+    margin-left: 2em;
+}
+
+.confirm:hover {
+    scale: 0.98;
+}
+
+.show {
+    margin-bottom: 1em;
+}
+
+@media only screen and (max-width: 750px) {
+    .submit {
+        width: 23em;
+        margin-left: 2em;
+    }
+
+    .form,
+    .videos {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .videos{
+        gap: 1.5em;
+    }
+
+    .form label {
+        margin-bottom: 0.3em;
+    }
+
+    input[type='text'] {
+        margin-left: 0;
+        margin-bottom: 0.5em;
+        width: 22em;
+    }
+
+
+
+    .upload,
+    .thumb {
+        margin-top: 1em;
+        padding: 1em;
+        width: 23em;
+    }
+}

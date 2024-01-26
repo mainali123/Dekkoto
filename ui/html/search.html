@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../static/css/search.css"/>
+    <!-- <link rel="stylesheet" href="../static/css/navbar.css"/> -->
+    <title>Document</title>
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.4.2/css/all.css">
+
+</head>
+<body>
+<header class="nav-bar">
+    <div class="head">
+        <img src="../static/images/DEKKOTO.svg" alt="logo" class="logo"/>
+        <h1>dekkoto</h1>
+    </div>
+
+    <img
+            src="../static/images/hamburger-menu.svg"
+            alt="hamburger-menu"
+            class="hamburger-menu"
+            id="hamburger-menu"
+            onclick="hamburger()"
+    />
+    <ul>
+        <li><a href="/home">home</a></li>
+        <li><a href="profile.html">profile</a></li>
+        <li><a href="/search" class="active">search</a></li>
+        <li><a href="about.html">about</a></li>
+    </ul>
+</header>
+
+<main>
+    <form action="" class="search-bar">
+        <input type="text" placeholder="Search for video..." class="search-input" id="search"/>
+        <button type="submit" class="search-btn" id="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button id="filter-btn" class="filter-btn">
+            <i class="fa-solid fa-filter-list"></i>
+        </button>
+    </form>
+    <div class="result-container-wrapper">
+
+    </div>
+
+</main>
+
+<script src="../static/js/search.js"></script>
+</body>
+</html>

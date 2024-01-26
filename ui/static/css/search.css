@@ -1,0 +1,290 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    /* outline: 1px dotted red; */
+}
+
+.logo {
+    width: 30%;
+    height: 100%;
+}
+
+li {
+    list-style-type: none;
+}
+
+h1 {
+    color: #ec0033;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    margin: 0 2rem 0 0;
+}
+
+.nav-bar,
+.head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.head{
+    justify-content: flex-start;
+}
+
+.nav-bar{
+    width: 100%;
+    height: 12vh;
+    margin: 20px 0;
+}
+
+ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-end;
+    gap: 40px;
+    margin: 0 30px;
+}
+
+li a {
+    color: #a2a2a2;
+    font-size: 20px;
+    height: 100%;
+    position: relative;
+    text-transform: capitalize;
+    text-decoration:none;
+}
+
+.active {
+    color: #fff;
+}
+
+li a:before,
+li a:after {
+    content: '';
+    border-bottom: solid 3px #019fb6;
+    transform: scaleX(0);
+    transition: transform 0.3s ease-in-out;
+}
+
+li a:before {
+    position: absolute;
+    bottom: -10px;
+    width: 55px;
+}
+
+li a:hover:after,
+li a:hover:before {
+    transform: scaleX(1);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 81%),
+    linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 81%),
+    url('../images/deer-anim3.gif')
+            no-repeat center center/cover;
+}
+
+
+.result-container-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    margin: 100px 50px;
+    gap: 50px;
+}
+.results-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+
+}
+.search-bar{
+    width: 100%;
+    height: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 20px 0;
+    position: relative;
+}
+
+.search-input {
+    width: 70%;
+    padding: 15px 20px ;
+    height: max-content;
+    border-radius: 30px;
+    border: none;
+    font-size: 1.5rem;
+    font-family: Fira Mono;
+    color: #fff;
+    margin: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.473);
+
+}
+.search-input:focus{
+    outline: none;
+}
+.search-input::placeholder{
+    color: #c7c7c7;
+}
+.filter-btn{
+    right: 11vw !important;
+    background: none !important;
+    font-size: 1.5rem;
+}
+.search-bar button{
+    width: 70px;
+    height: 40px;
+    border-radius: 30px;
+    border: none;
+    background-color: rgba(255, 0, 0, 0.5);
+    margin-left: 1rem;
+    cursor: pointer;
+    color: #fff;
+    position: absolute;
+    right: 15.5vw;
+}
+
+
+
+.cover-img {
+    width: 258px;
+    height: 365px;
+    border-radius: 60px;
+    margin-right: 1rem;
+}
+
+.info {
+    margin: 4em 0;
+    font-family: Fira Mono;
+}
+
+.title {
+    font-size: 64px;
+    font-weight: 500;
+    color: #fff;
+    padding-bottom: 0.2em;
+}
+
+.alternate-title {
+    color: rgba(213, 211, 211, 0.77);
+    font-size: 40px;
+    font-weight: 500;
+    padding-bottom: 0.3em;
+}
+
+.type {
+    color: rgba(0, 255, 163, 0.6);
+    font-size: 40px;
+    font-weight: 500;
+    padding-right: 0.5em;
+}
+
+.status {
+    color: #00b2ff;
+    font-weight: 500;
+    font-size: 40px;
+    text-transform: uppercase;
+}
+
+.hamburger-menu {
+    width: 30px;
+    height: 40px;
+    opacity: 0;
+}
+
+@media screen and (max-width: 700px) {
+    body {
+        margin: 0;
+        padding: 0;
+        background-image: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 1) 0.5%,
+                rgba(0, 0, 0, 0) 75%,
+                rgba(14, 18, 26, 0.1) 75.1%,
+                rgba(14, 18, 26, 1) 100%
+        ),
+        url('../images/deer-anim3.gif');
+        background-repeat: no-repeat;
+        background-size: 100% 75%;
+        overflow: hidden;
+    }
+
+    .hamburger-menu {
+        cursor: pointer;
+        position: relative;
+        z-index: 10;
+        opacity: 1;
+        margin-left: 3rem;
+    }
+
+    ul {
+        flex-direction: column;
+        position: absolute;
+        transform: translateX(100%);
+        z-index: 10;
+        background-color: #019fb6;
+        width: 100%;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .nav-bar {
+        margin-top: 2rem;
+        align-items: flex-start;
+    }
+
+    ul li {
+        padding: 2rem;
+    }
+
+    .head {
+        margin-top: 0;
+    }
+
+    .cover-img {
+        width: 200px;
+        height: 220px;
+        border-radius: 30px;
+    }
+
+    .title {
+        font-size: 34px;
+    }
+
+    .alternate-title {
+        font-size: 20px;
+    }
+
+    .type {
+        font-size: 20px;
+    }
+
+    .status {
+        font-size: 20px;
+    }
+
+    .info{
+        margin: 0;
+    }
+
+    ul.clicked{
+        margin-top: 5rem;
+        transform: translate(-9%, 0%);
+    }
+
+    .nav-bar.clicked::before{
+        content: '';
+        width: 100vw;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        background-color:rgba(0,0,0,0.9);
+    }
+}

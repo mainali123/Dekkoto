@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// login handles the GET request from the /login and / routes. It also renders the login.html template.
 func (app *application) login(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/login.html")
 	if err != nil {
@@ -463,7 +464,34 @@ func (app *application) deleteVideo(c *gin.Context) {
 		return
 	}*/
 
-	err := app.database.deleteVideo(videoData.VideoID)
+	videoName, thumbnailName, err := app.database.deleteVideoFromFile(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error getting video name:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get video name",
+		})
+		return
+	}
+
+	deleteVideo := os.Remove(videoName)
+	if deleteVideo != nil {
+		fmt.Println("Error deleting video:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete video",
+		})
+		return
+	}
+
+	deleteThumbnail := os.Remove(thumbnailName)
+	if deleteThumbnail != nil {
+		fmt.Println("Error deleting thumbnail:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete thumbnail",
+		})
+		return
+	}
+
+	err = app.database.deleteVideo(videoData.VideoID)
 	if err != nil {
 		fmt.Println("Error deleting video:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -476,4 +504,284 @@ func (app *application) deleteVideo(c *gin.Context) {
 		"message": "Video deleted successfully",
 		"success": true,
 	})
+}
+
+func (app *application) homePage(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/homePage.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	videos, err := app.database.videosBrowser()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Create a data map to hold the videos data
+	Data = map[string]interface{}{
+		"Videos": videos,
+	}
+}
+
+func (app *application) homePageVideos(c *gin.Context) {
+
+}
+
+func (app *application) watchVideo(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/watchVideo.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) watchVideoPost(c *gin.Context) {
+	type Video struct {
+		VideoID       int       `json:"VideoID"`
+		Title         string    `json:"Title"`
+		Description   string    `json:"Description"`
+		URL           string    `json:"URL"`
+		ThumbnailURL  string    `json:"ThumbnailURL"`
+		UploaderID    int       `json:"UploaderID"`
+		UploadDate    time.Time `json:"UploadDate"`
+		ViewsCount    int       `json:"ViewsCount"`
+		LikesCount    int       `json:"LikesCount"`
+		DislikesCount int       `json:"DislikesCount"`
+		Duration      string    `json:"Duration"`
+		CategoryID    int       `json:"CategoryID"`
+		GenreID       int       `json:"GenreID"`
+	}
+
+	var videoData Video
+
+	if err := c.ShouldBindJSON(&videoData); err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	// Now you can use videoData in your code
+	fmt.Println(videoData)
+
+	// send the videoID and the userID to the database
+	err := app.database.videoActions(videoData.VideoID, userInfo.UserId)
+	if err != nil {
+		fmt.Println("Error updating video actions:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to update video actions",
+		})
+		return
+	}
+}
+
+func (app *application) recentlyAdded(c *gin.Context) {
+	videos, err := app.database.videosBrowser()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Create a data map to hold the videos data
+	Data = map[string]interface{}{
+		"Videos": videos,
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Recently added videos fetched successfully",
+		"success": true,
+		"videos":  Data,
+	})
+}
+
+func (app *application) recommendedVideos(c *gin.Context) {
+	videos, err := app.database.recommendedVideos()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Recommended videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) weeklyTop(c *gin.Context) {
+	videos, err := app.database.weeklyTop()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Weekly top videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) continueWatching(c *gin.Context) {
+	videos, err := app.database.continueWatching(userInfo.UserId)
+	if err != nil {
+		if err.Error() == "no videos found" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "No videos found",
+				"success": false,
+			})
+			return // Add this line
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch continue watching videos",
+			"success": false,
+		})
+		return // And this line
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Continue watching videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) caroselSlide(c *gin.Context) {
+	videos, err := app.database.caroselSlide()
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Recommended videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) search(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/search.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) searchData(c *gin.Context) {
+	// get the value from the search bar
+	type Search struct {
+		SearchValue string `json:"search"`
+	}
+
+	var searchData Search
+
+	err := c.ShouldBindJSON(&searchData)
+	// if the value is empty then do nothing else return error
+	if err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	videos, err := app.database.searchVideos(searchData.SearchValue, userInfo.UserId)
+
+	if err != nil {
+		fmt.Println("Error getting search videos:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch search videos",
+			"success": false,
+		})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Search videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) videoAction(c *gin.Context) {
+	type VideoID struct {
+		ID int `json:"id"`
+	}
+
+	var id VideoID
+
+	err := c.ShouldBindJSON(&id)
+	// if the value is empty then do nothing else return error
+	if err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	action, err := app.database.videoAction(id.ID, userInfo.UserId)
+	if err != nil {
+		fmt.Println("Error getting video action:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch video action",
+			"success": false,
+		})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video action fetched successfully",
+		"success": true,
+		"action":  action,
+	})
+}
+
+func (app *application) videoActionChanged(c *gin.Context) {
+	type UpdateValues struct {
+		VideoID int    `json:"videoID"`
+		Action  string `json:"action"`
+	}
+
+	var updateValues UpdateValues
+
+	err := c.ShouldBindJSON(&updateValues)
+	// if the value is empty then do nothing else return error
+	if err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.videoActionChanged(updateValues.VideoID, userInfo.UserId, updateValues.Action)
 }
