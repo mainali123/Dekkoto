@@ -52,6 +52,7 @@ li a {
     height: 100%;
     position: relative;
     text-transform: capitalize;
+    text-decoration:none;
 }
 
 .active {
