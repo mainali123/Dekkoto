@@ -18,6 +18,7 @@ func (app *application) routes(router *gin.Engine) {
 	router.GET("/adminPanel", app.admin)
 	router.POST("/uploadVideo", handler.HandleVideoUpload)
 	router.POST("/uploadThumbnail", handler.HandleThumbnailUpload)
+	router.POST("/uploadBanner", handler.HandleBannerUpload)
 	router.POST("/videoDetails", handler.VideoDetails)
 	router.POST("/confirmVideo", app.uploadVideo)
 	router.POST("/terminateVideo", app.terminateVideo)

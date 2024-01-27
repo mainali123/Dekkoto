@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-func HandleThumbnailUpload(c *gin.Context) {
-	file, header, err := c.Request.FormFile("thumbnail")
+func HandleBannerUpload(c *gin.Context) {
+	file, header, err := c.Request.FormFile("banner")
 	if err != nil {
 		c.String(500, "Failed to read file from request")
 		return
@@ -41,13 +41,13 @@ func HandleThumbnailUpload(c *gin.Context) {
 	bounds := img.Bounds()
 	width, height := bounds.Max.X, bounds.Max.Y
 
-	if width*16 != height*9 {
-		c.String(400, "Image does not have the correct aspect ratio for a thumbnail (9:16)")
+	if width*9 != height*16 {
+		c.String(400, "Image does not have the correct aspect ratio for a thumbnail (16:9)")
 		return
 	}
 
 	fileName := GfileName + ".png"
-	out, err := os.Create("./userUploadDatas/thumbnails/" + fileName)
+	out, err := os.Create("./userUploadDatas/banners/" + fileName)
 	if err != nil {
 		c.String(500, "Failed to create file")
 		return

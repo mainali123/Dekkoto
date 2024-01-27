@@ -1,3 +1,6 @@
+-- Create database dekkoto
+CREATE DATABASE dekkoto;
+
 -- Create Users table
 CREATE TABLE Users
 (
@@ -34,7 +37,7 @@ CREATE TABLE Videos
     ViewsCount    INT DEFAULT 0,
     LikesCount    INT DEFAULT 0,
     DislikesCount INT DEFAULT 0,
-    Duration      TIME,
+    Duration      VARCHAR(10),
     CategoryID    INT,
     GenreID       INT,
     FOREIGN KEY (UploaderID) REFERENCES Users (UserID),
