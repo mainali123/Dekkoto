@@ -1,3 +1,14 @@
+// Package handler provides various handlers for handling video uploads.
+//
+// The HandleVideoUpload function is the main function that handles video uploads.
+// It reads the video file from the request, saves it to a local directory,
+// gets the video's duration and quality, encodes the video to H.265 format,
+// and deletes the old file.
+//
+// The getVideoQuality function determines the quality of the video based on its height.
+//
+// The getVideoInfo function uses the ffprobe command to get the height and duration of the video.
+
 package handler
 
 import (
@@ -15,9 +26,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// Declare fileName as a global variable
+// GfileName is a global variable that stores the name of the uploaded file.
 var GfileName string
 
+// videoDetails is a struct that holds various details about the uploaded video.
 type videoDetails struct {
 	FileName             string   `json:"fileName"`
 	VideoTitle           string   `json:"videoTitle"`
@@ -30,8 +42,12 @@ type videoDetails struct {
 	Types                string   `json:"types"`
 }
 
+// VideoDetailsInfo is a global variable of type videoDetails that stores the details of the uploaded video.
 var VideoDetailsInfo videoDetails
 
+// HandleVideoUpload handles the video upload process. It reads the video file from the request,
+// saves it to a local directory, gets the video's duration and quality, encodes the video to H.265 format,
+// and deletes the old file.
 func HandleVideoUpload(c *gin.Context) {
 	file, _, err := c.Request.FormFile("video")
 	if err != nil {
@@ -157,6 +173,7 @@ func HandleVideoUpload(c *gin.Context) {
 	})
 }
 
+// getVideoQuality determines the quality of the video based on its height.
 func getVideoQuality(height int) string {
 	switch {
 	case height <= 240:
@@ -173,6 +190,7 @@ func getVideoQuality(height int) string {
 	}
 }
 
+// getVideoInfo uses the ffprobe command to get the height and duration of the video.
 func getVideoInfo(filePath string) (string, string, error) {
 	// Get video height
 	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=height", "-of", "default=noprint_wrappers=1:nokey=1", filePath)

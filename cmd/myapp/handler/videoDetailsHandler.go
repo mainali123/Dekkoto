@@ -1,3 +1,8 @@
+// Package handler provides various handlers for handling video details.
+//
+// The VideoDetails function is the main function that handles video details.
+// It reads the video details from the request, checks if the title and description are not empty,
+// and saves the details to a global variable.
 package handler
 
 import (
@@ -5,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// VideoDetails handles the video details process. It reads the video details from the request,
+// checks if the title and description are not empty, and saves the details to a global variable.
 func VideoDetails(c *gin.Context) {
 	type videoDetails struct {
 		VideoDescription string   `json:"description"`

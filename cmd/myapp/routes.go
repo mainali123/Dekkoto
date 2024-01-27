@@ -1,3 +1,12 @@
+// Package main provides various handlers for handling user requests.
+//
+// The functions in this file handle user requests for login, registration, video upload, video termination,
+// video display, video editing, video deletion, and other related operations.
+// The handlers interact with the database and the user interface to provide the required functionality.
+//
+// Global Variables:
+// Data is a global variable of type map with string keys and values of any type (interface{}).
+// It is used to hold various data, such as video information, that needs to be accessed across different functions.
 package main
 
 import (
@@ -5,6 +14,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// routes function is responsible for setting up the routes for the application.
+// It takes a gin.Engine as an argument and sets up the routes for the application.
+// The routes are defined for various operations like login, registration, video upload, video termination,
+// video display, video editing, video deletion, and other related operations.
+// Each route is associated with a handler function that handles the request for that route.
 func (app *application) routes(router *gin.Engine) {
 
 	// Define the route for the handlers
@@ -26,10 +40,8 @@ func (app *application) routes(router *gin.Engine) {
 	// For admin video RUD operations
 	router.GET("/showVideos", app.showVideos)
 	router.POST("/showVideosPost", app.showVideosPost)
-	//router.GET("/editVideo/:videoID/:title/:description/:categoryID/:genreID", app.editVideo)
 	router.GET("/editVideo", app.editVideo)
 	router.POST("/editVideo", app.editVideoPost)
-	//router.POST("/editSelectedVideo", app.editVideoPost)
 
 	router.POST("/showCategoriesName", app.showCategoriesName)
 	router.POST("/showGenresName", app.showGenresName)

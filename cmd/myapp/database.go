@@ -13,6 +13,12 @@ type databaseConn struct {
 	DB *sql.DB
 }
 
+// registerUser is a function that registers a new user in the database.
+// It takes in three parameters: userName, email, and password.
+// It first checks if a user with the provided email already exists in the database.
+// If the user exists, it returns an error.
+// If the user does not exist, it inserts a new user record into the database with the provided userName, email, and password.
+// It returns an error if the insertion fails.
 func (db *databaseConn) registerUser(userName string, email string, password string) error {
 	queryToCheckIfUserExists := "SELECT * FROM users WHERE Email = ?"
 	rows, err := db.DB.Query(queryToCheckIfUserExists, email)
@@ -34,6 +40,11 @@ func (db *databaseConn) registerUser(userName string, email string, password str
 	return nil
 }
 
+// loginUser is a function that logs in a user.
+// It takes in two parameters: email and password.
+// It checks if a user with the provided email and password exists in the database.
+// If the user exists, it returns nil.
+// If the user does not exist, it returns an error.
 func (db *databaseConn) loginUser(email string, password string) error {
 	queryToLoginUser := "SELECT * FROM users WHERE Email = ? AND Password = ?"
 	rows, err := db.DB.Query(queryToLoginUser, email, password)
@@ -49,6 +60,11 @@ func (db *databaseConn) loginUser(email string, password string) error {
 	return nil
 }
 
+// userId is a function that retrieves the user ID of a user.
+// It takes in one parameter: email.
+// It queries the database for the user ID of the user with the provided email.
+// It returns the user ID and nil if the user exists.
+// It returns 0 and an error if the user does not exist or if the query fails.
 func (db *databaseConn) userId(email string) (int, error) {
 	queryToGetUserId := "SELECT UserID FROM users WHERE Email = ?"
 	rows, err := db.DB.Query(queryToGetUserId, email)
@@ -67,6 +83,10 @@ func (db *databaseConn) userId(email string) (int, error) {
 	return userId, nil
 }
 
+// uploadVideo is a function that uploads a video.
+// It takes in several parameters including title, desc, videoUrl, thumbnailUrl, uploaderId, uploadDate, duration, categoryId, and genre.
+// It inserts a new video record into the database with the provided parameters.
+// It returns an error if the insertion fails.
 func (db *databaseConn) uploadVideo(title string, desc string, videoUrl string, thumbnailUrl string, uploaderId string, uploadDate string, duration string, categoryId int, genre int) error {
 	queryToInsertVideo := "INSERT INTO videos (Title, Description, URL, ThumbnailURL, UploaderID, UploadDate, ViewsCount, LikesCount, Duration, CategoryID, GenreID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	_, err := db.DB.Exec(queryToInsertVideo, title, desc, videoUrl, thumbnailUrl, uploaderId, uploadDate, 0, 0, duration, categoryId, genre)
@@ -76,7 +96,11 @@ func (db *databaseConn) uploadVideo(title string, desc string, videoUrl string, 
 	return nil
 }
 
-// Function to fetch CategoryID based on CategoryName
+// getCategoryID is a function that retrieves the category ID of a category.
+// It takes in one parameter: categoryName.
+// It queries the database for the category ID of the category with the provided categoryName.
+// It returns the category ID and nil if the category exists.
+// It returns 0 and an error if the category does not exist or if the query fails.
 func (db *databaseConn) getCategoryID(categoryName string) (int, error) {
 	fmt.Println("From database: ", categoryName)
 	var categoryID int
@@ -95,7 +119,11 @@ func (db *databaseConn) getCategoryID(categoryName string) (int, error) {
 	return categoryID, nil
 }
 
-// Function to get category name based on category id
+// getCategoryName is a function that retrieves the category name of a category.
+// It takes in one parameter: categoryID.
+// It queries the database for the category name of the category with the provided categoryID.
+// It returns the category name and nil if the category exists.
+// It returns an empty string and an error if the category does not exist or if the query fails.
 func (db *databaseConn) getCategoryName(categoryID int) (string, error) {
 	var categoryName string
 	query := "SELECT CategoryName FROM categories WHERE CategoryID = ?"
@@ -109,7 +137,11 @@ func (db *databaseConn) getCategoryName(categoryID int) (string, error) {
 	return categoryName, nil
 }
 
-// Function to fetch GenreID based on GenreName
+// getGenreID is a function that retrieves the genre ID of a genre.
+// It takes in one parameter: genreName.
+// It queries the database for the genre ID of the genre with the provided genreName.
+// It returns the genre ID and nil if the genre exists.
+// It returns 0 and an error if the genre does not exist or if the query fails.
 func (db *databaseConn) getGenreID(genreName string) (int, error) {
 	fmt.Println("From database: ", genreName)
 	var genreID int
@@ -127,7 +159,11 @@ func (db *databaseConn) getGenreID(genreName string) (int, error) {
 	return genreID, nil
 }
 
-// Function to get genre name based on genre id
+// getGenreName is a function that retrieves the genre name of a genre.
+// It takes in one parameter: genreID.
+// It queries the database for the genre name of the genre with the provided genreID.
+// It returns the genre name and nil if the genre exists.
+// It returns an empty string and an error if the genre does not exist or if the query fails.
 func (db *databaseConn) getGenreName(genreID int) (string, error) {
 	var genreName string
 	query := "SELECT GenreName FROM genres WHERE GenreID = ?"
@@ -141,6 +177,7 @@ func (db *databaseConn) getGenreName(genreID int) (string, error) {
 	return genreName, nil
 }
 
+// VideoDesc is a struct that represents the description of a video.
 type VideoDesc struct {
 	VideoID       int
 	Title         string
@@ -157,6 +194,11 @@ type VideoDesc struct {
 	GenreID       int
 }
 
+// videoDescForTable is a function that retrieves the video descriptions for a user.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos uploaded by the user with the provided userID.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) videoDescForTable(userID int) ([]VideoDesc, error) {
 	query := "SELECT * FROM videos WHERE UploaderID = ?"
 	rows, err := db.DB.Query(query, userID)
@@ -177,6 +219,11 @@ func (db *databaseConn) videoDescForTable(userID int) ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// videosBrowser is a function that retrieves all video descriptions.
+// It does not take any parameters.
+// It queries the database for the video descriptions of all videos.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) videosBrowser() ([]VideoDesc, error) {
 	query := "SELECT * FROM videos"
 	rows, err := db.DB.Query(query)
@@ -197,6 +244,10 @@ func (db *databaseConn) videosBrowser() ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// videoDescForEdit is a function that edits the details of a video.
+// It takes in several parameters including videoID, title, description, category, and genre.
+// It updates the video record in the database with the provided parameters.
+// It returns an error if the update fails.
 func (db *databaseConn) videoDescForEdit(videoID int, title string, description string, category int, genre int) error {
 	// Update the video details in the database based on the videoID
 	query := "UPDATE videos SET Title = ?, Description = ?, CategoryID = ?, GenreID = ? WHERE VideoID = ?"
@@ -207,6 +258,10 @@ func (db *databaseConn) videoDescForEdit(videoID int, title string, description 
 	return nil
 }
 
+// deleteVideo is a function that deletes a video.
+// It takes in one parameter: videoID.
+// It deletes the video record in the database with the provided videoID.
+// It returns an error if the deletion fails.
 func (db *databaseConn) deleteVideo(videoID int) error {
 	query := "DELETE FROM videos WHERE VideoID = ?"
 	_, err := db.DB.Exec(query, videoID)
@@ -216,6 +271,11 @@ func (db *databaseConn) deleteVideo(videoID int) error {
 	return nil
 }
 
+// deleteVideoFromFile is a function that deletes a video and its related data.
+// It takes in one parameter: videoID.
+// It deletes the video record and its related data in the VideoActions and Comments tables in the database with the provided videoID.
+// It returns the video URL, thumbnail URL, and nil if the deletion is successful.
+// It returns empty strings and an error if the deletion fails.
 func (db *databaseConn) deleteVideoFromFile(videoID int) (string, string, error) {
 	// URL and ThumbnailURL of the video to be deleted
 	var videoURL string
@@ -250,6 +310,11 @@ func (db *databaseConn) deleteVideoFromFile(videoID int) (string, string, error)
 	return videoURL, thumbnailURL, nil
 }
 
+// recentlyAddedVideos is a function that retrieves the recently added videos.
+// It does not take any parameters.
+// It queries the database for the video descriptions of the 10 most recently added videos.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) recentlyAddedVideos() ([]VideoDesc, error) {
 	query := "SELECT * FROM videos ORDER BY UploadDate DESC LIMIT 10"
 	rows, err := db.DB.Query(query)
@@ -269,6 +334,11 @@ func (db *databaseConn) recentlyAddedVideos() ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// recommendedVideos is a function that retrieves recommended videos.
+// It does not take any parameters.
+// It queries the database for the video description of a random video.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) recommendedVideos() ([]VideoDesc, error) {
 	// show random 10 videos
 	query := "SELECT * FROM videos ORDER BY RAND() LIMIT 1"
@@ -289,6 +359,11 @@ func (db *databaseConn) recommendedVideos() ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// weeklyTop is a function that retrieves the top videos of the week.
+// It does not take any parameters.
+// It queries the database for the video descriptions of the 10 videos with the most views in the past week.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) weeklyTop() ([]VideoDesc, error) {
 	query := "SELECT V.VideoID, V.Title, V.Description, V.URL, V.ThumbnailURL, V.UploaderID, V.UploadDate, V.ViewsCount, V.LikesCount, V.DislikesCount, V.Duration, V.CategoryID, V.GenreID FROM Videos V JOIN VideoActions VA ON V.VideoID = VA.VideoID WHERE VA.ActionsDate BETWEEN CURRENT_DATE - INTERVAL DAYOFWEEK(CURRENT_DATE) + 6 DAY AND CURRENT_DATE ORDER BY V.ViewsCount DESC LIMIT 10"
 	rows, err := db.DB.Query(query)
@@ -308,6 +383,12 @@ func (db *databaseConn) weeklyTop() ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// videoActions is a function that records a user's action on a video.
+// It takes in two parameters: videoID and userID.
+// It checks if the user has already actioned on the video.
+// If the user has already actioned on the video, it updates the ActionDate and ActionTime to the current date and time.
+// If the user has not actioned on the video, it adds the video to the VideoActions table.
+// It returns an error if the update or insertion fails.
 func (db *databaseConn) videoActions(videoID int, userID int) error {
 	// check if the user have already action on the video
 	query := "SELECT * FROM videoactions WHERE VideoID = ? AND UserID = ?"
@@ -341,6 +422,11 @@ func (db *databaseConn) videoActions(videoID int, userID int) error {
 	return nil
 }
 
+// continueWatching is a function that retrieves the videos that a user is currently watching.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the 10 most recently watched videos by the user with the provided userID.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) continueWatching(userID int) ([]VideoDesc, error) {
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Watching = 1 ORDER BY ActionsDate DESC, ActionTime DESC LIMIT 10", userID)
 	if err != nil {
@@ -385,6 +471,11 @@ func (db *databaseConn) continueWatching(userID int) ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// caroselSlide is a function that retrieves random videos for the carousel slide.
+// It does not take any parameters.
+// It queries the database for the video descriptions of 10 random videos.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) caroselSlide() ([]VideoDesc, error) {
 	// show random 10 videos
 	query := "SELECT * FROM videos ORDER BY RAND() LIMIT 10"
@@ -405,6 +496,7 @@ func (db *databaseConn) caroselSlide() ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// VideosearchDesc is a struct that represents the description of a video for search results.
 type VideosearchDesc struct {
 	VideoID       int
 	Title         string
@@ -423,6 +515,11 @@ type VideosearchDesc struct {
 	Status        string
 }
 
+// searchVideos is a function that searches for videos based on a search query.
+// It takes in two parameters: searchQuery and userID.
+// It queries the database for the video descriptions of the videos that match the search query.
+// It returns a slice of VideosearchDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) searchVideos(searchQuery string, userID int) ([]VideosearchDesc, error) {
 	// Define the status fields
 	statusFields := []string{"Watching", "Completed", "On_hold", "Considering", "Dropped"}
@@ -486,6 +583,11 @@ func (db *databaseConn) searchVideos(searchQuery string, userID int) ([]Videosea
 	return videos, nil
 }
 
+// videoAction is a function that retrieves the status of a user's action on a video.
+// It takes in two parameters: videoID and userID.
+// It queries the database for the status of the user's action on the video with the provided videoID.
+// It returns the status and nil if the query is successful.
+// It returns an empty string and an error if the query fails.
 func (db *databaseConn) videoAction(videoID int, userID int) (string, error) {
 	query := "SELECT Watching, Completed, On_hold, Considering, Dropped FROM videoactions WHERE VideoID = ? AND UserID = ?"
 	rows, err := db.DB.Query(query, videoID, userID)
@@ -517,6 +619,10 @@ func (db *databaseConn) videoAction(videoID int, userID int) (string, error) {
 	return status, nil
 }
 
+// videoActionChanged is a function that changes the status of a user's action on a video.
+// It takes in three parameters: videoID, userID, and status.
+// It updates the status of the user's action on the video with the provided videoID to the provided status.
+// It returns an error if the update fails.
 func (db *databaseConn) videoActionChanged(videoID int, userID int, status string) error {
 	// Convert the status to lowercase
 	status = strings.ToLower(status)

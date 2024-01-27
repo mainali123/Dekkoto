@@ -1,3 +1,11 @@
+// Package handler provides various handlers for handling thumbnail uploads.
+//
+// The HandleThumbnailUpload function is the main function that handles thumbnail uploads.
+// It reads the thumbnail file from the request, checks its aspect ratio, saves it to a local directory,
+// and encodes the image to PNG format.
+//
+// The aspect ratio of the thumbnail should be 16:9.
+
 package handler
 
 import (
@@ -10,6 +18,9 @@ import (
 	"strings"
 )
 
+// HandleThumbnailUpload handles the thumbnail upload process. It reads the thumbnail file from the request,
+// checks its aspect ratio, saves it to a local directory, and encodes the image to PNG format.
+// The aspect ratio of the thumbnail should be 16:9.
 func HandleThumbnailUpload(c *gin.Context) {
 	file, header, err := c.Request.FormFile("thumbnail")
 	if err != nil {

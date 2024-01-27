@@ -1,3 +1,11 @@
+// Package handler provides various handlers for handling banner uploads.
+//
+// The HandleBannerUpload function is the main function that handles banner uploads.
+// It reads the banner file from the request, checks its aspect ratio, saves it to a local directory,
+// and encodes the image to PNG format.
+//
+// The aspect ratio of the banner should be 16:9.
+
 package handler
 
 import (
@@ -10,6 +18,9 @@ import (
 	"strings"
 )
 
+// HandleBannerUpload handles the banner upload process. It reads the banner file from the request,
+// checks its aspect ratio, saves it to a local directory, and encodes the image to PNG format.
+// The aspect ratio of the banner should be 16:9.
 func HandleBannerUpload(c *gin.Context) {
 	file, header, err := c.Request.FormFile("banner")
 	if err != nil {
