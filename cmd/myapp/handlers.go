@@ -872,3 +872,17 @@ func (app *application) videoActionChanged(c *gin.Context) {
 
 	err = app.database.videoActionChanged(updateValues.VideoID, userInfo.UserId, updateValues.Action)
 }
+
+func (app *application) userProfile(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/profile.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
