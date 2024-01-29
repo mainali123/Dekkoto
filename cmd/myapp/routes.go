@@ -72,4 +72,11 @@ func (app *application) routes(router *gin.Engine) {
 
 	// For user profile
 	router.GET("/userProfile", app.userProfile)
+	router.POST("/videoDatas", app.videoDatas)
+	router.POST("/watchingVideos", app.watchingVideos)
+	router.POST("/onHoldVideos", app.onHoldVideos)
+	router.POST("/consideringVideos", app.consideringVideos)
+	router.POST("/recentlyCompletedVideos", app.recentlyCompletedVideos)
+	router.POST("/userDetails", app.userDetails)
+	router.GET("/quotes", app.quotesHandler)
 }

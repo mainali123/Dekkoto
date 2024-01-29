@@ -7,9 +7,13 @@ package main
 
 import (
 	"Dekkoto/cmd/myapp/handler"
+	"encoding/csv"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"html/template"
+	"io"
+	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
@@ -885,4 +889,157 @@ func (app *application) userProfile(c *gin.Context) {
 		app.serverError(c.Writer, err)
 		return
 	}
+}
+
+func (app *application) videoDatas(c *gin.Context) {
+	videos, err := app.database.userProfileVideosData(userInfo.UserId)
+	if err != nil {
+		fmt.Println("Error getting user profile videos:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch user profile videos",
+			"success": false,
+		})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User profile videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) watchingVideos(c *gin.Context) {
+	videos, err := app.database.watchingVideos(userInfo.UserId)
+	if err != nil {
+		fmt.Println("Error getting watching videos:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch watching videos",
+			"success": false,
+		})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Watching videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) onHoldVideos(c *gin.Context) {
+	videos, err := app.database.onHoldVideos(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch videos"})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "On-Hold videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) consideringVideos(c *gin.Context) {
+	videos, err := app.database.consideringVideos(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch videos"})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Considering videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) recentlyCompletedVideos(c *gin.Context) {
+	videos, err := app.database.recentlyCompletedVideos(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch videos"})
+		return
+	}
+
+	// Send the videos data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Recently completed videos fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) userDetails(c *gin.Context) {
+	userName, email, isAdmin, err := app.database.userDetails(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch user details"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "User details fetched successfully",
+		"success":  true,
+		"userName": userName,
+		"email":    email,
+		"isAdmin":  isAdmin,
+	})
+}
+
+func (app *application) quotesHandler(c *gin.Context) {
+
+	type Quote struct {
+		ID     string
+		Author string
+		Type   string
+		Text   string
+		Count  string
+	}
+
+	// Open the CSV file
+	f, err := os.Open("internal/Quotes.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	// Read the CSV file into a slice of Quote structs
+	quotes := make([]Quote, 0)
+	r := csv.NewReader(f)
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		quotes = append(quotes, Quote{
+			ID:     record[0],
+			Author: record[1],
+			Type:   record[2],
+			Text:   record[3],
+			Count:  record[4],
+		})
+	}
+
+	// Seed the random number generator
+	rand.Seed(time.Now().UnixNano())
+
+	// Generate a random index
+	index := rand.Intn(len(quotes))
+
+	// Get the quote and author at the random index
+	quote := quotes[index].Text
+	author := quotes[index].Author
+
+	// Return the quote and author
+	c.JSON(http.StatusOK, gin.H{
+		"quote":  quote,
+		"author": author,
+	})
 }
