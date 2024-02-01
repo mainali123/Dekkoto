@@ -62,6 +62,7 @@ func main() {
 	router.LoadHTMLGlob("ui/html/*")
 	router.Static("/static", "./ui/static")
 	router.StaticFS("/userUploadDatas", http.Dir("./userUploadDatas"))
+	router.StaticFS("/internalImages", http.Dir("./internal"))
 
 	// Set up the routes.
 	app.routes(router)
