@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../static/css/navbar.css" />
     <link rel="stylesheet" href="../static/css/profile.css" />
     <script src="../static/js/profile.js"></script>
+    <script src="../static/js/videoList.js"></script>
     <title>Profile</title>
 </head>
 <body>
@@ -30,7 +31,7 @@
         <li><a href="/home">home</a></li>
         <li><a href="/userProfile" class="active">profile</a></li>
         <li><a href="/search">search</a></li>
-        <li><a href="about.html">about</a></li>
+        <li><a href="/about">about</a></li>
     </ul>
 </div>
     <!-- nav bar yaha haal -->
@@ -41,42 +42,39 @@
         <!-- </div> -->
         <p class="user-name">Ayanokoji</p>
         <p class="user-bio">
-            wake up to reality nothing ever goes as planned in this cursed world
-            bla bla shit dude shut the fuck up no one wants to hear your yapping.
-            stop talking you yapping piece of shit. we are tired of listening to
-            your yapping for once please be quite.
+            BIO.
         </p>
     </div>
 </header>
 
 <main class="main-info-container">
     <summary class="user-stats-div">
-        <div class="recommends">
+        <div class="recommends" id="recommended_backend">
             <strong class="recommen">5</strong>
             <p class="recommended-animes">recommended</p>
         </div>
 
-        <div class="now-watching">
+        <div class="now-watching" id="watching_backend">
             <strong class="watch">5</strong>
             <p class="watching-animes">watching</p>
         </div>
 
-        <div class="completed">
+        <div class="completed" id="completed_backend">
             <strong class="compli">5</strong>
             <p class="completed-animes">completed</p>
         </div>
 
-        <div class="on-hold-anime">
+        <div class="on-hold-anime" id="on_hold_backend">
             <strong class="hold">5</strong>
             <p class="hold-animes">on-hold</p>
         </div>
 
-        <div class="considering">
+        <div class="considering" id="considering_backend">
             <strong class="consider">5</strong>
             <p class="considering-animes">considering</p>
         </div>
 
-        <div class="dropped">
+        <div class="dropped" id="dropped_backend">
             <strong class="drop">5</strong>
             <p class="dropped-animes">dropped</p>
         </div>

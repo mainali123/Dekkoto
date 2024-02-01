@@ -79,4 +79,14 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/recentlyCompletedVideos", app.recentlyCompletedVideos)
 	router.POST("/userDetails", app.userDetails)
 	router.GET("/quotes", app.quotesHandler)
+
+	// Videos List
+	router.GET("/videoslist", app.videoList)
+	router.POST("/videoslist", app.videoListPost)
+	router.POST("/recommendedVideoList", app.recommendedVideoList)
+	router.POST("/watchingVideoList", app.watchingVideoList)
+	router.POST("/completedVideoList", app.completedVideoList)
+	router.POST("/onHoldVideoList", app.onHoldVideoList)
+	router.POST("/consideringVideoList", app.consideringVideoList)
+	router.POST("/droppedVideoList", app.droppedVideoList)
 }

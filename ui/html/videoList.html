@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../static/js/videoList.js" defer></script>
+    <link rel="stylesheet" href="../static/css/login.css" />
+    <link rel="stylesheet" href="../static/css/videoList.css" />
+    <link rel="stylesheet" href="../static/css/navbar.css" />
+    <script src="../static/js/videoList.js"></script>
+    <title>VideoList</title>
+</head>
+<body>
+
+<header class="nav-bar">
+    <div class="head">
+        <img src="../static/images/DEKKOTO.svg" alt="logo" class="logo"/>
+        <h1>dekkoto</h1>
+    </div>
+
+    <img
+            src="../static/images/hamburger-menu.svg"
+            alt="hamburger-menu"
+            class="hamburger-menu"
+            id="hamburger-menu"
+            onclick="hamburger()"
+    />
+    <ul>
+        <li><a href="/home">home</a></li>
+        <li><a href="/userProfile" class="active">profile</a></li>
+        <li><a href="/search">search</a></li>
+        <li><a href="/about">about</a></li>
+    </ul>
+</header>
+
+<div class="card-video-continue-watching card-display">
+    <!--<div class="card">
+        <img
+                class="card-img-top"
+                src="../static/images/boruto.jpg"
+                data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}'
+        />
+        <p class="card-text">Title</p>
+        <p class="rating">0</p>
+        <div class="card-body"></div>
+    </div>-->
+
+    <!--<div class="card">
+        <img
+                class="card-img-top"
+                src="../static/images/boruto.jpg"
+                data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}'
+        />
+        <p class="card-text">Title</p>
+        <p class="rating">0</p>
+        <div class="card-body"></div>
+    </div>-->
+
+    <!--<div class="card">
+        <img
+                class="card-img-top"
+                src="../static/images/boruto.jpg"
+                data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}'
+        />
+        <p class="card-text">Title</p>
+        <p class="rating">0</p>
+        <div class="card-body"></div>
+    </div>-->
+
+    <!--<div class="card">
+        <img
+                class="card-img-top"
+                src="../static/images/boruto.jpg"
+                data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}'
+        />
+        <p class="card-text">lodu land madarchod gandu sala  chutiya bhosdike</p>
+        <p class="rating">0</p>
+        <div class="card-body"></div>
+    </div>-->
+
+    <!--<div class="card">
+        <img
+                class="card-img-top"
+                src="../static/images/boruto.jpg"
+                data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}'
+        />
+        <p class="card-text">Title</p>
+        <p class="rating">0</p>
+        <div class="card-body"></div>
+    </div>-->
+
+    <!--<div class="card">
+        <img
+                class="card-img-top"
+                src="../static/images/boruto.jpg"
+                data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}'
+        />
+        <p class="card-text">lodu land madarchod gandu sala  chutiya bhosdike</p>
+        <p class="rating">0</p>
+        <div class="card-body"></div>
+    </div>-->
+
+    <!--<div class="card">
+        <img
+                class="card-img-top"
+                src="../static/images/boruto.jpg"
+                data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}'
+        />
+        <p class="card-text">Title</p>
+        <p class="rating">0</p>
+        <div class="card-body"></div>
+    </div>-->
+</div>
+</body>
+</html>

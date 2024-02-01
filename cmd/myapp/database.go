@@ -939,3 +939,279 @@ func (db *databaseConn) userDetails(userID int) (string, string, string, error) 
 	}
 	return userName, email, isAdmin, nil
 }
+
+func (db *databaseConn) recommendedVideoListDatabase(userID int) ([]VideoDesc, error) {
+	// Query the videoactions table for videos that the user has recommended
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Recommends = 1", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videoIDs []int
+	for rows.Next() {
+		var videoID int
+		if err := rows.Scan(&videoID); err != nil {
+			return nil, err
+		}
+		videoIDs = append(videoIDs, videoID)
+	}
+
+	if len(videoIDs) == 0 {
+		return []VideoDesc{}, nil
+	}
+
+	videoIDStrs := make([]string, len(videoIDs))
+	for i, videoID := range videoIDs {
+		videoIDStrs[i] = strconv.Itoa(videoID)
+	}
+	videoIDsStr := strings.Join(videoIDStrs, ",")
+
+	// Query the videos table for the details of the videos
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s)", videoIDsStr))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		if err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID); err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
+
+func (db *databaseConn) watchingVideoListDatabase(userID int) ([]VideoDesc, error) {
+	// Query the videoactions table for videos that the user is currently watching
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Watching = 1", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videoIDs []int
+	for rows.Next() {
+		var videoID int
+		if err := rows.Scan(&videoID); err != nil {
+			return nil, err
+		}
+		videoIDs = append(videoIDs, videoID)
+	}
+
+	if len(videoIDs) == 0 {
+		return []VideoDesc{}, nil
+	}
+
+	videoIDStrs := make([]string, len(videoIDs))
+	for i, videoID := range videoIDs {
+		videoIDStrs[i] = strconv.Itoa(videoID)
+	}
+	videoIDsStr := strings.Join(videoIDStrs, ",")
+
+	// Query the videos table for the details of the videos
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s)", videoIDsStr))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		if err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID); err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
+
+func (db *databaseConn) completedVideoListDatabase(userID int) ([]VideoDesc, error) {
+	// Query the videoactions table for videos that the user has completed
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Completed = 1", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videoIDs []int
+	for rows.Next() {
+		var videoID int
+		if err := rows.Scan(&videoID); err != nil {
+			return nil, err
+		}
+		videoIDs = append(videoIDs, videoID)
+	}
+
+	if len(videoIDs) == 0 {
+		return []VideoDesc{}, nil
+	}
+
+	videoIDStrs := make([]string, len(videoIDs))
+	for i, videoID := range videoIDs {
+		videoIDStrs[i] = strconv.Itoa(videoID)
+	}
+	videoIDsStr := strings.Join(videoIDStrs, ",")
+
+	// Query the videos table for the details of the videos
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s)", videoIDsStr))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		if err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID); err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
+
+func (db *databaseConn) onHoldVideoListDatabase(userID int) ([]VideoDesc, error) {
+	// Query the videoactions table for videos that the user has put on hold
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND On_hold = 1", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videoIDs []int
+	for rows.Next() {
+		var videoID int
+		if err := rows.Scan(&videoID); err != nil {
+			return nil, err
+		}
+		videoIDs = append(videoIDs, videoID)
+	}
+
+	if len(videoIDs) == 0 {
+		return []VideoDesc{}, nil
+	}
+
+	videoIDStrs := make([]string, len(videoIDs))
+	for i, videoID := range videoIDs {
+		videoIDStrs[i] = strconv.Itoa(videoID)
+	}
+	videoIDsStr := strings.Join(videoIDStrs, ",")
+
+	// Query the videos table for the details of the videos
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s)", videoIDsStr))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		if err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID); err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
+
+func (db *databaseConn) consideringVideoListDatabase(userID int) ([]VideoDesc, error) {
+	// Query the videoactions table for videos that the user is considering
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Considering = 1", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videoIDs []int
+	for rows.Next() {
+		var videoID int
+		if err := rows.Scan(&videoID); err != nil {
+			return nil, err
+		}
+		videoIDs = append(videoIDs, videoID)
+	}
+
+	if len(videoIDs) == 0 {
+		return []VideoDesc{}, nil
+	}
+
+	videoIDStrs := make([]string, len(videoIDs))
+	for i, videoID := range videoIDs {
+		videoIDStrs[i] = strconv.Itoa(videoID)
+	}
+	videoIDsStr := strings.Join(videoIDStrs, ",")
+
+	// Query the videos table for the details of the videos
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s)", videoIDsStr))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		if err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID); err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
+
+func (db *databaseConn) droppedVideoListDatabase(userID int) ([]VideoDesc, error) {
+	// Query the videoactions table for videos that the user has dropped
+	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Dropped = 1", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videoIDs []int
+	for rows.Next() {
+		var videoID int
+		if err := rows.Scan(&videoID); err != nil {
+			return nil, err
+		}
+		videoIDs = append(videoIDs, videoID)
+	}
+
+	if len(videoIDs) == 0 {
+		return []VideoDesc{}, nil
+	}
+
+	videoIDStrs := make([]string, len(videoIDs))
+	for i, videoID := range videoIDs {
+		videoIDStrs[i] = strconv.Itoa(videoID)
+	}
+	videoIDsStr := strings.Join(videoIDStrs, ",")
+
+	// Query the videos table for the details of the videos
+	rows, err = db.DB.Query(fmt.Sprintf("SELECT * FROM videos WHERE VideoID IN (%s)", videoIDsStr))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var videos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		if err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID); err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}

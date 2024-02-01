@@ -1043,3 +1043,105 @@ func (app *application) quotesHandler(c *gin.Context) {
 		"author": author,
 	})
 }
+
+func (app *application) videoList(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/videoList.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) videoListPost(c *gin.Context) {
+
+}
+
+func (app *application) recommendedVideoList(c *gin.Context) {
+	videos, err := app.database.recommendedVideoListDatabase(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch recommended videos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User details fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) watchingVideoList(c *gin.Context) {
+	videos, err := app.database.watchingVideoListDatabase(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch watching videos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User details fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) completedVideoList(c *gin.Context) {
+	videos, err := app.database.completedVideoListDatabase(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch completed videos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User details fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) onHoldVideoList(c *gin.Context) {
+	videos, err := app.database.onHoldVideoListDatabase(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch on hold videos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User details fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) consideringVideoList(c *gin.Context) {
+	videos, err := app.database.consideringVideoListDatabase(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch considering videos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User details fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
+
+func (app *application) droppedVideoList(c *gin.Context) {
+	videos, err := app.database.droppedVideoListDatabase(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch dropped videos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User details fetched successfully",
+		"success": true,
+		"videos":  videos,
+	})
+}
