@@ -9,54 +9,42 @@
 package handler
 
 import (
+	_ "fmt"
 	"github.com/gin-gonic/gin"
 	"image"
+	_ "image/gif"
 	"image/jpeg"
-	"image/png"
+	_ "image/png"
+	_ "io"
 	"os"
-	"path/filepath"
-	"strings"
+	_ "path/filepath"
+	_ "strings"
+
+	"github.com/nfnt/resize"
 )
 
 // HandleThumbnailUpload handles the thumbnail upload process. It reads the thumbnail file from the request,
 // checks its aspect ratio, saves it to a local directory, and encodes the image to PNG format.
 // The aspect ratio of the thumbnail should be 16:9.
 func HandleThumbnailUpload(c *gin.Context) {
-	file, header, err := c.Request.FormFile("thumbnail")
+	file, _, err := c.Request.FormFile("thumbnail")
 	if err != nil {
 		c.String(500, "Failed to read file from request")
 		return
 	}
 	defer file.Close()
 
-	var img image.Image
-	switch strings.ToLower(filepath.Ext(header.Filename)) {
-	case ".jpg", ".jpeg":
-		img, err = jpeg.Decode(file)
-		if err != nil {
-			c.String(500, "Failed to decode JPEG file")
-			return
-		}
-	case ".png":
-		img, err = png.Decode(file)
-		if err != nil {
-			c.String(500, "Failed to decode PNG file")
-			return
-		}
-	default:
-		c.String(500, "Unsupported file format")
+	// Decode the image
+	img, _, err := image.Decode(file)
+	if err != nil {
+		c.String(500, "Failed to decode image file")
 		return
 	}
 
-	// Check if the image has the correct aspect ratio for a thumbnail (16:9)
-	bounds := img.Bounds()
-	width, height := bounds.Max.X, bounds.Max.Y
+	// Resize the image to 1080x1920
+	thumbnail := resize.Resize(1080, 1920, img, resize.Lanczos3)
 
-	if width*16 != height*9 {
-		c.String(400, "Image does not have the correct aspect ratio for a thumbnail (9:16)")
-		return
-	}
-
+	// Compress and save the thumbnail as png
 	fileName := GfileName + ".png"
 	out, err := os.Create("./userUploadDatas/thumbnails/" + fileName)
 	if err != nil {
@@ -65,12 +53,16 @@ func HandleThumbnailUpload(c *gin.Context) {
 	}
 	defer out.Close()
 
-	err = png.Encode(out, img)
+	// Encode the thumbnail as JPEG with quality set to 80
+	opt := jpeg.Options{Quality: 80}
+	err = jpeg.Encode(out, thumbnail, &opt)
 	if err != nil {
-		c.String(500, "Failed to encode image to PNG")
+		c.String(500, "Failed to encode image to JPEG")
 		return
 	}
+
+	// Provide the storage path
 	VideoDetailsInfo.ThumbnailStoragePath = "./userUploadDatas/thumbnails/" + fileName
 
-	c.String(200, "File uploaded and converted to PNG successfully")
+	c.String(200, "File uploaded and converted to 1080x1920 successfully")
 }

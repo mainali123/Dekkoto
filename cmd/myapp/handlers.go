@@ -543,6 +543,19 @@ func (app *application) deleteVideo(c *gin.Context) {
 		return
 	}
 
+	// Replace 'thumbnails' with 'banners' in the thumbnailName to get the bannerName
+	bannerName := strings.Replace(thumbnailName, "thumbnails", "banners", 1)
+
+	// Delete the banner file
+	deleteBanner := os.Remove(bannerName)
+	if deleteBanner != nil {
+		fmt.Println("Error deleting banner:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete banner",
+		})
+		return
+	}
+
 	err = app.database.deleteVideo(videoData.VideoID)
 	if err != nil {
 		fmt.Println("Error deleting video:", err)

@@ -63,6 +63,7 @@ func main() {
 	router.Static("/static", "./ui/static")
 	router.StaticFS("/userUploadDatas", http.Dir("./userUploadDatas"))
 	router.StaticFS("/internalImages", http.Dir("./internal"))
+	router.StaticFS("/favicon.ico", http.Dir("./internal/favicon.ico"))
 
 	// Set up the routes.
 	app.routes(router)

@@ -93,43 +93,18 @@ func HandleVideoUpload(c *gin.Context) {
 	// Encode the video
 	// if the quality of video is 1080p or higher
 	var cmd *exec.Cmd
-	if qualityInt >= 1080 {
-		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-			"-i",
-			"./userUploadDatas/videos/"+fileName,
-			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-			"-b:v", "6M",
-			"-crf", "26", // Lower CRF for better quality
-			"-preset", "fast", // Adjust preset according to speed/quality trade-off
-			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
-	} else if qualityInt > 720 && qualityInt < 1080 {
-		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-			"-i",
-			"./userUploadDatas/videos/"+fileName,
-			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-			"-b:v", "4M",
-			"-crf", "12", // Lower CRF for better quality
-			"-preset", "fast", // Adjust preset according to speed/quality trade-off
-			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
-	} else if qualityInt > 480 && qualityInt <= 720 {
-		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-			"-i",
-			"./userUploadDatas/videos/"+fileName,
-			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-			"-b:v", "2M",
-			"-crf", "8", // Lower CRF for better quality
-			"-preset", "fast", // Adjust preset according to speed/quality trade-off
-			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
-	} else {
-		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-			"-i",
-			"./userUploadDatas/videos/"+fileName,
-			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-			"-b:v", "0.3M",
-			"-crf", "2", // Lower CRF for better quality
-			"-preset", "fast", // Adjust preset according to speed/quality trade-off
-			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
+
+	switch {
+	case qualityInt >= 1080:
+		cmd = encodeVideo(fileName, "4M", "28", "fast", "1280x720")
+	case qualityInt > 720 && qualityInt < 1080:
+		cmd = encodeVideo(fileName, "2M", "24", "fast", "854x480")
+	case qualityInt > 480 && qualityInt <= 720:
+		cmd = encodeVideo(fileName, "1M", "20", "fast", "640x360")
+	default:
+		cmd = encodeVideo(fileName, "0.5M", "18", "fast", "480x270")
 	}
+
 	//// Set hardware acceleration flags if supported
 	cmd.Env = append(os.Environ(),
 		"CUDA_VISIBLE_DEVICES=0", // Utilize the first GPU device
@@ -171,6 +146,17 @@ func HandleVideoUpload(c *gin.Context) {
 		"message": "File uploaded, converted to H.265, and old file deleted successfully",
 		"success": true,
 	})
+}
+
+func encodeVideo(fileName, bitrate, crf, preset, resolution string) *exec.Cmd {
+	return exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
+		"-i", "./userUploadDatas/videos/"+fileName,
+		"-c:v", "libx264",
+		"-b:v", bitrate,
+		"-crf", crf,
+		"-preset", preset,
+		"-vf", "scale="+resolution,
+		"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
 }
 
 // getVideoQuality determines the quality of the video based on its height.
