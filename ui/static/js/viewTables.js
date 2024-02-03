@@ -13,7 +13,7 @@ let data = {
 function editVideo(videoID, title, description, categoryID, genreID, categoryName, genreName) {
     data.videoID = videoID;
     data.title = title;
-    data.description = description;
+    data.description = decodeURIComponent(description);
     data.categoryID = categoryID;
     data.genreID = genreID;
     data.categoryName = categoryName;
@@ -156,20 +156,21 @@ fetch('/showVideosPost', {
 
                 genreName = await getGenreName(video.GenreID);
 
+                let description = encodeURIComponent(video.Description);
 
                 row.innerHTML = `
-                <td class="tdata">${index + 1}</td>
-                <td class="tdata">${video.Title}</td>
-                <td class="tdata">${video.Description}</td>
-                <td class="tdata">${new Date(video.UploadDate).toDateString()}</td>
-                <td class="tdata">${video.ViewsCount}</td>
-                <td class="tdata">${video.LikesCount}</td>
-                <td class="tdata">${video.Duration}</td>
-                <td class="tdata">${categoryName}</td>
-                <td class="tdata">${genreName}</td>
-                <td class="tdata"><button class="btn btn-primary submit" onclick="editVideo('${video.VideoID}', '${video.Title}', '${video.Description}', '${video.CategoryID}', '${video.GenreID}', '${categoryName}', '${genreName}')">Edit</button></td>
-                <td class="tdata"><button class="btn btn-danger submit" onclick="deleteVideo(${video.VideoID})">Delete</button></td>
-                `;
+                    <td class="tdata">${index + 1}</td>
+                    <td class="tdata">${video.Title}</td>
+                    <td class="tdata">${video.Description}</td>
+                    <td class="tdata">${new Date(video.UploadDate).toDateString()}</td>
+                    <td class="tdata">${video.ViewsCount}</td>
+                    <td class="tdata">${video.LikesCount}</td>
+                    <td class="tdata">${video.Duration}</td>
+                    <td class="tdata">${categoryName}</td>
+                    <td class="tdata">${genreName}</td>
+                    <td class="tdata"><button class="btn btn-primary submit" onclick="editVideo(\`${video.VideoID}\`, \`${video.Title}\`, \`${description}\`, \`${video.CategoryID}\`, \`${video.GenreID}\`, \`${categoryName}\`, \`${genreName}\`)">Edit</button></td>
+                    <td class="tdata"><button class="btn btn-danger submit" onclick="deleteVideo(${video.VideoID})">Delete</button></td>
+                    `;
             }
         }
 
