@@ -31,18 +31,36 @@ body {
     background-color: transparent;
     cursor: pointer;
     width: 250px;
+    height: 435px;
+    scale: 1;
+    transition: all 0.3s linear;
+}
+
+.card:hover{
+    scale: 1.05;
 }
 
 .card-text {
     text-align: center;
     color: rgba(215, 214, 214, 0.83);
-    font-family: 'Fira Mono', monospace;
     font-size: 24px;
     margin: 0.3em 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 80%;
+    max-height: 3rem;
+    transition: max-height 0.3s ease;
 }
+
+.card:hover .card-text{
+    max-height: 4rem;
+    text-overflow: initial;
+    overflow: visible;
+    white-space: normal;
+}
+
+
 
 .card-img-top {
     width: 100%;
@@ -61,13 +79,13 @@ body {
     border-radius: 24.5px;
     font-family: var(--font-family);
 }
+
+
 .card .rating{
     position: absolute;
     z-index: 1;
     left: 1rem;
-    bottom: 5rem;
-
-
+    bottom: 20%;
 }
 
 .colored-background {

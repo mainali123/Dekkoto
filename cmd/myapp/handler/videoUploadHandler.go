@@ -158,7 +158,7 @@ func HandleVideoUpload(c *gin.Context) {
 
 	//c.String(200, "File uploaded, converted to AV1, and old file deleted successfully")
 	c.JSON(http.StatusOK, gin.H{
-		"message": "File uploaded, converted to H.265, and old file deleted successfully",
+		"message": "File uploaded and old file deleted successfully",
 		"success": true,
 	})
 }

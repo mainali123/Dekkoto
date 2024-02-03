@@ -671,7 +671,7 @@ func (app *application) watchVideoPost(c *gin.Context) {
 // It fetches the recently added videos data from the database and sends it to the client.
 // If there is an error during fetching the videos data, it sends a server error response.
 func (app *application) recentlyAdded(c *gin.Context) {
-	videos, err := app.database.videosBrowser()
+	videos, err := app.database.recentlyAddedVideos()
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return

@@ -95,6 +95,7 @@ fetch('/recentlyAdded', {
 
                 // Append the created HTML elements to the card
                 card.appendChild(img);
+                
                 card.appendChild(cardText); // Append the title to the card
 
                 const cardBody = document.createElement('div');
@@ -165,7 +166,7 @@ fetch('/recommendedVideos', {
                 // img.alt = video.Title;
 
                 const cardText = document.createElement('p');
-                cardText.className = 'card-text reco-text';
+                cardText.className = ' reco-text';
                 cardText.textContent = video.Title;
 
                 const rating = document.createElement('p');

@@ -316,7 +316,7 @@ func (db *databaseConn) deleteVideoFromFile(videoID int) (string, string, error)
 // It returns a slice of VideoDesc structs and nil if the query is successful.
 // It returns nil and an error if the query fails.
 func (db *databaseConn) recentlyAddedVideos() ([]VideoDesc, error) {
-	query := "SELECT * FROM videos ORDER BY UploadDate DESC LIMIT 10"
+	query := "SELECT * FROM videos ORDER BY UploadDate DESC LIMIT 15"
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		return nil, err
