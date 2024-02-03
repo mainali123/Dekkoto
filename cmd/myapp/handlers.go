@@ -1169,3 +1169,17 @@ func (app *application) droppedVideoList(c *gin.Context) {
 		"videos":  videos,
 	})
 }
+
+func (app *application) about(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/about.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}

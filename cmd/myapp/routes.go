@@ -89,4 +89,7 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/onHoldVideoList", app.onHoldVideoList)
 	router.POST("/consideringVideoList", app.consideringVideoList)
 	router.POST("/droppedVideoList", app.droppedVideoList)
+
+	// About
+	router.GET("/about", app.about)
 }
