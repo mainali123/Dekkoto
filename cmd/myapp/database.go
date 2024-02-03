@@ -422,6 +422,22 @@ func (db *databaseConn) videoActions(videoID int, userID int) error {
 	return nil
 }
 
+func (db *databaseConn) updateViews(videoID int) error {
+	// Prepare the SQL query to increment the ViewsCount field
+	query := "UPDATE videos SET ViewsCount = ViewsCount + 1 WHERE VideoID = ?"
+
+	// Execute the query
+	_, err := db.DB.Exec(query, videoID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// If the query is executed successfully, return nil
+	return nil
+}
+
 // continueWatching is a function that retrieves the videos that a user is currently watching.
 // It takes in one parameter: userID.
 // It queries the database for the video descriptions of the 10 most recently watched videos by the user with the provided userID.

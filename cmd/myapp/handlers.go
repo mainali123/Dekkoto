@@ -665,6 +665,17 @@ func (app *application) watchVideoPost(c *gin.Context) {
 		})
 		return
 	}
+
+	// Update the views count in the database
+	err = app.database.updateViews(videoData.VideoID)
+	if err != nil {
+		fmt.Println("Error updating views count:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to update views count",
+		})
+		return
+
+	}
 }
 
 // recentlyAdded is a handler function that handles the fetching of recently added videos.
