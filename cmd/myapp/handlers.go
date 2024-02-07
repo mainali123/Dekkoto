@@ -1183,3 +1183,462 @@ func (app *application) about(c *gin.Context) {
 		return
 	}
 }
+
+func (app *application) comment(c *gin.Context) {
+	// get the data from the post request that was sent by JS
+	type Comment struct {
+		Comment string `json:"comment"`
+		VideoID int    `json:"videoID"`
+	}
+
+	var commentData Comment
+
+	// Bind the JSON data from the request to the userData struct
+	if err := c.ShouldBindJSON(&commentData); err != nil {
+		fmt.Println("Error binding JSON data")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	fmt.Println("Comment: ", commentData.Comment, "VideoID: ", commentData.VideoID)
+
+	err := app.database.commentOnVideo(userInfo.UserId, commentData.VideoID, commentData.Comment)
+	if err != nil {
+		fmt.Println("Error commenting on video")
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Comment added successfully",
+		"success": true,
+	})
+}
+
+func (app *application) getComments(c *gin.Context) {
+	type VideoID struct {
+		ID int `json:"videoID"`
+	}
+
+	var id VideoID
+
+	err := c.ShouldBindJSON(&id)
+	// if the value is empty then do nothing else return error
+	if err != nil {
+		fmt.Println("Error binding JSON data:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	comments, err := app.database.getComments(id.ID)
+	if err != nil {
+		fmt.Println("Error getting comments")
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Comments fetched successfully",
+		"success":  true,
+		"comments": comments,
+	})
+}
+
+func (app *application) upvote(c *gin.Context) {
+	type comment_id struct {
+		CommentID int `json:"commentID"`
+	}
+
+	var commentID comment_id
+
+	err := c.ShouldBindJSON(&commentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.upvoteComment(commentID.CommentID, userInfo.UserId)
+
+	if err != nil {
+		if err.Error() == "Comment does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Comment does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "User does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "User does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "Comment is already upvoted" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Comment is already upvoted",
+				"success": true,
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to upvote comment with error: " + err.Error(),
+				"success": false,
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Comment upvoted successfully",
+		"success": true,
+	})
+}
+
+func (app *application) downvote(c *gin.Context) {
+	type comment_id struct {
+		CommentID int `json:"commentID"`
+	}
+
+	var commentID comment_id
+
+	err := c.ShouldBindJSON(&commentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.downvoteComment(commentID.CommentID, userInfo.UserId)
+
+	if err != nil {
+		if err.Error() == "Comment does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Comment does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "User does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "User does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "Comment is already downvoted" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Comment is already downvoted",
+				"success": true,
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to downvote comment with error: " + err.Error(),
+				"success": false,
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Comment downvoted successfully",
+		"success": true,
+	})
+}
+
+func (app *application) commentDetails(c *gin.Context) {
+	type videoID struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var id videoID
+
+	err := c.ShouldBindJSON(&id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	comments, err := app.database.commentDetails(id.VideoID, userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to fetch comments with error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Comments fetched successfully",
+		"success":  true,
+		"comments": comments,
+	})
+}
+
+func (app *application) likeVideo(c *gin.Context) {
+	type videoID struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var id videoID
+
+	err := c.ShouldBindJSON(&id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.likeVideo(id.VideoID, userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to like video with error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video liked successfully",
+		"success": true,
+	})
+}
+
+func (app *application) reverseLikeVideo(c *gin.Context) {
+	type videoID struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var id videoID
+
+	err := c.ShouldBindJSON(&id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.reverseLikeVideo(id.VideoID, userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to reverse like video with error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video like reversed successfully",
+		"success": true,
+	})
+}
+
+func (app *application) dislikeVideo(c *gin.Context) {
+	type videoID struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var id videoID
+
+	err := c.ShouldBindJSON(&id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.dislikeVideo(id.VideoID, userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to dislike video with error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video disliked successfully",
+		"success": true,
+	})
+
+}
+
+func (app *application) reverseDislikeVideo(c *gin.Context) {
+	type videoID struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var id videoID
+
+	err := c.ShouldBindJSON(&id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.reverseDislikeVideo(id.VideoID, userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to reverse dislike video with error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Video dislike reversed successfully",
+		"success": true,
+	})
+}
+
+func (app *application) isLikedDisliked(c *gin.Context) {
+	type videoID struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var id videoID
+
+	err := c.ShouldBindJSON(&id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	liked, disliked, err := app.database.isLikedDisliked(id.VideoID, userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to fetch liked/disliked status with error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "Liked/disliked status fetched successfully",
+		"success":    true,
+		"isLiked":    liked,
+		"isDisliked": disliked,
+	})
+}
+
+func (app *application) likeDislikeCount(c *gin.Context) {
+	type videoID struct {
+		VideoID int `json:"videoID"`
+	}
+
+	var id videoID
+
+	err := c.ShouldBindJSON(&id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	likes, dislikes, err := app.database.likeDislikeCount(id.VideoID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to fetch like/dislike count with error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Like/dislike count fetched successfully",
+		"success":  true,
+		"likes":    likes,
+		"dislikes": dislikes,
+	})
+}
+
+func (app *application) adminPanelTemp(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin_PanelTest.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+// adminAddVideoTemp is a handler function that serves the add video page.
+func (app *application) adminAddVideoTemp(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin_videoUpload.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) adminDashboardTemp(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin_dashboard.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+// adminVideoListTemp is a handler function that serves the video list page.
+func (app *application) adminVideoListTemp(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/videoList.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+// adminAnalyticsTemp is a handler function that serves the analytics page.
+func (app *application) adminAnalyticsTemp(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin_analytics.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+// adminSettingsTemp is a handler function that serves the settings page.
+func (app *application) adminSettingsTemp(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin_settings.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}

@@ -1,0 +1,478 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	/* outline: 1px dotted red; */
+	font-family: Sarala, sans-serif;
+}
+body {
+	background-color: #0e121a;
+}
+
+::-webkit-scrollbar{
+	width: 0.7rem;
+	background-color: #252525;
+
+}
+::-webkit-scrollbar-thumb{
+	background-color: #8f0c0c;
+}
+.side-header {
+	background-color: #0e121a;
+	padding: 10px 0;
+	height: 100%;
+	position: fixed;
+	width: 13dvw;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	overflow: hidden;
+	border-right: 1px solid #b8b8b8;
+	transition: all 0.5s ease;
+	color: #fff;
+}
+
+.logo-name {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+	letter-spacing: 2px;
+	font-size: 0.9rem;
+}
+.logo-name img {
+	width: 3vw;
+}
+.side-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 5rem;
+}
+
+.side-header.collapse {
+	max-width: 3dvw;
+}
+.side-header.collapse .side-nav ul li a span {
+	display: none;
+}
+.side-header.collapse .logo-name h1 {
+	display: none;
+}
+.side-header.collapse .logo-name img {
+	width: 2.5dvw;
+}
+.side-header.collapse .copyright {
+	display: none;
+}
+.side-nav ul {
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.side-nav ul li a {
+	text-decoration: none;
+	color: currentColor;
+	font-size: 0.9rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.3rem 1rem;
+	flex-wrap: wrap;
+	cursor: pointer;
+}
+
+.side-nav ul li a i {
+	font-size: 1.2rem;
+	padding: 0.4rem;
+}
+.side-nav ul li.active {
+	background-color: #8f0c0c;
+	color: #fff;
+}
+
+.side-nav ul li.active:hover {
+	background-color: #8f0c0c;
+	color: #fff;
+}
+.side-nav ul li {
+	transition: all 0.5s ease;
+}
+.side-nav ul li:hover {
+	color: #8f0c0c;
+}
+
+.copyright {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	font-size: 0.9rem;
+	color: #797979;
+}
+
+.preloader {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #0e121a;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 9999;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap: 1rem;
+}
+.preloader img {
+	width: 10dvw;
+}
+.loader {
+	width: 120px;
+	height: 15px;
+	border-radius: 40px;
+	color: #8f0c0c;
+	border: 2px solid;
+	position: relative;
+}
+.loader::before {
+	content: "";
+	position: absolute;
+	margin: 2px;
+	width: 10%;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	border-radius: inherit;
+	background: currentColor;
+	animation: l3 3s infinite ease-in-out;
+}
+@keyframes l3 {
+	50% {
+		left: 100%;
+		transform: translateX(calc(-100% - 4px));
+	}
+}
+main {
+	margin: 0 0 0 13dvw;
+	height: 100%;
+}
+.top-nav {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 1rem;
+	background-color: #8f0c0c;
+	width: 100%;
+	height: 5vh;
+}
+
+#toggleSidenav {
+	padding: 1rem;
+	background-color: transparent;
+	color: #fff;
+	border: none;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	font-size: 1.5rem;
+}
+
+.top-nav .hamburger {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	color: #fff;
+	height: 100%;
+	overflow: hidden;
+}
+
+.user {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 2rem;
+	color: #fff;
+}
+.user img {
+	width: 2rem;
+	height: 2rem;
+	border-radius: 50%;
+	object-fit: cover;
+}
+.user i {
+	font-size: 1.4rem;
+	position: relative;
+	cursor: pointer;
+}
+
+.user .fa-bell::after {
+	content: "";
+	position: absolute;
+	width: 0.6rem;
+	height: 0.6rem;
+	background-color: #0e121a;
+	border-radius: 50%;
+	top: 0;
+	right: -2px;
+}
+.user-info {
+	display: flex;
+	gap: 1rem;
+}
+#content {
+	background-color: transparent;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
+.current-page-name {
+	font-size: 1.2rem;
+	letter-spacing: 2px;
+}
+.primary-btn{
+	background-color: #8f0c0c;
+	color: #fff;
+	padding: 0.5rem 1rem;
+	border: none;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.5s ease;
+	font-size: 0.8rem;
+	z-index: 999;
+
+}
+.secondary-btn{
+	background-color: #808080;
+	border: none;
+	outline: none;
+	color: #fff;
+	padding: 0.5rem 1rem;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.5s ease;
+	font-size: 0.8rem;
+}
+
+/*-----------------Upload Video-------------------*/
+.upload-video {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	height: 100%;
+	padding: 2rem;
+	color: #fff;
+}
+.upload-video form{
+	display: flex;
+	flex-direction: column;
+	gap: 5rem;
+	justify-content: center;
+}
+.upload-area{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 40vh;
+	gap: 1rem;
+	border: 2px dashed #8f0c0c;
+}
+.upload-area i{
+	font-size: 5rem;
+}
+.upload-area-text{
+	font-size: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	pointer-events: none;
+}
+.file-upload-select {
+	display: flex;
+	align-items: center;
+	justify-content: start;
+	gap: 10px;
+	height: 100%;
+	border-radius: 5px;
+	background-color: transparent;
+	cursor: pointer;
+	transition: all 0.3s ease-in-out;
+	width: max-content;
+}
+.file-upload-select .file-select-button {
+	border-radius: 5px;
+	letter-spacing: 2px;
+}
+
+.file-upload-select input[type="file"] {
+	display: none;
+}
+.file-upload-select img{
+	width: 18rem;
+	height: 11rem;
+	object-fit: cover;
+	border-radius: 1rem;
+	border: 1px solid #8f0c0c;
+
+}
+.file-select-name {
+	color: #808080;
+	font-size: 0.9rem;
+	overflow: hidden;
+	background-color: transparent;
+}
+.upload-video-info{
+	display: flex;
+	flex-direction: column;
+	gap: 4rem;
+	justify-content: center;
+}
+.input-field{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 1rem;
+}
+.input-field input{
+	padding: 1rem;
+	border: none;
+	border-radius: 0.5rem;
+	background-color: #1e232f;
+	color: #fff;
+	outline: none;
+	font-size: 1rem;
+	letter-spacing: 2px;
+
+}
+.input-field textarea{
+	padding: 1rem;
+	border: none;
+	border-radius: 0.5rem;
+	background-color: #1e232f;
+	color: #fff;
+	outline: none;
+	font-size: 1rem;
+	letter-spacing: 2px;
+	resize: none;
+}
+.input-field label{
+	font-size: 1rem;
+	letter-spacing: 2px;
+}
+.input-field .file-select-button{
+	background-color: #757575;
+	color: #fff;
+	padding: 4rem 8rem;
+	border: none;
+	border-radius: 1rem;
+	cursor: pointer;
+	transition: all 0.5s ease;
+	font-size: 1.8rem;
+}
+.input-field .file-upload-select{
+	gap: 3rem;
+}
+.thumbnail-banner{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+.container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: #8f0c0c;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.container .checkmark:after {
+ 	top: 5px;
+	left: 5px;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	background: white;
+}
+.video-type{
+	flex-direction: row;
+	justify-content: start;
+	gap: 2rem;
+}
+.video-genre{
+	flex-direction: row;
+	justify-content: start;
+	gap: 2rem;
+}
+.video-genre .container .checkmark:after{
+	border-radius: 0;
+}
+.video-genre .checkmark{
+	border-radius: 0;
+}
+.btn-grp{
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+}
+.btn-grp button{
+	padding: 1rem 2rem;
+	border: none;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.5s ease;
+	font-size: 1rem;
+}

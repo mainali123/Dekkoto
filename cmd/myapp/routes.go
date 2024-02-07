@@ -92,4 +92,27 @@ func (app *application) routes(router *gin.Engine) {
 
 	// About
 	router.GET("/about", app.about)
+
+	// Comments
+	router.POST("/comment", app.comment)
+	router.POST("/displayComments", app.getComments)
+	router.POST("/upvote", app.upvote)
+	router.POST("/downvote", app.downvote)
+	router.POST("/commentDetails", app.commentDetails)
+
+	// like & dislike video
+	router.POST("/likeVideo", app.likeVideo)
+	router.POST("/reverseLikeVideo", app.reverseLikeVideo)
+	router.POST("/dislikeVideo", app.dislikeVideo)
+	router.POST("/reverseDislikeVideo", app.reverseDislikeVideo)
+	router.POST("/isLikedDisliked", app.isLikedDisliked)
+	router.POST("/likeDislikeCount", app.likeDislikeCount)
+
+	// TemporaryDevelopment of AdminPanel
+	router.GET("/aakash", app.adminPanelTemp)
+	router.GET("/aakash/dashboard", app.adminDashboardTemp)
+	router.GET("/aakash/addVideo", app.adminAddVideoTemp)
+	router.GET("/aakash/videoList", app.adminVideoListTemp)
+	router.GET("/aakash/analytics", app.adminAnalyticsTemp)
+	router.GET("/aakash/settings", app.adminSettingsTemp)
 }

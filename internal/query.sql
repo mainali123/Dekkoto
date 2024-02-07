@@ -70,8 +70,7 @@ CREATE TABLE Comments
     UserID      INT,
     VideoID     INT,
     CommentText TEXT,
-    Upvotes     INT DEFAULT 0,
-    Downvotes   INT DEFAULT 0,
+    CommentDate DATE,
     FOREIGN KEY (UserID) REFERENCES Users (UserID),
     FOREIGN KEY (VideoID) REFERENCES Videos (VideoID)
 );
@@ -151,3 +150,14 @@ INSERT INTO Genres (GenreName)
 VALUES ('movie'),
        ('series'),
        ('anime');
+
+CREATE TABLE CommentActions
+(
+    CommentActionID INT PRIMARY KEY AUTO_INCREMENT,
+    Upvotes TINYINT DEFAULT 0 CHECK (Upvotes IN (0, 1)),
+    Downvotes TINYINT DEFAULT 0 CHECK (Downvotes IN (0, 1)),
+    CommentID INT,
+    UserID INT,
+    FOREIGN KEY (CommentID) REFERENCES Comments (CommentID),
+    FOREIGN KEY (UserID) REFERENCES Users (UserID)
+);

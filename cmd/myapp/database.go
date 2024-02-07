@@ -365,7 +365,7 @@ func (db *databaseConn) recommendedVideos() ([]VideoDesc, error) {
 // It returns a slice of VideoDesc structs and nil if the query is successful.
 // It returns nil and an error if the query fails.
 func (db *databaseConn) weeklyTop() ([]VideoDesc, error) {
-	query := "SELECT V.VideoID, V.Title, V.Description, V.URL, V.ThumbnailURL, V.UploaderID, V.UploadDate, V.ViewsCount, V.LikesCount, V.DislikesCount, V.Duration, V.CategoryID, V.GenreID FROM Videos V JOIN VideoActions VA ON V.VideoID = VA.VideoID WHERE VA.ActionsDate BETWEEN CURRENT_DATE - INTERVAL DAYOFWEEK(CURRENT_DATE) + 6 DAY AND CURRENT_DATE ORDER BY V.ViewsCount DESC LIMIT 10"
+	query := "SELECT DISTINCT V.VideoID, V.Title, V.Description, V.URL, V.ThumbnailURL, V.UploaderID, V.UploadDate, V.ViewsCount, V.LikesCount, V.DislikesCount, V.Duration, V.CategoryID, V.GenreID FROM Videos V JOIN VideoActions VA ON V.VideoID = VA.VideoID WHERE VA.ActionsDate BETWEEN CURRENT_DATE - INTERVAL DAYOFWEEK(CURRENT_DATE) + 6 DAY AND CURRENT_DATE ORDER BY V.ViewsCount DESC LIMIT 10"
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -1230,4 +1230,404 @@ func (db *databaseConn) droppedVideoListDatabase(userID int) ([]VideoDesc, error
 	}
 
 	return videos, nil
+}
+
+func (db *databaseConn) commentOnVideo(userID int, videoID int, comment string) error {
+
+	// Check if the user has already commented on the video
+	query := "SELECT * FROM comments WHERE UserID = ? AND VideoID = ?"
+	rows, err := db.DB.Query(query, userID, videoID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	// If the user has already commented on the video, update the comment
+	if rows.Next() {
+		// Prepare the query to update the comment
+		query = "UPDATE comments SET CommentText = ?, CommentDate = ? WHERE UserID = ? AND VideoID = ?"
+		_, err := db.DB.Exec(query, comment, time.Now().Format("2006-01-02"), userID, videoID)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// Prepare the query to insert the comment into the comments table
+	query = "INSERT INTO comments (UserID, VideoID, CommentText, CommentDate) VALUES (?, ?, ?, ?)"
+
+	// Execute the query
+	_, err = db.DB.Exec(query, userID, videoID, comment, time.Now().Format("2006-01-02"))
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// If the query is executed successfully, return nil
+	return nil
+}
+
+type Comment struct {
+	CommentID   int
+	UserID      int
+	VideoID     int
+	UserName    string
+	CommentText string
+	CommentDate string
+	Upvotes     int
+	Downvotes   int
+}
+
+func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
+	query := `SELECT C.CommentID, C.UserID, C.VideoID, U.UserName, C.CommentText, C.CommentDate,
+              COALESCE(SUM(CA.Upvotes), 0) AS Upvotes, COALESCE(SUM(CA.Downvotes), 0) AS Downvotes
+              FROM comments C
+              JOIN users U ON C.UserID = U.UserID
+              LEFT JOIN CommentActions CA ON C.CommentID = CA.CommentID
+              WHERE C.VideoID = ?
+              GROUP BY C.CommentID
+              ORDER BY C.CommentDate DESC`
+	rows, err := db.DB.Query(query, videoID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var comments []Comment
+	for rows.Next() {
+		var comment Comment
+		if err := rows.Scan(&comment.CommentID, &comment.UserID, &comment.VideoID, &comment.UserName, &comment.CommentText, &comment.CommentDate, &comment.Upvotes, &comment.Downvotes); err != nil {
+			return nil, err
+		}
+		comments = append(comments, comment)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return comments, nil
+}
+
+func (db *databaseConn) upvoteComment(commentID int, userID int) error {
+	// Check if the comment exists
+	var exists int
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("Comment does not exist")
+	}
+
+	// Check if the user exists
+	err = db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("User does not exist")
+	}
+
+	// Query the CommentActions table to check if the user has already upvoted or downvoted the comment
+	query := "SELECT Upvotes, Downvotes FROM CommentActions WHERE CommentID = ? AND UserID = ?"
+	row := db.DB.QueryRow(query, commentID, userID)
+
+	var upvotes, downvotes int
+	err = row.Scan(&upvotes, &downvotes)
+
+	// If the user has already upvoted the comment, return an error message
+	if err == nil && upvotes == 1 {
+		return errors.New("Comment is already upvoted")
+	}
+
+	// If the user has not performed any action before, insert a new upvote
+	if err == sql.ErrNoRows {
+		query = "INSERT INTO CommentActions (CommentID, UserID, Upvotes, Downvotes) VALUES (?, ?, 1, 0)"
+		_, err = db.DB.Exec(query, commentID, userID)
+	} else if err == nil && downvotes == 1 { // If the user has previously downvoted the comment, update the record
+		query = "UPDATE CommentActions SET Upvotes = 1, Downvotes = 0 WHERE CommentID = ? AND UserID = ?"
+		_, err = db.DB.Exec(query, commentID, userID)
+	}
+
+	return err
+}
+
+func (db *databaseConn) downvoteComment(commentID int, userID int) error {
+	// Check if the comment exists
+	var exists int
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("Comment does not exist")
+	}
+
+	// Check if the user exists
+	err = db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("User does not exist")
+	}
+
+	// Query the CommentActions table to check if the user has already upvoted or downvoted the comment
+	query := "SELECT Upvotes, Downvotes FROM CommentActions WHERE CommentID = ? AND UserID = ?"
+	row := db.DB.QueryRow(query, commentID, userID)
+
+	var upvotes, downvotes int
+	err = row.Scan(&upvotes, &downvotes)
+
+	// If the user has already downvoted the comment, return an error message
+	if err == nil && downvotes == 1 {
+		return errors.New("Comment is already downvoted")
+	}
+
+	// If the user has not performed any action before, insert a new downvote
+	if err == sql.ErrNoRows {
+		query = "INSERT INTO CommentActions (CommentID, UserID, Upvotes, Downvotes) VALUES (?, ?, 0, 1)"
+		_, err = db.DB.Exec(query, commentID, userID)
+	} else if err == nil && upvotes == 1 { // If the user has previously upvoted the comment, update the record
+		query = "UPDATE CommentActions SET Upvotes = 0, Downvotes = 1 WHERE CommentID = ? AND UserID = ?"
+		_, err = db.DB.Exec(query, commentID, userID)
+	}
+
+	return err
+}
+
+type commentDetails struct {
+	Upvote    int
+	Downvote  int
+	CommentID int
+	VideoID   int
+}
+
+func (db *databaseConn) commentDetails(videoID int, userID int) ([]commentDetails, error) {
+	// Prepare the SQL query
+	query := `SELECT c.CommentID, c.VideoID, ca.Upvotes, ca.Downvotes
+				FROM comments c
+				JOIN commentactions ca ON c.CommentID = ca.CommentID
+				WHERE c.VideoID = ?
+				AND ca.UserID = ?`
+
+	// Execute the query
+	rows, err := db.DB.Query(query, videoID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Initialize a slice to hold the comment details
+	var details []commentDetails
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var detail commentDetails
+
+		// Scan the values into a commentDetails struct
+		if err := rows.Scan(&detail.CommentID, &detail.VideoID, &detail.Upvote, &detail.Downvote); err != nil {
+			return nil, err
+		}
+		// Append the struct to the slice
+		details = append(details, detail)
+	}
+
+	// Return the slice and nil (no error)
+	return details, nil
+}
+
+func (db *databaseConn) likeVideo(videoID int, userID int) error {
+
+	queryToCheck := "SELECT Recommends FROM videoactions WHERE VideoID = ? AND UserID = ?"
+
+	row := db.DB.QueryRow(queryToCheck, videoID, userID)
+
+	var recommends int
+	err := row.Scan(&recommends)
+	if err != nil {
+		return err
+	}
+	if recommends == -1 {
+		query := "UPDATE videos SET DislikesCount = DislikesCount - 1 WHERE VideoID = ?"
+		_, err := db.DB.Exec(query, videoID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Prepare the SQL query to increment the LikesCount field
+	query := "UPDATE videos SET LikesCount = LikesCount + 1 WHERE VideoID = ?"
+
+	// Execute the query
+	_, err = db.DB.Exec(query, videoID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// Prepare the SQL query to set the Recommends field to 1
+	query = "UPDATE videoactions SET Recommends = 1 WHERE VideoID = ? AND UserID = ?"
+
+	// Execute the query
+	_, err = db.DB.Exec(query, videoID, userID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// If the query is executed successfully, return nil
+	return nil
+}
+
+func (db *databaseConn) reverseLikeVideo(videoID int, userID int) error {
+	// Prepare the SQL query to decrement the LikesCount field
+	query := "UPDATE videos SET LikesCount = LikesCount - 1 WHERE VideoID = ?"
+
+	// Execute the query
+	_, err := db.DB.Exec(query, videoID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// Prepare the SQL query to set the Recommends field to 0
+	query = "UPDATE videoactions SET Recommends = 0 WHERE VideoID = ? AND UserID = ?"
+
+	// Execute the query
+	_, err = db.DB.Exec(query, videoID, userID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// If the query is executed successfully, return nil
+	return nil
+}
+
+func (db *databaseConn) dislikeVideo(videoID int, userID int) error {
+
+	queryToCheck := "SELECT Recommends FROM videoactions WHERE VideoID = ? AND UserID = ?"
+
+	row := db.DB.QueryRow(queryToCheck, videoID, userID)
+
+	var recommends int
+	err := row.Scan(&recommends)
+	if err != nil {
+		return err
+	}
+
+	if recommends == 1 {
+		query := "UPDATE videos SET LikesCount = LikesCount - 1 WHERE VideoID = ?"
+		_, err := db.DB.Exec(query, videoID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Prepare the SQL query to increment the DislikesCount field
+	query := "UPDATE videos SET DislikesCount = DislikesCount + 1 WHERE VideoID = ?"
+
+	// Execute the query
+	_, err = db.DB.Exec(query, videoID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// Prepare the SQL query to set the Recommends field to 0
+	query = "UPDATE videoactions SET Recommends = -1 WHERE VideoID = ? AND UserID = ?"
+
+	// Execute the query
+	_, err = db.DB.Exec(query, videoID, userID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// If the query is executed successfully, return nil
+	return nil
+}
+
+func (db *databaseConn) reverseDislikeVideo(videoID int, userID int) error {
+	// Prepare the SQL query to decrement the DislikesCount field
+	query := "UPDATE videos SET DislikesCount = DislikesCount - 1 WHERE VideoID = ?"
+
+	// Execute the query
+	_, err := db.DB.Exec(query, videoID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	query = "UPDATE videoactions SET Recommends = 0 WHERE VideoID = ? AND UserID = ?"
+
+	// Execute the query
+	_, err = db.DB.Exec(query, videoID, userID)
+
+	// If there is an error, return it
+	if err != nil {
+		return err
+	}
+
+	// If the query is executed successfully, return nil
+	return nil
+}
+
+func (db *databaseConn) isLikedDisliked(videoID int, userID int) (int, int, error) {
+	// Prepare the SQL query to check if the user has liked or disliked the video
+	query := "SELECT Recommends FROM videoactions WHERE VideoID = ? AND UserID = ?"
+
+	// Execute the query
+	row := db.DB.QueryRow(query, videoID, userID)
+
+	// Initialize a variable to hold the result
+	var recommends int
+
+	// Scan the result into the variable
+	err := row.Scan(&recommends)
+
+	// If there is an error, return it
+	if err != nil {
+		return 0, 0, err
+	}
+
+	// If the value is 1, the user has liked the video
+	if recommends == 1 {
+		return 1, 0, nil
+	} else if recommends == -1 {
+		return 0, 1, nil
+	} else {
+		return 0, 0, nil
+	}
+}
+
+func (db *databaseConn) likeDislikeCount(videoID int) (int, int, error) {
+	// Prepare the SQL query to get the LikesCount and DislikesCount fields
+	query := "SELECT LikesCount, DislikesCount FROM videos WHERE VideoID = ?"
+
+	// Execute the query
+	row := db.DB.QueryRow(query, videoID)
+
+	// Initialize variables to hold the results
+	var likesCount, dislikesCount int
+
+	// Scan the results into the variables
+	err := row.Scan(&likesCount, &dislikesCount)
+
+	// If there is an error, return it
+	if err != nil {
+		return 0, 0, err
+	}
+
+	// Return the results
+	return likesCount, dislikesCount, nil
 }

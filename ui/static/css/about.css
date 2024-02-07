@@ -15,7 +15,8 @@
     font-size: 20px;
     /*color: #fff;*/
     font-weight: 500;
-    padding: 45px 0 45px 21px;
+    padding: 45px 21px;
+    text-align: justify;
 }
 @media (max-width: 991px) {
     .div {
