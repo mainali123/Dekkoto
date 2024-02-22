@@ -839,6 +839,20 @@ func (app *application) searchData(c *gin.Context) {
 	})
 }
 
+func (app *application) autoComplete(c *gin.Context) {
+	res, err := app.database.autoComplete()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch data"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Auto complete data fetched successfully",
+		"success": true,
+		"videos":  res,
+	})
+}
+
 // videoAction is a handler function that handles the fetching of video action.
 // It reads the video ID from the request, fetches the video action from the database, and sends it to the client.
 // If there is an error during any of these steps, it sends an appropriate error response.
