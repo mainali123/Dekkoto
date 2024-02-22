@@ -1,0 +1,73 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /*outline: 1px solid red;*/
+}
+
+body {
+    min-height: 100vh;
+    background-color: #0e121a;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    margin: 1rem 2rem;
+}
+
+.user-info {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+}
+
+.unique-name {
+    color: rgb(74, 74, 207);
+    font-size: 18px;
+}
+
+.username {
+    font-size: 30px;
+    color: #fff;
+    padding: 1rem 0;
+}
+
+.profile-image {
+    width: 5%;
+    height: 80px;
+    aspect-ratio: 16/9;
+    border-radius: 50px;
+}
+
+h1 {
+    font-size: 40px;
+    color: #fff;
+    padding: 1rem 0;
+}
+
+i {
+    font-size: 30px;
+    margin-right: 1rem;
+    color: #fff;
+}
+
+p {
+    font-size: 20px;
+    color: #c5c5c5;
+    transition: color 0.3s linear;
+}
+.user-options{
+    cursor: pointer;
+}
+
+.user-options p {
+    padding: 1rem;
+}
+
+.user-options p:hover{
+    color: #2f4ab6;
+}
+
+.line {
+    height: 5px;
+    width: 30%;
+    margin: 5rem auto;
+    background-color: #8b93ae;
+}

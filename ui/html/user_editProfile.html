@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/css/user_editProfile.css" />
+    <title>Document</title>
+</head>
+<body>
+<div class="header-container">
+    <img
+            src="../static/images/cote.jpeg"
+            alt="default-profile"
+            id="updateImg"
+            class="image"
+    />
+    <div class="profile">
+        <label for="files" class="change-profile">Change profile picture</label>
+        <input
+                id="files"
+                style="visibility: collapse"
+                type="file"
+                onchange="displayImage(this)"
+                accept="image/*"
+        />
+    </div>
+</div>
+
+
+<form action="" method="" class="form">
+    <div class="form-container">
+        <label for="Email">Name</label>
+        <input
+                type="text"
+                id="name"
+                class="name"
+                placeholder="Enter your Name"
+        />
+
+        <label for="email"> Email</label>
+        <input
+                type="text"
+                class="email"
+                id="email"
+        />
+
+        <button class="button">Save Changes</button>
+    </div>
+</form>
+
+<script>
+    function displayImage(input) {
+        var updateImg = document.getElementById('updateImg');
+        var file = input.files[0];
+
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                updateImg.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            updateImg.src = '/Resources/default-image.png';
+        }
+    }
+</script>
+</body>
+</html>

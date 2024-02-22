@@ -1669,3 +1669,44 @@ func (app *application) adminSettingsTemp(c *gin.Context) {
 		return
 	}
 }
+
+func (app *application) profile(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/user_profile.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) editProfile(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/user_editProfile.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+func (app *application) changePassword(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/user_changePassword.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}

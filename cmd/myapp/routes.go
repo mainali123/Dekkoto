@@ -109,6 +109,11 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/isLikedDisliked", app.isLikedDisliked)
 	router.POST("/likeDislikeCount", app.likeDislikeCount)
 
+	// For user settings
+	router.GET("/profile", app.profile)
+	router.GET("/editProfile", app.editProfile)
+	router.GET("/changePassword", app.changePassword)
+
 	// TemporaryDevelopment of AdminPanel
 	router.GET("/aakash", app.adminPanelTemp)
 	router.GET("/aakash/dashboard", app.adminDashboardTemp)
