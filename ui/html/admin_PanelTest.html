@@ -11,6 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarala&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.1/css/all.css">
     <link rel="stylesheet" href="../static/css/adminPannelTemp.css">
+        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script> -->
+        <link rel="stylesheet" href="../static/css/table.css" />
+
     
 
 </head>
@@ -28,16 +35,16 @@
             </div>
 
             <ul>
-                <li class="active" title="Dashboard"><a href="#" data-link="/aakash/dashboard"><i
+                <li class="active" title="Dashboard"><a href="#" data-link="/aakash/dashboard" data-script = "../static/js/dashboard.js"><i
                             class="fa-solid fa-chart-tree-map"></i><span>Dashboard</span></a></li>
-                <li title="Add New"><a href="#" data-link="/aakash/addVideo"><i class="fa-solid fa-video-plus"></i><span>Add
+                <li title="Add New"><a href="#" data-link="/aakash/addVideo" data-script = "../static/js/new_uploadVideo.js"><i class="fa-solid fa-video-plus"></i><span>Add
                             New</span></a>
-                <li title="Videos"><a href="#" data-link="/aakash/videoList"><i
+                <li title="Videos"><a href="#" data-link="/showVideos" data-script = "../static/js/dashboard.js"><i
                             class="fa-solid fa-film"></i><span>Videos</span></a>
                 </li>
-                <li title="Analytics"><a href="#" data-link="/aakash/analytics"><i
+                <li title="Analytics"><a href="#" data-link="/aakash/analytics" data-script = "../static/js/dashboard.js"><i
                             class="fa-solid fa-chart-mixed"></i><span>Analytics</span></a></li>
-                <li title="Settings"><a href="#" data-link="/aakash/settings"><i
+                <li title="Settings"><a href="#" data-link="/aakash/settings" data-script = "../static/js/dashboard.js"><i
                             class="fa-duotone fa-gear"></i><span>Settings</span></a>
                 </li>
             </ul>
@@ -72,6 +79,8 @@
         <section id="content"></section>
     </main>
     <script src="../static/js/adminTemp.js" defer></script>
+<!--    <script src="../static/js/uplaodVideo.js" defer></script>-->
+        <script src="../static/js/viewTables.js" defer></script>
 </body>
 
 </html>

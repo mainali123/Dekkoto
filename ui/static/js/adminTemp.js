@@ -5,6 +5,9 @@ let sideNavLinks = document.querySelectorAll(".side-nav a");
 let main = document.querySelector("main");
 let currentActive = document.querySelector(".side-nav .active");
 let currentPageName = document.querySelector(".current-page-name");
+let currentScript  = localStorage.getItem("currentScript");
+
+
 
 window.addEventListener("load", () => {
 	document.body.style.overflow = "hidden";
@@ -25,19 +28,9 @@ window.addEventListener("load", () => {
 
 	});
 
-	let title = localStorage.getItem("currentPage");
-	let htmlFile = localStorage.getItem("currentHtmlFile");
-	if (title && htmlFile) {
-		currentPageName.textContent = title;
-		currentActive.classList.remove("active");
-		sideNavLinks.forEach((link) => {
-			if (link.textContent === title) {
-				link.parentElement.classList.add("active");
-				currentActive = link.parentElement;
-			}
-		});
-		showContent(htmlFile, title);
-	}
+	let index = localStorage.getItem("currentPageIndex")
+	sideNavLinks[index].click();
+	
 });
 
 toggleSidebar.addEventListener("click", () => {
@@ -55,15 +48,25 @@ toggleSidebar.addEventListener("click", () => {
 	}
 });
 
-sideNavLinks.forEach((link) => {
+sideNavLinks.forEach((link,index) => {
 	link.addEventListener("click", () => {
+		
 		let htmlFile = link.getAttribute("data-link");
+		let scriptSrc = link.getAttribute("data-script")
+		
+			setTimeout(() => {
+				if (scriptSrc !== currentScript) {
+					deleteScript(currentScript)
+					addScript(scriptSrc);
+					currentScript = scriptSrc;
+					localStorage.setItem("currentScript",scriptSrc)
+				}
+	}, 1000);
 		let title = link.textContent;
 		currentActive.classList.remove("active");
 		link.parentElement.classList.add("active");
 		currentActive = link.parentElement;
-		localStorage.setItem("currentPage", title);
-		localStorage.setItem("currentHtmlFile", htmlFile);
+		localStorage.setItem("currentPageIndex",index)
 		currentPageName.textContent = title;
 		showContent(htmlFile, title);
 	});
@@ -92,6 +95,7 @@ document.addEventListener('click', function (e) {
 	let fileInput;
 	let selectName;
 	let imgPreview;
+	// console.log(e.target)
 
 	if (e.target.matches('#selectFile')) {
 		console.log('selectFile')
@@ -153,3 +157,25 @@ content.addEventListener('dragleave', function (e) {
 		document.querySelector('.upload-area').style.backgroundColor = '';
 	}
 });
+
+function addScript(src) {
+
+		let script = document.createElement("script");
+		script.src = src;
+		script.async = true;
+		document.body.appendChild(script);
+}
+
+function deleteScript(src) {
+	let script = document.querySelectorAll("script")
+	script.forEach((js) => {
+		let scriptUrl = new URL(js.src);
+		let pathname = scriptUrl.pathname;
+		let scriptSrc = ".." + pathname
+		if (scriptSrc === src) {
+
+			document.body.removeChild(js);
+		}
+	});
+}
+

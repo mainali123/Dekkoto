@@ -1567,6 +1567,19 @@ func (app *application) adminPanelTemp(c *gin.Context) {
 		app.serverError(c.Writer, err)
 		return
 	}
+
+	video := c.Query("video")
+	title := c.Query("title")
+	description := c.Query("description")
+	thumbnail := c.Query("thumbnail")
+	banner := c.Query("banner")
+	type_ := c.Query("type")
+	genre := c.QueryArray("genre") // Use QueryArray to get multiple values for the same parameter
+
+	fmt.Println("Video: ", video, "Title: ", title, "Description: ", description, "Thumbnail: ", thumbnail, "Banner: ", banner, "Type: ", type_, "Genre: ", genre)
+
+	// pass the video to another function named encodeVideo
+	//handler.HandleVideoUpload()
 }
 
 // adminAddVideoTemp is a handler function that serves the add video page.

@@ -12,6 +12,11 @@ body{
 }
 
 
+p{
+    color: #fff;
+}
+
+
 .user-info {
     margin: auto 1rem;
     display: flex;
@@ -24,7 +29,7 @@ body{
     font-size: 30px;
     font-weight: 500;
     text-transform: capitalize;
-    color: var(--header-color);
+    color: rgb(51, 208, 208);
 }
 
 strong {
@@ -51,6 +56,7 @@ strong {
     overflow: hidden;
     text-overflow: ellipsis;
     height: 3.5em;
+    color: #fff;
     transition: max-height 0.2s linear, opacity 0.2s linear;
 }
 
@@ -79,6 +85,7 @@ strong {
     font-weight: 700;
     text-transform: capitalize;
     font-size: 20px;
+    color: #fff;
 }
 
 .recommen {
