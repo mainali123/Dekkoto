@@ -1697,6 +1697,7 @@ func (app *application) editProfile(c *gin.Context) {
 		return
 	}
 }
+
 func (app *application) changePassword(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/user_changePassword.html")
 	if err != nil {
@@ -1709,4 +1710,69 @@ func (app *application) changePassword(c *gin.Context) {
 		app.serverError(c.Writer, err)
 		return
 	}
+}
+
+func (app *application) editUserProfile(c *gin.Context) {
+	type userDetails struct {
+		UserName string `json:"userName"`
+		Email    string `json:"email"`
+	}
+
+	var user userDetails
+
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.editUserProfile(user.UserName, user.Email, userInfo.Email)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to edit user profile",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User profile edited successfully",
+		"success": true,
+	})
+}
+
+func (app *application) changePasswordPost(c *gin.Context) {
+	//oldPassword: oldPassword,
+	//	newPassword: newPassword
+
+	type password struct {
+		OldPassword string `json:"oldPassword"`
+		NewPassword string `json:"newPassword"`
+	}
+
+	var pass password
+
+	err := c.ShouldBindJSON(&pass)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.changePassword(pass.OldPassword, pass.NewPassword, userInfo.Email)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Password changed successfully",
+		"success": true,
+	})
 }

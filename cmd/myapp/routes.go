@@ -113,6 +113,8 @@ func (app *application) routes(router *gin.Engine) {
 	router.GET("/profile", app.profile)
 	router.GET("/editProfile", app.editProfile)
 	router.GET("/changePassword", app.changePassword)
+	router.POST("/editUserProfile", app.editUserProfile)
+	router.POST("/changePassword", app.changePasswordPost)
 
 	// TemporaryDevelopment of AdminPanel
 	router.GET("/aakash", app.adminPanelTemp)

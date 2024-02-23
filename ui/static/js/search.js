@@ -147,3 +147,21 @@ searchInput.addEventListener('submit', function () {
             console.error('Error:', error);
         });
 });
+
+
+// Get the search input field
+const searchData = document.querySelector('.search-input');
+
+// Attach an event listener to the input field
+searchData.addEventListener('input', function () {
+    console.log("I am here")
+    // Get the value of the input field
+    const searchValue = searchData.value;
+    let autoComplete = document.querySelector('#autoComplete_list_1');
+    if (searchValue === "") {
+        autoComplete.style.display = "none";
+    } else {
+        autoComplete.style.display = "flex";
+    }
+    
+});

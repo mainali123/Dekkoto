@@ -1659,3 +1659,32 @@ func (db *databaseConn) autoComplete() ([]VideoDesc, error) {
 	// Return the results
 	return videos, nil
 }
+
+func (db *databaseConn) editUserProfile(userName string, email string, prevEmail string) error {
+	query := "UPDATE users SET UserName = ?, Email = ? WHERE Email = ?"
+	_, err := db.DB.Exec(query, userName, email, prevEmail)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// pass.OldPassword, pass.NewPassword, userInfo.Email
+func (db *databaseConn) changePassword(oldPassword string, newPassword string, email string) error {
+	query := "SELECT Password FROM users WHERE Email = ?"
+	row := db.DB.QueryRow(query, email)
+	var password string
+	err := row.Scan(&password)
+	if err != nil {
+		return err
+	}
+	if password != oldPassword {
+		return errors.New("old password is incorrect")
+	}
+	query = "UPDATE users SET Password = ? WHERE Email = ?"
+	_, err = db.DB.Exec(query, newPassword, email)
+	if err != nil {
+		return err
+	}
+	return nil
+}
