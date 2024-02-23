@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 
@@ -71,6 +72,127 @@
     </div>
 </form>
 
+</body>
+
+</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/css/register.css">
+
+    <link
+            rel="shortcut icon"
+            href="../static/images/DEKKOTO.svg"
+            type="image/x-icon"
+    />
+    <link
+            rel="stylesheet"
+            href="https://site-assets.fontawesome.com/releases/v6.4.2/css/all.css"
+    />
+
+    <title>Regsiter - DEKKOTO</title>
+</head>
+<body>
+<section id="loginForm">
+    <div class="max-width">
+        <div class="left-side">
+
+        </div>
+        <div class="right-side">
+            <div class="alert-box-dialog">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <p class="alert-message-dialog">Invalid username or password</p>
+            </div>
+            <div class="heading-wrapper">
+                <h1>Resgister !</h1>
+                <p>Please create your account to continue</p>
+            </div>
+            <form action="" method="post" class="login-form form">
+                <div class="input-field">
+                    <i class="fas fa-envelope"></i>
+                    <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            placeholder="Enter your name"
+                            class="register-name"
+                    />
+                    <label class="placeholder">Name</label>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-envelope"></i>
+                    <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            placeholder="Enter your email"
+                            class="login-email"
+                    />
+                    <label class="placeholder">Email</label>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            placeholder=""
+                            class="login-password"
+                    />
+
+                    <label class="placeholder">Password</label>
+                    <button class="password-show" type="button">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+
+                <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input
+                            type="password"
+                            name="Confirm-password"
+                            id="Conpassword"
+                            placeholder=""
+                            class="Confirm password Conpassword"
+                    />
+
+                    <label class="placeholder">Confirm Password</label>
+                    <button class="password-show" type="button">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="primary-btn login-btn">Sign in</button>
+            </form>
+            <div class="social-login">
+                <a href="" class="social-login-btn">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="" class="social-login-btn">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="" class="social-login-btn">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+            <div class="create-account">
+                <hr />
+                <p>
+                    Already have an account?&nbsp;&nbsp;<a
+                        href="/login"
+                        class="signup-link"
+                >Log in</a
+                >
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="../static/js/register.js" defer></script>
 </body>
 
 </html>
