@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="../static/css/search.css"/>
+    <link rel="shortcut icon" href="../static/images/DEKKOTO.svg" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Sarala&display=swap" rel="stylesheet">
     <!-- <link rel="stylesheet" href="../static/css/navbar.css"/> -->
     <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/10.2.7/autoComplete.min.js"></script>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/10.2.7/css/autoComplete.min.css"> -->
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.4.2/css/all.css">
 
+    <link rel="stylesheet" href="../static/css/search.css"/>
+    <link rel="stylesheet" href="../static/css/navbar.css"/>
 </head>
 <body>
 <header class="nav-bar">
@@ -25,20 +30,29 @@
     />
     <ul>
         <li><a href="/home">home</a></li>
-        <li><a href="profile.html">profile</a></li>
+        <li><a href="/userProfile">profile</a></li>
         <li><a href="/search" class="active">search</a></li>
-        <li><a href="about.html">about</a></li>
+        <li><a href="/about">about</a></li>
     </ul>
 </header>
 
 <main>
-    <form action="" class="search-bar">
+    <!--<form action="" class="search-bar">
         <input type="text" placeholder="Search for video..." class="search-input" id="search"/>
         <button type="submit" class="search-btn" id="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
         <button id="filter-btn" class="filter-btn">
             <i class="fa-solid fa-filter-list"></i>
         </button>
-    </form>
+    </form>-->
+
+    <div class="container search-bar">
+        <div class="body" >
+            <div class="autoComplete_wrapper">
+                <input id="autoComplete" type="text" tabindex="1" class="search-input">
+            </div>
+        </div>
+    </div>
+
     <div class="result-container-wrapper">
 
     </div>
@@ -46,5 +60,6 @@
 </main>
 
 <script src="../static/js/search.js"></script>
+<script src="../static/js/autoCompleteSearch.js"></script>
 </body>
 </html>

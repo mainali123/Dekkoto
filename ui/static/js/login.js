@@ -1,24 +1,51 @@
 console.log('login.js loaded');
 document.addEventListener('DOMContentLoaded', loginValidation);
 
+
+let showPassword = document.querySelectorAll(".password-show");
+
+showPassword.forEach((show) => {
+	show.addEventListener("click", () => {
+		const password = show.parentElement.children[1];
+		if (password.type === "password") {
+			password.type = "text";
+			show.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+		} else {
+			password.type = "password";
+			show.innerHTML = '<i class="fa-solid fa-eye"></i>';
+		}
+	});
+});
+
+const alert = document.querySelector(".alert-box-dialog");
+const alertMessage = document.querySelector(".alert-message-dialog");
+
+function showAlert(message) {
+	alertMessage.innerHTML = message;
+	alert.style.visibility = "visible";
+	alert.style.opacity = "1";
+
+	setTimeout(() => {
+		alert.style.visibility = "hidden";
+		alert.style.opacity = "0";
+	}, 5000);
+}
+
 function loginValidation() {
     const form = document.querySelector('.form');
     const email = document.querySelector('#email');
     const password = document.querySelector('#password');
-    const emailErrorMsg = document.querySelector('.error-msg');
-    const passwordErrorMsg = document.querySelector('.password-error-msg');
 
 
     function validateEmail(email) {
         // Validate email
         if (email.value === '') {
-            emailErrorMsg.innerHTML = 'Email is required';
+            showAlert("Email is required");
             return false;
         } else if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email.value)) {
-            emailErrorMsg.innerHTML = 'Please enter a valid email';
+            showAlert("Please enter valid email");
             return false;
         } else {
-            emailErrorMsg.innerHTML = '';
             return true;
         }
     }
@@ -26,13 +53,12 @@ function loginValidation() {
     function validatePassword(password) {
         // Validate password
         if (password.value === '') {
-            passwordErrorMsg.innerHTML = 'Password is required';
+            showAlert("Password is required");
             return false;
         } else if (password.value.length < 8) {
-            passwordErrorMsg.innerHTML = 'Your password must be more than 8 characters';
+        showAlert("Your password must be more than 8 characters");
             return false;
         } else {
-            passwordErrorMsg.innerHTML = '';
             return true;
         }
     }
@@ -43,12 +69,10 @@ function loginValidation() {
         let isValid = true;
 
         if (!validateEmail(email)) {
-            emailErrorMsg.style.opacity = "1";
             isValid = false;
         }
 
        else if (!validatePassword(password)) {
-            passwordErrorMsg.style.opacity = "1";
             isValid = false;
         }
         console.log("isValid: " + isValid);
@@ -82,14 +106,15 @@ function loginValidation() {
                     } else {
                         // window.location.href = "/login";
                         console.log("logged in");
-                        alert("Go to admin page.")
-                        window.location.href = "/adminPanel";
+                        // window.location.href = "/adminPanel";
+                        window.location.href = "/home";
                     }
                 })
                 .catch((error) => {
                     // console.error('Error:', error);
                     if (error === "User does not exist") {
                         // show popup message to user
+                        console.log("User does not exist. Please register first.")
                         alert("User does not exist. Please register first.")
                         window.location.href = "/register";
                     }

@@ -1,191 +1,269 @@
 @import url('https://fonts.googleapis.com/css2?family=Sarala:wght@400;700&display=swap');
-:root {
-    --background: #0e121a;
-    --font-family: 'Sarala', sans-serif;
-    --header-color: #8b93ae;
-    --input-bg: #151820;
-}
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	/* outline: 1px dotted red; */
+	font-family: Sarala;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+	-webkit-text-fill-color: #000000 !important;
+	-webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
 }
 
 body {
-    font-family: var(--font-family);
-    background-color: var(--background);
-    margin: 0 2rem;
+	background: #232931;
+}
+hr {
+	border: 1px solid #adadad;
+	width: 100%;
+	border-radius: 2rem;
 }
 
-a {
-    text-decoration: none;
-    font-size: 24px;
-    font-weight: 400;
+#loginForm {
+	width: 100%;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.alert-box-dialog {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 20px;
+	border-left: 5px solid rgb(207, 0, 0);
+	background-color: #ff9f9fe8;
+	visibility: hidden;
+	opacity: 0;
+	transition: all 0.3s ease-in-out;
+	font-size: 0.9rem;
+	color: #000000;
+	width: 90%;
 }
 
-a:hover {
-    color: #8b93ae;
-    transition: color 0.3s ease;
+#loginForm {
+	.max-width {
+		width: 60vw;
+		height: 70vh;
+		position: absolute;
+		margin: auto;
+		top: auto;
+		background: #fff;
+		border-radius: 10px;
+		box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.2);
+		border-radius: 3rem;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 10px;
+		flex-shrink: 2;
+	}
+	.left-side {
+		background: linear-gradient(
+				180deg,
+				rgba(0, 0, 0, 0) 0%,
+				rgba(0, 0, 0, 0.5634628851540616) 100%
+			),
+			url("../images/cote.jpeg") no-repeat center center/cover;
+		width: 100%;
+		height: 100%;
+		border-top-left-radius: calc(3rem - 10px);
+		border-bottom-left-radius: calc(3rem - 10px);
+	}
+	.right-side {
+		width: 90%;
+		height: 100%;
+		padding: 10px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-around;
+		align-items: center;
+		gap: 30px;
+	}
+	.heading-wrapper {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 25px;
+		flex-direction: column;
+	}
+	.heading-wrapper h1 {
+		font-size: 2rem;
+		font-weight: 600;
+		color: #232931;
+	}
+	.heading-wrapper p {
+		font-size: 1rem;
+	}
+	.login-form {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		align-items: center;
+		justify-content: center;
+		width: 70%;
+	}
+	.input-field {
+		width: 100%;
+		padding: 1px 20px;
+		border: none;
+		border-radius: 25px;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 10px;
+		position: relative;
+		border: 1px solid #232931;
+	}
+	.input-field input {
+		width: 100%;
+		height: 100%;
+		border: none;
+		outline: none;
+		background: none;
+		font-size: 1rem;
+		color: #232931;
+		padding: 10px 5px;
+	}
+	.input-field input:focus + .placeholder,
+	.input-field input:not(:placeholder-shown) + .placeholder {
+		transform: translateY(-25px) translateX(-10px);
+		font-size: 0.8rem;
+		color: #bf4f51;
+		background-color: #fff;
+	}
+	.input-field i {
+		font-size: 1.2rem;
+		color: #999999;
+	}
+	.placeholder {
+		font-size: 1rem;
+		position: absolute;
+		left: 50px;
+		transition: all 0.3s ease-in-out;
+		padding: 5px;
+		pointer-events: none;
+		color: #999999;
+	}
+	.forget-link {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		font-size: 0.9rem;
+	}
+	.forget-password,
+	.signup-link {
+		font-size: 1rem;
+		color: #bf4f51;
+		text-decoration: none;
+		font-weight: 600;
+	}
+
+	.login-btn {
+		width: 100%;
+		padding: 10px;
+		border: none;
+		border-radius: 25px;
+		background-color: #bf4f51;
+		color: #fff;
+		font-size: 1rem;
+		font-weight: 600;
+		cursor: pointer;
+		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+	}
+	.password-show {
+		border: none;
+		background: none;
+		outline: none;
+		cursor: pointer;
+	}
+	.social-login {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 50px;
+		width: 100%;
+	}
+	.social-login a {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 30px;
+		height: 30px;
+		border-radius: 50%;
+		background-color: #bf4f51;
+		color: #fff;
+		font-size: 1.2rem;
+		text-decoration: none;
+		padding: 5px;
+	}
+	.create-account {
+		font-size: 0.9rem;
+		color: #232931;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 15px;
+		flex-direction: column;
+	}
+}
+.custom-checkbox-box {
+	width: 15px;
+	height: 15px;
+	background-color: #fff;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	font-family: "Font Awesome 5 Duotone";
+	transition: all 0.3s ease-in-out;
+	border: 2px solid #bf4f51;
 }
 
-.form {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.custom-checkbox:checked + .custom-checkbox-box {
+	background-color: #bf4f51;
 }
 
-.header {
-    cursor: pointer;
-    color: var(--header-color);
-    font-size: 64px;
-    font-style: normal;
-    font-weight: 700;
-    margin: 0 auto;
+.custom-checkbox:checked + .custom-checkbox-box::before {
+	content: "\f00c";
+	font-size: 0.7rem;
+	color: #ffffff;
+	font-weight: 700;
+}
+input[type="checkbox"] {
+	display: none;
+}
+.custom-checkbox-label {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 5px;
 }
 
-.register {
-    display: flex;
-    justify-content: space-between;
-    margin-right: 2rem;
-}
-
-.reg {
-    margin: auto 0;
-    color: #adadad;
-    transition: color 0.3s ease;
-}
-
-.forgot-pass {
-    display: flex;
-    padding-top: 1rem;
-    color: #adadad;
-}
-
-form {
-    position: relative;
-}
-
-label {
-    display: flex;
-    color: var(--header-color);
-    font-size: 24px;
-    text-transform: capitalize;
-    font-weight: 700;
-    padding-bottom: 1rem;
-}
-
-input[type='text'] {
-    margin-bottom: 1rem;
-}
-
-input[type='text'],
-input[type='password'] {
-    width: 1051px;
-    height: 90px;
-    flex-shrink: 0;
-    background-color: var(--input-bg);
-    padding: 1rem;
-    border-radius: 13px;
-    border: none;
-    color: var(--header-color);
-    font-size: 24px;
-}
-
-input[type='text'],
-input[type='password']:focus-within {
-    outline: none;
-}
-
-input[type='button'], input[type='submit'] {
-    cursor: pointer;
-    display: flex;
-    width: 1038.5px;
-    height: 70.5px;
-    flex-shrink: 0;
-    margin-top: 1rem;
-    color: #fff;
-    font-family: var(--font-family);
-    font-size: 32px;
-    background-color: var(--input-bg);
-    justify-content: center;
-}
-
-input[type='button'], input[type='submit']:active {
-    scale: 0.98;
-    transition: scale 0.3s ease;
-}
-
-.buttons {
-    display: flex;
-}
-
-.images {
-    z-index: 100;
-    width: 27px;
-    height: 29px;
-    position: absolute;
-    bottom: 1.3rem;
-    left: 44%;
-}
-
-.error-msg,
-.password-error-msg{
-    opacity: 0;
-    display: flex;
-    color: rgb(154, 37, 37);
-    font-size: 18px;
-    font-weight: 700;
-    margin: 1rem;
-    margin-left: 0;
-}
-
-
-
-@media only screen and (max-width: 700px) {
-    .header {
-        margin-top: 1rem;
-    }
-
-    a {
-        font-size: 15px;
-    }
-
-    .reg {
-        margin-top: 2rem;
-        margin-right: -2rem;
-    }
-
-    .header {
-        font-size: 30px;
-    }
-
-    label {
-        font-size: 20px;
-    }
-
-    input[type='text'],
-    input[type='password'] {
-        width: 340px;
-        height: 70px;
-        font-size: 20px;
-    }
-
-    input[type='button'], input[type='submit'] {
-        width: 340px;
-        height: 70px;
-        font-size: 20px;
-    }
-
-    .images {
-        left: 30%;
-    }
-
-    .error-msg{
-        font-size: 12px;
-    }
-
-    .password {
-        background-position: 19rem;
-    }
+@media screen and (max-width: 768px) {
+	#loginForm {
+		.max-width {
+			width: 90vw;
+			height: 90vh;
+		}
+		.left-side {
+			display: none;
+		}
+		.right-side {
+			width: 100%;
+		}
+		.login-form {
+			width: 100%;
+		}
+	}
 }

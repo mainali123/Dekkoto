@@ -1,0 +1,269 @@
+/* *{
+    outline: 1px solid red;
+} */
+
+header {
+    background: url('../images/cote.jpeg') center/cover no-repeat;
+    height: 600px;
+}
+
+body{
+    margin:0;
+}
+
+
+p{
+    color: #fff;
+}
+
+
+.user-info {
+    margin: auto 1rem;
+    display: flex;
+    height:100%;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.level-text {
+    font-size: 30px;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: rgb(51, 208, 208);
+}
+
+strong {
+    font-size: 80px;
+}
+
+
+.level {
+    color: rgb(51, 208, 208);
+}
+
+.user-name {
+    font-size: 30px;
+    text-transform: capitalize;
+    font-weight: 700;
+    color: rgb(176, 176, 71);
+}
+
+.user-bio {
+    width: 35%;
+    margin-top: 1rem;
+    opacity: 0.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 3.5em;
+    color: #fff;
+    transition: max-height 0.2s linear, opacity 0.2s linear;
+}
+
+.user-bio:hover {
+    max-height: 5em;
+    opacity: 1;
+    overflow: visible;
+    white-space: normal;
+    text-overflow: unset;
+}
+
+.user-stats-div {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 1rem 0;
+}
+
+.user-stats-div div {
+    width: 15%;
+    background-color: rgba(178, 186, 185, 0.08);
+    text-align: center;
+    border-radius: 10px;
+}
+
+.user-stats-div p {
+    font-weight: 700;
+    text-transform: capitalize;
+    font-size: 20px;
+    color: #fff;
+}
+
+.recommen {
+    color: #e63cc0;
+}
+
+.watch {
+    color: #3ce64d;
+}
+
+.compli {
+    color: #3cc7e6;
+}
+
+.hold {
+    color: #e6d53c;
+}
+
+.consider {
+    color: #ad00ff;
+}
+
+.drop {
+    color: #f00;
+}
+
+.watchAndHold-section {
+    margin: 0 1rem;
+    margin-top: 2rem;
+    display: flex;
+  }
+  
+  .watching,
+  .on-hold {
+    cursor: pointer;
+    display: flex;
+    height: 500px;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+    background-color: rgba(178, 186, 185, 0.08);
+    padding: 1rem 0.5rem;
+    border-radius: 10px;
+}
+
+.waatch,
+.hoold{
+
+     width: 100%;
+}
+  .watching{
+    margin-right: 1rem;
+  }
+  
+  .watching img,
+  .on-hold img {
+    width: 23%;
+    aspect-ratio: 16/9;
+    height: 50%;
+    padding: 0.4rem;
+    object-fit: contain;
+    border-radius: 20px;
+  }
+
+.considered-anime {
+    cursor: pointer;
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+.considered{
+    margin: 0 1rem;
+}
+
+.considered-anime img {
+    border-radius: 10px;
+    width: 10%;
+}
+
+.text {
+    color: #fff;
+    text-transform: capitalize;
+}
+
+.recent {
+    margin: 0 1rem;
+    margin-top: 4rem;
+}
+
+.finished {
+    display: flex;
+    margin-bottom: 2rem;
+    background: #151820;
+}
+
+.finished img {
+    height: 200px;
+    border-radius: 10px;
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    padding-left: 1rem;
+    justify-content: center;
+    text-transform: capitalize;
+    font-size: 24px;
+}
+
+.time-set {
+    color: #3cc7e6;
+    padding-top: .5rem;
+}
+
+.start-date {
+    color: #3ce64d;
+    padding-right: 0.3rem;
+}
+
+.finish-date {
+    color: #f00;
+    padding-left: 0.3rem;
+}
+
+
+.show{
+    background-color: #000;
+}
+
+.dropdown{
+    display: flex;
+    justify-content: end;
+    top: -20.6rem;
+}
+.dropdown:focus-within{
+    outline: none;
+}
+
+.dropdown-item{
+    padding: 1rem;
+    display: flex;
+    justify-content: end;
+}
+
+.dropdown-item:hover{
+    background-color: #151820;
+}
+
+
+.dropdown-image{
+    height: 40px;
+}
+
+.dropdown-menu{
+    min-width: 0 !important;
+    width: 10%;
+}
+
+
+@media only screen and (max-width: 750px) {
+    .considered-anime img {
+        height: 100px;
+        width: 15%;
+    }
+
+    .user-stats-div p {
+        font-size: 12px;
+    }
+
+    .user-stats-div{
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .user-stats-div div{
+        width: 30%;
+    }
+
+    strong{
+        font-size: 40px;
+    }
+}

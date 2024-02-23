@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +22,7 @@
 <button id="forwardSkipButton">+10</button>
 <button id="backwardSkipButton">-10</button>
 <button id="lockButton">Lock</button>
-<!--create a dropdown for watching, completed, on-hold, dropped-->
+&lt;!&ndash;create a dropdown for watching, completed, on-hold, dropped&ndash;&gt;
 <select id="statusSelect">
   <option value="watching">Watching</option>
   <option value="completed">Completed</option>
@@ -39,3 +40,195 @@
     width: 70%;
   }
   </style>
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Watch Video</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!-- <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    /> -->
+    <link rel="stylesheet" href="../static/css/watchVideo.css"/>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"/>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+    <script src="../static/js/watchVideo.js" defer></script>
+    <script src="../static/js/comments.js" defer></script>
+
+</head>
+
+<body>
+<div class="container show-controls">
+    <div class="wrapper">
+        <div class="video-timeline">
+            <div class="progress-area">
+                <span>00:00</span>
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+        <ul class="video-controls">
+            <li class="options left">
+                <button class="volume">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <input type="range" min="0" max="1" step="any"/>
+                <div class="video-timer">
+                    <p class="current-time">00:00</p>
+                    <p class="separator">/</p>
+                    <p class="video-duration">00:00</p>
+                </div>
+            </li>
+            <li class="options center">
+                <button class="skip-backward">
+                    <i class="fas fa-backward"></i>
+                </button>
+                <button class="play-pause"><i class="fas fa-play"></i></button>
+                <button class="skip-forward"><i class="fas fa-forward"></i></button>
+            </li>
+            <li class="options right">
+                <div class="playback-content">
+                    <button class="playback-speed">
+                        <span class="material-symbols-rounded">slow_motion_video</span>
+                    </button>
+                    <ul class="speed-options">
+                        <li data-speed="2">2x</li>
+                        <li data-speed="1.5">1.5x</li>
+                        <li data-speed="1" class="active">Normal</li>
+                        <li data-speed="0.75">0.75x</li>
+                        <li data-speed="0.5">0.5x</li>
+                    </ul>
+                </div>
+                <!--create a dropdown for watching, completed, on-hold, dropped-->
+                <div class="dropdown-videoStatus">
+
+                    <select id="statusSelect">
+                        <option value="watching">Watching</option>
+                        <option value="completed">Completed</option>
+                        <option value="on-hold">On-Hold</option>
+                        <option value="considering">Considering</option>
+                        <option value="dropped">Dropped</option>
+                    </select>
+                </div>
+                <button class="fullscreen">
+                    <i class="fa-solid fa-expand"></i>
+                </button>
+            </li>
+        </ul>
+    </div>
+    <video src="ewwwBrother.mp4" id="video-player"></video>
+</div>
+
+<section class="video-information">
+    <div class="title">
+        <h1>Eww brother whats that ewww</h1>
+    </div>
+
+    <div class="videoLikeOrNot">
+        <button class="btn like">
+            <i class="fa-regular fa-thumbs-up" id="font-awe-like"></i>
+            <span class="liked-video-count">1</span>
+        </button>
+
+        <button class="btn dislike">
+            <i class="fa-regular fa-thumbs-down" id="font-awe-dislike"></i>
+            <span class="dislike-video-count">1</span>
+        </button>
+    </div>
+</section>
+
+<section class="commentAndDescription">
+    <div class="description">
+        <h2>description</h2>
+        <p class="desc">
+            On the surface, Koudo Ikusei Senior High School is a utopia. The
+            students enjoy an unparalleled amount of freedom, and it is ranked
+            highly in Japan. However, the reality is less than ideal. Four
+            classes, A through D, are ranked in order of merit, and only the top
+            classes receive favorable treatment. Kiyotaka Ayanokouji is a student
+            of Class D, where the school dumps its worst. There he meets the
+            unsociable Suzune Horikita, who believes she was placed in Class D by
+            mistake and desires to climb all the way to Class A, and the seemingly
+            amicable class idol Kikyou Kushida, whose aim is to make as many
+            friends as possible. While class membership is permanent, class
+            rankings are not; students in lower ranked classes can rise in
+            rankings if they score better than those in the top ones.
+            Additionally, in Class D, there are no bars on what methods can be
+            used to get ahead. In this cutthroat school, can they prevail against
+            the odds and reach the top?
+        </p>
+    </div>
+</section>
+
+<div class="comments-section">
+    <div class="user-comment">
+        <img src="../static/images/boruto.jpg" alt="default profile" class="user-profile"/>
+        <input type="text" id="User-comments" class="User-comments" placeholder="Add a comment..."/>
+        <button class="btn" id="comment-on-video">Post</button>
+    </div>
+
+    <div class="other-comments">
+        <!--<div class="comment">
+            <div class="other-user-name">
+                <div class="userrrrr">
+
+                    <p class="name">Krisha</p>
+                    <span class="time">1 years</span>
+                </div>
+
+
+                    <img src="../static/images/boruto.jpg" alt="default profile" class="other-user-profile" />
+
+
+            </div>
+            <p class="other-user-comment">
+                This is comment1.
+            </p>
+
+            <div class="upvotes">
+                <img src="../static/images/upDrop.png" alt="" class="upVotes">
+                <span class="voteNumbers">1</span>
+                <img src="../static/images/downDrop.png" alt="">
+            </div>
+        </div>-->
+    </div>
+
+    <!--<div class="other-comments">
+        <div class="comment">
+            <div class="other-user-name">
+                <div class="userrrrr">
+
+                    <p class="name">Krisha</p>
+                    <span class="time">1 years</span>
+                </div>
+
+
+                <img src="../static/images/boruto.jpg" alt="default profile" class="other-user-profile"/>
+
+            </div>
+
+            <p class="other-user-comment">
+                This is comment2.
+            </p>
+
+            <div class="upvotes">
+                <img src="../static/images/upDrop.svg" alt="" class="upVotes">
+                <span class="voteNumbers">1</span>
+                <img src="../static/images/downDrop.svg" alt="" class="downVotes">
+            </div>
+        </div>
+    </div>-->
+</div>
+
+</body>
+
+</html>

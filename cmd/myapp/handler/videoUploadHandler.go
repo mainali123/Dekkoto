@@ -1,3 +1,15 @@
+// Package handler provides various handlers for handling user requests related to video management in the application.
+//
+// The package includes handlers for the following operations:
+// - Video Upload: Handles the video upload process, including reading the video file from the request, saving it to a local directory, getting the video's duration and quality, encoding the video to H.265 format, and deleting the old file.
+// - Video Details: Handles the video details process, including reading the video details from the request, checking if the title and description are not empty, and saving the details to a global variable.
+// - Thumbnail Upload: Handles the thumbnail upload process, including reading the thumbnail file from the request, checking its aspect ratio, saving it to a local directory, and encoding the image to PNG format.
+// - Banner Upload: Handles the banner upload process, including reading the banner file from the request, checking its aspect ratio, saving it to a local directory, and encoding the image to PNG format.
+//
+// The package uses the "os", "io", "os/exec", "strconv", "math/rand", "time", "net/http", "fmt", "github.com/gin-gonic/gin", and "github.com/google/uuid" packages.
+// The package saves the video, thumbnail, and banner in the "./userUploadDatas/videos/", "./userUploadDatas/thumbnails/", and "./userUploadDatas/banners/" directories respectively.
+// The package provides the storage path of the video, thumbnail, and banner in the VideoDetailsInfo.VideoStoragePath, VideoDetailsInfo.ThumbnailStoragePath, and bannerStoragePath variables respectively.
+// The package provides the duration of the video in the VideoDetailsInfo.VideoDuration variable.
 package handler
 
 import (
@@ -15,9 +27,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// Declare fileName as a global variable
+// GfileName is a global variable that stores the name of the uploaded file.
 var GfileName string
 
+// videoDetails is a struct that holds various details about the uploaded video.
 type videoDetails struct {
 	FileName             string   `json:"fileName"`
 	VideoTitle           string   `json:"videoTitle"`
@@ -30,8 +43,26 @@ type videoDetails struct {
 	Types                string   `json:"types"`
 }
 
+// VideoDetailsInfo is a global variable of type videoDetails that stores the details of the uploaded video.
 var VideoDetailsInfo videoDetails
 
+// HandleVideoUpload handles the video upload process. It reads the video file from the request,
+// saves it to a local directory, gets the video's duration and quality, encodes the video to H.265 format,
+// and deletes the old file.
+//
+// The function expects a "video" file in the request. If the file is not present, it sends a 500 error response with the message "Failed to read file from request".
+// If the function fails to create the file, it sends a 500 error response with the message "Failed to create file".
+// If the function fails to save the file, it sends a 500 error response with the message "Failed to save file".
+// If the function fails to get the video info, it sends a 500 error response with the message "Failed to get video info".
+// If the function fails to convert the video, it sends a 500 error response with the message "Failed to convert video".
+// If the function fails to stop using the old file, it sends a 500 error response with the message "Failed to stop using the old file".
+// If the function fails to delete the old file, it sends a 500 error response with the message "Failed to delete old file".
+// If the function successfully uploads, converts, and deletes the old file, it sends a 200 response with the message "File uploaded, converted to H.265, and old file deleted successfully".
+//
+// The function uses the "os", "io", "os/exec", "strconv", "math/rand", "time", "net/http", "fmt", "github.com/gin-gonic/gin", and "github.com/google/uuid" packages.
+// The function saves the video in the "./userUploadDatas/videos/" directory.
+// The function provides the storage path of the video in the VideoDetailsInfo.VideoStoragePath variable.
+// The function provides the duration of the video in the VideoDetailsInfo.VideoDuration variable.
 func HandleVideoUpload(c *gin.Context) {
 	file, _, err := c.Request.FormFile("video")
 	if err != nil {
@@ -77,43 +108,18 @@ func HandleVideoUpload(c *gin.Context) {
 	// Encode the video
 	// if the quality of video is 1080p or higher
 	var cmd *exec.Cmd
-	if qualityInt >= 1080 {
-		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-			"-i",
-			"./userUploadDatas/videos/"+fileName,
-			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-			"-b:v", "6M",
-			"-crf", "26", // Lower CRF for better quality
-			"-preset", "fast", // Adjust preset according to speed/quality trade-off
-			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
-	} else if qualityInt > 720 && qualityInt < 1080 {
-		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-			"-i",
-			"./userUploadDatas/videos/"+fileName,
-			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-			"-b:v", "4M",
-			"-crf", "12", // Lower CRF for better quality
-			"-preset", "fast", // Adjust preset according to speed/quality trade-off
-			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
-	} else if qualityInt > 480 && qualityInt <= 720 {
-		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-			"-i",
-			"./userUploadDatas/videos/"+fileName,
-			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-			"-b:v", "2M",
-			"-crf", "8", // Lower CRF for better quality
-			"-preset", "fast", // Adjust preset according to speed/quality trade-off
-			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
-	} else {
-		cmd = exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
-			"-i",
-			"./userUploadDatas/videos/"+fileName,
-			"-c:v", "hevc_nvenc", // NVENC codec for H.265 encoding
-			"-b:v", "0.3M",
-			"-crf", "2", // Lower CRF for better quality
-			"-preset", "fast", // Adjust preset according to speed/quality trade-off
-			"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
+
+	switch {
+	case qualityInt >= 1080:
+		cmd = encodeVideo(fileName, "4M", "28", "fast", "1280x720")
+	case qualityInt > 720 && qualityInt < 1080:
+		cmd = encodeVideo(fileName, "2M", "24", "fast", "854x480")
+	case qualityInt > 480 && qualityInt <= 720:
+		cmd = encodeVideo(fileName, "1M", "20", "fast", "640x360")
+	default:
+		cmd = encodeVideo(fileName, "0.5M", "18", "fast", "480x270")
 	}
+
 	//// Set hardware acceleration flags if supported
 	cmd.Env = append(os.Environ(),
 		"CUDA_VISIBLE_DEVICES=0", // Utilize the first GPU device
@@ -152,11 +158,36 @@ func HandleVideoUpload(c *gin.Context) {
 
 	//c.String(200, "File uploaded, converted to AV1, and old file deleted successfully")
 	c.JSON(http.StatusOK, gin.H{
-		"message": "File uploaded, converted to H.265, and old file deleted successfully",
+		"message": "File uploaded and old file deleted successfully",
 		"success": true,
 	})
 }
 
+// encodeVideo is a helper function that returns a command to encode a video file using ffmpeg.
+// It takes the following parameters:
+// - fileName: the name of the video file to be encoded.
+// - bitrate: the bitrate to be used for the encoding process.
+// - crf: the Constant Rate Factor (CRF) to be used for the encoding process.
+// - preset: the preset to be used for the encoding process.
+// - resolution: the resolution to be used for the encoding process.
+//
+// The function uses the "os/exec" package.
+// The function returns a command that can be run to encode the video file.
+//
+// The function expects the video file to be located in the "./userUploadDatas/videos/" directory.
+// The function saves the encoded video in the same directory with "_encoded" appended to the file name and ".mp4" as the file extension.
+func encodeVideo(fileName, bitrate, crf, preset, resolution string) *exec.Cmd {
+	return exec.Command("C:\\ffmpeg-6.1-full_build\\bin\\ffmpeg",
+		"-i", "./userUploadDatas/videos/"+fileName,
+		"-c:v", "libx264",
+		"-b:v", bitrate,
+		"-crf", crf,
+		"-preset", preset,
+		"-vf", "scale="+resolution,
+		"./userUploadDatas/videos/"+fileName+"_encoded"+".mp4")
+}
+
+// getVideoQuality determines the quality of the video based on its height.
 func getVideoQuality(height int) string {
 	switch {
 	case height <= 240:
@@ -173,6 +204,7 @@ func getVideoQuality(height int) string {
 	}
 }
 
+// getVideoInfo uses the ffprobe command to get the height and duration of the video.
 func getVideoInfo(filePath string) (string, string, error) {
 	// Get video height
 	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=height", "-of", "default=noprint_wrappers=1:nokey=1", filePath)

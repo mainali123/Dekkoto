@@ -97,13 +97,15 @@ legend {
 }
 
 .upload-vid,
-.upload-thumb {
+.upload-thumb,
+.upload-banner{
     display: flex;
     flex-direction: column;
 }
 
 .upload,
-.thumb {
+.thumb,
+.banner{
     margin-top: 2em;
     padding: 1em;
     background-color: var(--input-bg);
@@ -161,7 +163,8 @@ legend {
 
 
     .upload,
-    .thumb {
+    .thumb,
+    .banner{
         margin-top: 1em;
         padding: 1em;
         width: 23em;

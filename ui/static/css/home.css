@@ -1,9 +1,18 @@
-@import 'login.css';
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* outline: 1px dotted red; */
 
-
-
+}
 body {
     background-color: #0e121a !important;
+}
+.card-display{
+    padding: 20px;
+    display: grid;
+    grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
 }
 
 .card-video {
@@ -12,44 +21,69 @@ body {
 
 .card {
     position: relative;
-    display: inline-block;
-    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     border: none;
     box-shadow: none;
     background-color: transparent;
     cursor: pointer;
+    width: 250px;
+    height: 435px;
+    scale: 1;
+    transition: all 0.3s linear;
+}
+
+.card:hover{
+    scale: 1.05;
 }
 
 .card-text {
     text-align: center;
     color: rgba(215, 214, 214, 0.83);
-    font-family: 'Fira Mono', monospace;
     font-size: 24px;
     margin: 0.3em 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 80%;
+    max-height: 3rem;
+    transition: max-height 0.3s ease;
 }
+
+.card:hover .card-text{
+    max-height: 4rem;
+    text-overflow: initial;
+    overflow: visible;
+    white-space: normal;
+}
+
+
 
 .card-img-top {
     width: 100%;
-    height: 200px;
+    height: 350px;
     object-fit: cover;
     border-radius: 20px;
-    position: relative;
 }
 
 .rating {
-    position: absolute;
     bottom: 4.5em;
     left: 0.2em;
     color: white;
-    /* z-index: 1; */
     background-color: rgba(38, 151, 255, 0.69);
     width: 50px;
     text-align: center;
     border-radius: 24.5px;
     font-family: var(--font-family);
+}
+
+
+.card .rating{
+    position: absolute;
+    z-index: 1;
+    left: 1rem;
+    bottom: 20%;
 }
 
 .colored-background {
@@ -73,19 +107,17 @@ body {
 }
 
 .carousel {
-    top: -6rem;
-    z-index: -1;
-    margin: 0 !important;
+    margin-top: -6.5em !important;
+    background: linear-gradient(0deg, rgba(0,0,0,0) 17%, rgba(0,0,0,0.8827906162464986) 93%);
 }
 
 /* <-- navbar --> */
-
-
 
 #carousel_video .carousel-item {
     height: 50%;
     max-height: 600px;
     content: initial;
+    z-index: -1;
 }
 
 #carousel_video .carousel-item {
@@ -117,7 +149,8 @@ body {
 }
 
 .image {
-    aspect-ratio: 16/9;
+    width: 100%;
+    height: 100%;
     object-fit: contain !important;
 }
 
@@ -125,57 +158,38 @@ body {
     font-size: 35px !important;
     font-weight: 500;
     color: #fff;
+    padding: 20px;
 }
 
 .cont {
     color: #5ffbf1;
 }
 
-.card-display {
-    cursor: pointer;
-    display: flex;
-}
-
-.reco-header {
-    position: absolute;
-    left: 0.5em;
-}
-
-.reco-img {
-    width: 100%;
-    height: 400px;
-}
-
 .recommended-div {
-    position: relative;
-}
-
-.recommended-div::before {
-    content: '';
-    width: 100%;
-    height: 411px;
-    background-color: rgba(0, 0, 0, 0.5);
-    position: absolute;
-    z-index: 1;
-    transition: background-color 0.3s ease;
-    /* Add a transition for smooth effect */
-}
-
-.recommended-div:hover::before {
-    background-color: rgba(0, 0, 0, 0);
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
 }
 
 .recommended_anime {
-    position: relative;
-    top: 1em;
-    margin-bottom: 2em;
+    height: 50vh;
+    width: 100%;
+    background: no-repeat center center/cover;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-direction: column;
+    padding: 20px;
+    background-color: linear-gradient(0deg, rgba(0,0,0,0.8547794117647058) 0%, rgba(0,0,0,0.6783088235294117) 81%);
+
+
 }
 
 .reco-text {
-    position: absolute;
     bottom: 1em;
     font-size: 40px;
-    /* z-index: 100; */
     letter-spacing: 1px;
     color: #5ffbf1;
     line-height: 100px;
@@ -193,8 +207,6 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 40px;
-    left: 1em;
-    z-index: 10;
 }
 
 @media only screen and (max-width: 750px) {

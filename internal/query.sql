@@ -1,3 +1,6 @@
+-- Create database dekkoto
+CREATE DATABASE dekkoto;
+
 -- Create Users table
 CREATE TABLE Users
 (
@@ -34,7 +37,7 @@ CREATE TABLE Videos
     ViewsCount    INT DEFAULT 0,
     LikesCount    INT DEFAULT 0,
     DislikesCount INT DEFAULT 0,
-    Duration      TIME,
+    Duration      VARCHAR(10),
     CategoryID    INT,
     GenreID       INT,
     FOREIGN KEY (UploaderID) REFERENCES Users (UserID),
@@ -67,8 +70,7 @@ CREATE TABLE Comments
     UserID      INT,
     VideoID     INT,
     CommentText TEXT,
-    Upvotes     INT DEFAULT 0,
-    Downvotes   INT DEFAULT 0,
+    CommentDate DATE,
     FOREIGN KEY (UserID) REFERENCES Users (UserID),
     FOREIGN KEY (VideoID) REFERENCES Videos (VideoID)
 );
@@ -148,3 +150,14 @@ INSERT INTO Genres (GenreName)
 VALUES ('movie'),
        ('series'),
        ('anime');
+
+CREATE TABLE CommentActions
+(
+    CommentActionID INT PRIMARY KEY AUTO_INCREMENT,
+    Upvotes TINYINT DEFAULT 0 CHECK (Upvotes IN (0, 1)),
+    Downvotes TINYINT DEFAULT 0 CHECK (Downvotes IN (0, 1)),
+    CommentID INT,
+    UserID INT,
+    FOREIGN KEY (CommentID) REFERENCES Comments (CommentID),
+    FOREIGN KEY (UserID) REFERENCES Users (UserID)
+);

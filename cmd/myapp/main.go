@@ -1,3 +1,5 @@
+// Package main is the entry point of the application.
+// It sets up the logging, database connection, and starts the HTTP server.
 package main
 
 import (
@@ -11,53 +13,62 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// application struct holds the application-wide dependencies, such as loggers and database connection.
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
 	database *databaseConn
 }
 
+// userInfoStruct struct holds the user information.
 type userInfoStruct struct {
 	Email  string
 	UserId int
 }
 
+// Global variable userInfo holds the user information.
 var userInfo userInfoStruct
 
+// The main function is the entry point of the application.
+// It parses the command-line flags, sets up the logging, opens the database connection,
+// initializes the application struct, sets up the routes, and starts the HTTP server.
 func main() {
 
+	// Parse the command-line flags.
 	addr := flag.String("addr", ":8080", "HTTP network address")
 	dsn := flag.String("dsn", "root:Admin123###@tcp(localhost:3308)/dekkoto?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
+	// Set up the loggers.
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	// Open the database connection.
 	db, err := openDB(*dsn)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
 
+	// Initialize the application struct.
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
 		database: &databaseConn{DB: db},
 	}
 
-	// Initialize Gin router
+	// Initialize Gin router, load all the html files, static files and user uploaded data.
 	router := gin.Default()
-	// load all the html files
 	router.LoadHTMLGlob("ui/html/*")
-	// load all the static files
 	router.Static("/static", "./ui/static")
-
-	// load all the images and videos from ./userUploadDatas
 	router.StaticFS("/userUploadDatas", http.Dir("./userUploadDatas"))
+	router.StaticFS("/internalImages", http.Dir("./internal"))
+	router.StaticFS("/favicon.ico", http.Dir("./internal/favicon.ico"))
 
-	// call the routes function from routes.go
+	// Set up the routes.
 	app.routes(router)
 
+	// Start the HTTP server.
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
@@ -68,6 +79,7 @@ func main() {
 	errorLog.Fatal(err)
 }
 
+// openDB function opens a new database connection.
 func openDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
