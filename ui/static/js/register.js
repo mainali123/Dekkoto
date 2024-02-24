@@ -4,14 +4,14 @@ const alert = document.querySelector(".alert-box-dialog");
 const alertMessage = document.querySelector(".alert-message-dialog");
 
 function showAlert(message) {
-	alertMessage.innerHTML = message;
-	alert.style.visibility = "visible";
-	alert.style.opacity = "1";
+    alertMessage.innerHTML = message;
+    alert.style.visibility = "visible";
+    alert.style.opacity = "1";
 
-	setTimeout(() => {
-		alert.style.visibility = "hidden";
-		alert.style.opacity = "0";
-	}, 5000);
+    setTimeout(() => {
+        alert.style.visibility = "hidden";
+        alert.style.opacity = "0";
+    }, 5000);
 }
 
 // showAlert("This is a test message");
@@ -121,6 +121,8 @@ function registerValidation() {
                         // Redirect the user to another page or display a success message
                         // console.log('Success:', data);
                         // alert("Register successfully. Please login now.")
+                        // After successful registration and before redirecting to the login page
+                        localStorage.setItem('registrationSuccess', 'Registration successful. Please login.');
                         window.location.href = "/login";
                     }
                 })
@@ -138,14 +140,14 @@ function registerValidation() {
 let showPassword = document.querySelectorAll(".password-show");
 
 showPassword.forEach((show) => {
-	show.addEventListener("click", () => {
-		const password = show.parentElement.children[1];
-		if (password.type === "password") {
-			password.type = "text";
-			show.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-		} else {
-			password.type = "password";
-			show.innerHTML = '<i class="fa-solid fa-eye"></i>';
-		}
-	});
+    show.addEventListener("click", () => {
+        const password = show.parentElement.children[1];
+        if (password.type === "password") {
+            password.type = "text";
+            show.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+        } else {
+            password.type = "password";
+            show.innerHTML = '<i class="fa-solid fa-eye"></i>';
+        }
+    });
 });
