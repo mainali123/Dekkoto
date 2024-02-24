@@ -116,9 +116,10 @@ function loginValidation() {
                     if (data.error) {
                         if (data.error === "User does not exist") {
                             // show popup message to user
-                            alert("User does not exist. Please register first.")
+                            showNotification('error', 'toast-top-right', "User does not exist. Please register first.")
                             window.location.href = "/register";
                         }
+                        showNotification('error', 'toast-top-right', data.error);
                     } else {
                         // window.location.href = "/login";
                         console.log("logged in");
@@ -132,8 +133,8 @@ function loginValidation() {
                     if (error === "User does not exist") {
                         // show popup message to user
                         console.log("User does not exist. Please register first.")
-                        alert("User does not exist. Please register first.")
-                        window.location.href = "/register";
+                        // alert("User does not exist. Please register first.")
+                        showNotification('error', 'toast-top-right', "User does not exist. Please register first.")
                     }
                 });
         }

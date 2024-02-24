@@ -10,6 +10,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"io"
 	"log"
@@ -94,7 +95,16 @@ func (app *application) registerPostRequest(c *gin.Context) {
 		return
 	}
 
-	err := app.database.registerUser(userData.Name, userData.Email, userData.Password)
+	encryptedPass, err := encrypt(userData.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to encrypt password",
+		})
+		return
+
+	}
+
+	err = app.database.registerUser(userData.Name, userData.Email, encryptedPass)
 
 	if err != nil {
 		if err.Error() == "user already exists" {
@@ -129,8 +139,6 @@ func (app *application) loginPostRequest(c *gin.Context) {
 
 	var userData User
 
-	fmt.Println("Email: ", userData.Email+" Password: "+userData.Password)
-
 	// Bind the JSON data from the request to the userData struct
 	if err := c.BindJSON(&userData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -138,6 +146,8 @@ func (app *application) loginPostRequest(c *gin.Context) {
 		})
 		return
 	}
+
+	fmt.Println(encrypt(userData.Password))
 
 	err := app.database.loginUser(userData.Email, userData.Password)
 
@@ -150,7 +160,7 @@ func (app *application) loginPostRequest(c *gin.Context) {
 		}
 		// For other errors during login, return a generic error response
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to login user",
+			"error": "Invalid email or password",
 		})
 		return
 	}
@@ -1777,4 +1787,14 @@ func (app *application) changePasswordPost(c *gin.Context) {
 		"message": "Password changed successfully",
 		"success": true,
 	})
+}
+
+// encrypt function that takes a string and returns an encrypted string
+func encrypt(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedPassword), nil
 }

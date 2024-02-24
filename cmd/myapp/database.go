@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"strings"
 	"time"
@@ -46,17 +47,29 @@ func (db *databaseConn) registerUser(userName string, email string, password str
 // If the user exists, it returns nil.
 // If the user does not exist, it returns an error.
 func (db *databaseConn) loginUser(email string, password string) error {
-	queryToLoginUser := "SELECT * FROM users WHERE Email = ? AND Password = ?"
-	rows, err := db.DB.Query(queryToLoginUser, email, password)
-	if err != nil {
+	// Query the database for the user with the provided email
+	row := db.DB.QueryRow("SELECT password FROM users WHERE email = ?", email)
+
+	// We create a variable to hold the hashed password from the database
+	var hashedPassword string
+
+	// Scan the result into our hashedPassword variable
+	if err := row.Scan(&hashedPassword); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// If no rows were returned from the query, it means the provided email does not exist in the database
+			return errors.New("the provided email does not exist in our records")
+		}
+		// If another error occurred, return it
 		return err
 	}
-	defer rows.Close()
 
-	if !rows.Next() {
-		// User with the provided email and password does not exist in the database
-		return errors.New("user does not exist")
+	// At this point, we have the hashed password, and the user-provided password. We will use bcrypt to compare the passwords
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)); err != nil {
+		// If the passwords do not match, return an error
+		return errors.New("the provided password is incorrect")
 	}
+
+	// If we've reached this point, it means the user-provided password matches the hashed password in the database. The user is authenticated!
 	return nil
 }
 
