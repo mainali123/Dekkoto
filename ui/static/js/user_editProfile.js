@@ -1,5 +1,7 @@
 console.log('user_editProfile.js');
 
+import { showNotification } from './notification.js';
+
 fetch('/userDetails', {
     method: 'POST',
     headers: {
@@ -24,8 +26,8 @@ document.querySelector('.button').addEventListener('click', function (event) {
 });
 
 function sendData() {
-    var name = document.getElementById('name').value;
-    var email = document.getElementById('email').value;
+    let name = document.getElementById('name').value;
+    let email = document.getElementById('email').value;
 
     fetch('/editUserProfile', {
         method: 'POST',
@@ -40,7 +42,11 @@ function sendData() {
         // handle the response by showing a message to the user
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            if (data.error) {
+                showNotification('error', 'toast-top-right', data.error);
+            } else {
+                showNotification('success', 'toast-top-right', data.message);
+            }
         })
         .catch(error => {
             alert('Error:', error);
