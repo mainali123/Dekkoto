@@ -1,50 +1,7 @@
 console.log('login.js loaded');
 
-/*$(function() {
-
-    function Toast(type, css, msg) {
-        this.type = type;
-        this.css = css;
-        this.msg = 'Enter login credentials to continue.';
-    }
-
-    var toasts = [
-        new Toast('info', 'toast-top-right', 'top full width')
-    ];
-
-    toastr.options = {
-        "closeButton": true,
-        "debug": false,
-        "newestOnTop": false,
-        "progressBar": true,
-        "positionClass": "toast-top-right",
-        "preventDuplicates": true,
-        "showDuration": "300",
-        "hideDuration": "1000",
-        "timeOut": "5000",
-        "extendedTimeOut": "1000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    };
-
-    var i = 0;
-
-    showToast();
-
-    function showToast() {
-        var t = toasts[i];
-        toastr.options.positionClass = t.css;
-        toastr[t.type](t.msg);
-        i++;
-    }
-})*/
 
 import { showNotification } from './notification.js';
-function newAlert(type, css, message) {
-    showNotification('info', 'toast-top-right', message);
-}
 
 
 // If register is success
@@ -52,12 +9,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const registrationSuccessMessage = localStorage.getItem('registrationSuccess');
     if (registrationSuccessMessage) {
         // toastr.success(registrationSuccessMessage);
-        newAlert('success', 'toast-top-right', registrationSuccessMessage);
+        showNotification('success', 'toast-top-right', registrationSuccessMessage);
         localStorage.removeItem('registrationSuccess');
     }
 });
 
-newAlert('info', 'toast-top-right', 'Enter login credentials to continue.');
+showNotification('info', 'toast-top-right', 'Enter login credentials to continue.');
 
 
 let showPassword = document.querySelectorAll(".password-show");
@@ -144,6 +101,7 @@ function loginValidation() {
 
             // Convert the data to a JSON string
             let jsonData = JSON.stringify(data);
+            console.log(jsonData);
 
             // Send a POST request with the data
           fetch('/login', {
@@ -165,6 +123,7 @@ function loginValidation() {
                         // window.location.href = "/login";
                         console.log("logged in");
                         // window.location.href = "/adminPanel";
+                        localStorage.setItem('loginSuccess', 'Login successful.');
                         window.location.href = "/home";
                     }
                 })
@@ -182,4 +141,4 @@ function loginValidation() {
 
 }
 
-
+loginValidation();

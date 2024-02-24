@@ -129,6 +129,8 @@ func (app *application) loginPostRequest(c *gin.Context) {
 
 	var userData User
 
+	fmt.Println("Email: ", userData.Email+" Password: "+userData.Password)
+
 	// Bind the JSON data from the request to the userData struct
 	if err := c.BindJSON(&userData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

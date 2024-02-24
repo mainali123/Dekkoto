@@ -1,5 +1,19 @@
 console.log("Homepage.js loaded")
 
+import { showNotification } from './notification.js';
+function newAlert(type, css, message) {
+    showNotification(type, css, message);
+}
+
+// If login is success
+document.addEventListener('DOMContentLoaded', (event) => {
+    const loginSuccessMessage = localStorage.getItem('loginSuccess');
+    if (loginSuccessMessage) {
+        newAlert('success', 'toast-top-right', loginSuccessMessage);
+        localStorage.removeItem('loginSuccess');
+    }
+});
+
 
 // carousel
 // Fetch carousel data from the server
