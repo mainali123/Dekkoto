@@ -38,6 +38,12 @@ func (db *databaseConn) registerUser(userName string, email string, password str
 	if err != nil {
 		return err
 	}
+
+	/*type userDatas struct {
+		loginDate []string
+		registerDate []string
+
+	}*/
 	return nil
 }
 

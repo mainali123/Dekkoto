@@ -21,6 +21,7 @@ import (
 	"image/jpeg"
 	_ "image/png"
 	_ "io"
+	"mime/multipart"
 	"os"
 	_ "path/filepath"
 	_ "strings"
@@ -50,12 +51,12 @@ import (
 // If the function fails to create the file, it sends a 500 error response with the message "Failed to create file".
 // If the function fails to encode the image to JPEG, it sends a 500 error response with the message "Failed to encode image to JPEG".
 // If the function successfully uploads and converts the file, it sends a 200 response with the message "File uploaded and converted to 1080x1920 successfully"..
-func HandleThumbnailUpload(c *gin.Context) {
-	file, _, err := c.Request.FormFile("thumbnail")
+func HandleThumbnailUpload(c *gin.Context, thumbnailFile *multipart.FileHeader) (string, error) {
+	file, err := thumbnailFile.Open()
 	if err != nil {
 		//c.String(500, "Failed to read file from request")
 		fmt.Println("Failed to read file from request")
-		return
+		return "Failed to read file from request", err
 	}
 	defer file.Close()
 
@@ -64,7 +65,7 @@ func HandleThumbnailUpload(c *gin.Context) {
 	if err != nil {
 		//c.String(500, "Failed to decode image file")
 		fmt.Println("Failed to decode image file")
-		return
+		return "Failed to decode image file", err
 	}
 
 	// Resize the image to 1080x1920
@@ -76,7 +77,7 @@ func HandleThumbnailUpload(c *gin.Context) {
 	if err != nil {
 		//c.String(500, "Failed to create file")
 		fmt.Println("Failed to create file")
-		return
+		return "Failed to create file", err
 	}
 	defer out.Close()
 
@@ -86,7 +87,7 @@ func HandleThumbnailUpload(c *gin.Context) {
 	if err != nil {
 		//c.String(500, "Failed to encode image to JPEG")
 		fmt.Println("Failed to encode image to JPEG")
-		return
+		return "Failed to encode image to JPEG", err
 	}
 
 	// Provide the storage path
@@ -94,4 +95,5 @@ func HandleThumbnailUpload(c *gin.Context) {
 
 	//c.String(200, "File uploaded and converted to 1080x1920 successfully")
 	fmt.Println("File uploaded and converted to 1080x1920 successfully")
+	return "File uploaded and converted to 1080x1920 successfully", nil
 }

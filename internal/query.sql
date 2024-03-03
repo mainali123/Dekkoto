@@ -8,7 +8,7 @@ CREATE TABLE Users
     UserName VARCHAR(50),
     Email    VARCHAR(100),
     Password VARCHAR(100),
-    Admin    BOOLEAN DEFAULT FALSE
+    Data TEXT
 );
 
 -- Create Categories table
@@ -154,10 +154,31 @@ VALUES ('movie'),
 CREATE TABLE CommentActions
 (
     CommentActionID INT PRIMARY KEY AUTO_INCREMENT,
-    Upvotes TINYINT DEFAULT 0 CHECK (Upvotes IN (0, 1)),
-    Downvotes TINYINT DEFAULT 0 CHECK (Downvotes IN (0, 1)),
-    CommentID INT,
-    UserID INT,
+    Upvotes         TINYINT DEFAULT 0 CHECK (Upvotes IN (0, 1)),
+    Downvotes       TINYINT DEFAULT 0 CHECK (Downvotes IN (0, 1)),
+    CommentID       INT,
+    UserID          INT,
     FOREIGN KEY (CommentID) REFERENCES Comments (CommentID),
     FOREIGN KEY (UserID) REFERENCES Users (UserID)
+);
+
+/*
+ID -> PK, AI
+UID -> FK
+UPLOAD VIDEO CONTROL
+VIEW VIDEO CONTROL
+DELETE VIDEO CONTROL
+EDIT VIDEO CONTROL
+ANALYTICS CONTROL
+*/
+CREATE TABLE UserControls
+(
+    ID                 INT PRIMARY KEY AUTO_INCREMENT,
+    UID                INT,
+    UploadVideoControl TINYINT DEFAULT 0 CHECK (UploadVideoControl IN (0, 1)),
+    ViewVideoControl   TINYINT DEFAULT 0 CHECK (ViewVideoControl IN (0, 1)),
+    DeleteVideoControl TINYINT DEFAULT 0 CHECK (DeleteVideoControl IN (0, 1)),
+    EditVideoControl   TINYINT DEFAULT 0 CHECK (EditVideoControl IN (0, 1)),
+    AnalyticsControl   TINYINT DEFAULT 0 CHECK (AnalyticsControl IN (0, 1)),
+    FOREIGN KEY (UID) REFERENCES Users (UserID)
 );

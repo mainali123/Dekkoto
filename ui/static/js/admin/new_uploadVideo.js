@@ -1,3 +1,4 @@
+/*
 console.log("loaded gadha");
 document.querySelector('#submitBtn').addEventListener('click', function (event) {
     event.preventDefault();
@@ -65,3 +66,4 @@ document.querySelector('#submitBtn').addEventListener('click', function (event) 
     console.error('There was a problem with the fetch operation:', error);
 });
 });
+*/

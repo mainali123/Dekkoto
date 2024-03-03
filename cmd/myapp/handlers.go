@@ -203,7 +203,9 @@ func (app *application) uploadVideo(c *gin.Context) {
 
 	// check if category is empty
 	if err != nil {
-		c.String(500, "Failed to get category ID with error: "+err.Error())
+		//c.String(500, "Failed to get category ID with error: "+err.Error())
+		fmt.Println("Error getting category ID with error: " + err.Error())
+		return
 	}
 
 	//genreID, err := app.database.getGenreID(videoInfo.Genres[0])
@@ -212,7 +214,9 @@ func (app *application) uploadVideo(c *gin.Context) {
 	categoryString = strings.ReplaceAll(categoryString, " ", "")
 	genreID, err := app.database.getGenreID(videoInfo.Types)
 	if err != nil {
-		c.String(500, "Failed to get genre ID with error: "+err.Error())
+		//c.String(500, "Failed to get genre ID with error: "+err.Error())
+		fmt.Println("Error getting genre ID with error: " + err.Error())
+		return
 	}
 
 	// print all the data
@@ -231,17 +235,21 @@ func (app *application) uploadVideo(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		/*c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Failed to upload video",
 			"success": false,
 		})
+		return*/
+		fmt.Println("Failed to upload video with error: " + err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	/*c.JSON(http.StatusOK, gin.H{
 		"message": "Video uploaded in the database successfully",
 		"success": true,
-	})
+	})*/
+	fmt.Println("Video uploaded in the database successfully")
+	return
 }
 
 // terminateVideo is a handler function that handles the termination of a video upload.

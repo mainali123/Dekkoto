@@ -30,11 +30,12 @@ func (app *application) routes(router *gin.Engine) {
 
 	// For admin panel
 	router.GET("/adminPanel", app.admin)
-	router.POST("/uploadVideo", handler.HandleVideoUpload)
-	router.POST("/uploadThumbnail", handler.HandleThumbnailUpload)
-	router.POST("/uploadBanner", handler.HandleBannerUpload)
-	router.POST("/videoDetails", handler.VideoDetails)
-	router.POST("/confirmVideo", app.uploadVideo)
+	router.POST("/mainUpload", handler.MainUpload)
+	//router.POST("/uploadVideo", handler.HandleVideoUpload)
+	//router.POST("/uploadThumbnail", handler.HandleThumbnailUpload)
+	//router.POST("/uploadBanner", handler.HandleBannerUpload)
+	//router.POST("/videoDetails", handler.VideoDetails)
+	router.GET("/confirmVideo", app.uploadVideo)
 	router.POST("/terminateVideo", app.terminateVideo)
 
 	// For admin video RUD operations
