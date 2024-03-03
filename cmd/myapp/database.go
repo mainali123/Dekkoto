@@ -1728,3 +1728,124 @@ func (db *databaseConn) resetPassword(email string, password string) error {
 
 	return nil
 }
+
+func (db *databaseConn) mostViewedVideos() ([]VideoDesc, error) {
+	// Prepare the SQL query
+	query := "SELECT * FROM videos ORDER BY ViewsCount DESC LIMIT 10"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to hold the results
+	var videos []VideoDesc
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	// Return the results
+	return videos, nil
+}
+
+func (db *databaseConn) likeVsDislike() ([]VideoDesc, []VideoDesc, error) {
+	// Initialize a map to keep track of already selected video IDs
+	selectedVideoIDs := make(map[int]bool)
+
+	// Query for top 5 most liked videos
+	query := "SELECT * FROM videos ORDER BY LikesCount DESC LIMIT 5"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	var likedVideos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		// Check if the video ID is already in the map
+		if _, exists := selectedVideoIDs[video.VideoID]; !exists {
+			// If not, add the video to the likedVideos slice and add its ID to the map
+			likedVideos = append(likedVideos, video)
+			selectedVideoIDs[video.VideoID] = true
+		}
+	}
+
+	// If the count of liked videos is less than 5, handle this case
+	if len(likedVideos) < 5 {
+		// Handle this case as per your requirements
+	}
+
+	// Query for top 5 most disliked videos
+	query = "SELECT * FROM videos ORDER BY DislikesCount DESC LIMIT 5"
+	rows, err = db.DB.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	var dislikedVideos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		// Check if the video ID is already in the map
+		if _, exists := selectedVideoIDs[video.VideoID]; !exists {
+			// If not, add the video to the dislikedVideos slice and add its ID to the map
+			dislikedVideos = append(dislikedVideos, video)
+			selectedVideoIDs[video.VideoID] = true
+		}
+	}
+
+	// If the count of disliked videos is less than 5, handle this case
+	if len(dislikedVideos) < 5 {
+		// Handle this case as per your requirements
+	}
+
+	return likedVideos, dislikedVideos, nil
+}
+
+func (db *databaseConn) duration() ([]VideoDesc, error) {
+	// Prepare the SQL query
+	query := "SELECT * FROM videos ORDER BY ViewsCount"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to hold the results
+	var videos []VideoDesc
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	// Return the results
+	return videos, nil
+}

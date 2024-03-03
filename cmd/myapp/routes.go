@@ -129,4 +129,9 @@ func (app *application) routes(router *gin.Engine) {
 	router.GET("/forgetPassword", app.forgetPassword)
 	router.POST("/sendEmail", app.sendEmail)
 
+	// Analytics
+	router.POST("/mostViewedVideos", app.mostViewedVideos)
+	router.POST("/likeVsDislike", app.likeVsDislike)
+	router.POST("/duration", app.duration)
+
 }

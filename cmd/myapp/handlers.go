@@ -1908,3 +1908,39 @@ func (app *application) sendEmail(c *gin.Context) {
 		"success": true,
 	})
 }
+
+func (app *application) mostViewedVideos(c *gin.Context) {
+	// Call the mostViewedVideos method from the database connection
+	videos, err := app.database.mostViewedVideos()
+	if err != nil {
+		// If there is an error, return a 500 status code and error message
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// If there is no error, return a 200 status code and the videos in JSON format
+	c.JSON(http.StatusOK, videos)
+}
+
+func (app *application) likeVsDislike(c *gin.Context) {
+	mostLikedVideos, mostDislikedVideos, err := app.database.likeVsDislike()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mostLikedVideos":    mostLikedVideos,
+		"mostDislikedVideos": mostDislikedVideos,
+	})
+}
+
+func (app *application) duration(c *gin.Context) {
+	duration, err := app.database.duration()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, duration)
+}
