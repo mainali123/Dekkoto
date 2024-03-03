@@ -13,6 +13,7 @@
 package handler
 
 import (
+	"fmt"
 	_ "fmt"
 	"github.com/gin-gonic/gin"
 	"image"
@@ -50,7 +51,8 @@ import (
 func HandleBannerUpload(c *gin.Context) {
 	file, _, err := c.Request.FormFile("banner")
 	if err != nil {
-		c.String(500, "Failed to read file from request")
+		//c.String(500, "Failed to read file from request")
+		fmt.Println("Failed to read file from request")
 		return
 	}
 	defer file.Close()
@@ -58,7 +60,8 @@ func HandleBannerUpload(c *gin.Context) {
 	// Decode the image
 	img, _, err := image.Decode(file)
 	if err != nil {
-		c.String(500, "Failed to decode image file")
+		//c.String(500, "Failed to decode image file")
+		fmt.Println("Failed to decode image file")
 		return
 	}
 
@@ -78,12 +81,14 @@ func HandleBannerUpload(c *gin.Context) {
 	opt := jpeg.Options{Quality: 80}
 	err = jpeg.Encode(out, banner, &opt)
 	if err != nil {
-		c.String(500, "Failed to encode image to JPEG")
+		//c.String(500, "Failed to encode image to JPEG")
+		fmt.Println("Failed to encode image to JPEG")
 		return
 	}
 
 	// Provide the storage path
 	bannerStoragePath := "./userUploadDatas/banners/" + fileName
 
-	c.String(200, "File uploaded and converted to 1920x1080 successfully. Banner storage path: "+bannerStoragePath)
+	//c.String(200, "File uploaded and converted to 1920x1080 successfully. Banner storage path: "+bannerStoragePath)
+	fmt.Println("File uploaded and converted to 1920x1080 successfully. Banner storage path: " + bannerStoragePath)
 }

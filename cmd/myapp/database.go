@@ -1701,3 +1701,24 @@ func (db *databaseConn) changePassword(oldPassword string, newPassword string, e
 	}
 	return nil
 }
+
+func (db *databaseConn) resetPassword(email string, password string) error {
+	query := "SELECT Email FROM users WHERE Email = ?"
+	row := db.DB.QueryRow(query, email)
+	var userEmail string
+	err := row.Scan(&userEmail)
+	if err != nil {
+		return err
+	}
+	if userEmail != email {
+		return errors.New("email does not exist")
+	}
+
+	query = "UPDATE users SET Password = ? WHERE Email = ?"
+	_, err = db.DB.Exec(query, password, email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

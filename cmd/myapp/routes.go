@@ -123,4 +123,9 @@ func (app *application) routes(router *gin.Engine) {
 	router.GET("/aakash/videoList", app.adminVideoListTemp)
 	router.GET("/aakash/analytics", app.adminAnalyticsTemp)
 	router.GET("/aakash/settings", app.adminSettingsTemp)
+
+	// Forget Password
+	router.GET("/forgetPassword", app.forgetPassword)
+	router.POST("/sendEmail", app.sendEmail)
+
 }

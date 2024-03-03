@@ -13,6 +13,7 @@
 package handler
 
 import (
+	"fmt"
 	_ "fmt"
 	"github.com/gin-gonic/gin"
 	"image"
@@ -52,7 +53,8 @@ import (
 func HandleThumbnailUpload(c *gin.Context) {
 	file, _, err := c.Request.FormFile("thumbnail")
 	if err != nil {
-		c.String(500, "Failed to read file from request")
+		//c.String(500, "Failed to read file from request")
+		fmt.Println("Failed to read file from request")
 		return
 	}
 	defer file.Close()
@@ -60,7 +62,8 @@ func HandleThumbnailUpload(c *gin.Context) {
 	// Decode the image
 	img, _, err := image.Decode(file)
 	if err != nil {
-		c.String(500, "Failed to decode image file")
+		//c.String(500, "Failed to decode image file")
+		fmt.Println("Failed to decode image file")
 		return
 	}
 
@@ -71,7 +74,8 @@ func HandleThumbnailUpload(c *gin.Context) {
 	fileName := GfileName + ".png"
 	out, err := os.Create("./userUploadDatas/thumbnails/" + fileName)
 	if err != nil {
-		c.String(500, "Failed to create file")
+		//c.String(500, "Failed to create file")
+		fmt.Println("Failed to create file")
 		return
 	}
 	defer out.Close()
@@ -80,12 +84,14 @@ func HandleThumbnailUpload(c *gin.Context) {
 	opt := jpeg.Options{Quality: 80}
 	err = jpeg.Encode(out, thumbnail, &opt)
 	if err != nil {
-		c.String(500, "Failed to encode image to JPEG")
+		//c.String(500, "Failed to encode image to JPEG")
+		fmt.Println("Failed to encode image to JPEG")
 		return
 	}
 
 	// Provide the storage path
 	VideoDetailsInfo.ThumbnailStoragePath = "./userUploadDatas/thumbnails/" + fileName
 
-	c.String(200, "File uploaded and converted to 1080x1920 successfully")
+	//c.String(200, "File uploaded and converted to 1080x1920 successfully")
+	fmt.Println("File uploaded and converted to 1080x1920 successfully")
 }

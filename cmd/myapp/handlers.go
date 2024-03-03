@@ -10,6 +10,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/resend/resend-go/v2"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"io"
@@ -192,7 +193,7 @@ func (app *application) uploadVideo(c *gin.Context) {
 	currentDate := time.Now().Format("2006-01-02")
 
 	// Convert arrays to comma-separated strings
-	categoryString := strings.Join(videoInfo.Genres, ",")
+	categoryString := videoInfo.Genres
 
 	// Map genre and category strings to their respective IDs
 	var categoryID int
@@ -1582,7 +1583,7 @@ func (app *application) likeDislikeCount(c *gin.Context) {
 }
 
 func (app *application) adminPanelTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_PanelTest.html")
+	t, err := template.ParseFiles("ui/html/admin/admin_PanelTest.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1610,7 +1611,7 @@ func (app *application) adminPanelTemp(c *gin.Context) {
 
 // adminAddVideoTemp is a handler function that serves the add video page.
 func (app *application) adminAddVideoTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_videoUpload.html")
+	t, err := template.ParseFiles("ui/html/admin/admin_videoUpload.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1624,7 +1625,7 @@ func (app *application) adminAddVideoTemp(c *gin.Context) {
 }
 
 func (app *application) adminDashboardTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_dashboard.html")
+	t, err := template.ParseFiles("ui/html/admin/admin_dashboard.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1639,7 +1640,7 @@ func (app *application) adminDashboardTemp(c *gin.Context) {
 
 // adminVideoListTemp is a handler function that serves the video list page.
 func (app *application) adminVideoListTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/videoList.html")
+	t, err := template.ParseFiles("ui/html/admin/videoList.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1654,7 +1655,7 @@ func (app *application) adminVideoListTemp(c *gin.Context) {
 
 // adminAnalyticsTemp is a handler function that serves the analytics page.
 func (app *application) adminAnalyticsTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_analytics.html")
+	t, err := template.ParseFiles("ui/html/admin/admin_analytics.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1669,7 +1670,7 @@ func (app *application) adminAnalyticsTemp(c *gin.Context) {
 
 // adminSettingsTemp is a handler function that serves the settings page.
 func (app *application) adminSettingsTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_settings.html")
+	t, err := template.ParseFiles("ui/html/admin/admin_settings.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1797,4 +1798,105 @@ func encrypt(password string) (string, error) {
 	}
 
 	return string(hashedPassword), nil
+}
+
+func (app *application) forgetPassword(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/forgetPassword.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) sendEmail(c *gin.Context) {
+
+	type Email struct {
+		Email string `json:"email"`
+	}
+
+	var email Email
+
+	err := c.ShouldBindJSON(&email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	// Create a new source and randomizer
+	src := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(src)
+
+	// Create a random password of length 8
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}[]:;,.?/|\\"
+	password := make([]byte, 8)
+	for i := range password {
+		password[i] = charset[r.Intn(len(charset))]
+	}
+
+	// Encrypt the password
+	encryptedPassword, err := encrypt(string(password))
+
+	if err != nil {
+		fmt.Println("Error encrypting password:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to encrypt password",
+		})
+		return
+	}
+
+	err = app.database.resetPassword(email.Email, encryptedPassword)
+	if err != nil {
+		fmt.Println("Error resetting password:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "User does not exist. Please enter a valid email address.",
+		})
+		return
+	}
+
+	apiKey := "re_AESmEYab_Mub2tMp887SMot95Tftjn3wk"
+
+	client := resend.NewClient(apiKey)
+
+	params := &resend.SendEmailRequest{
+		From: "Diwash <diwash@diwashmainali.com.np>",
+		//To:      []string{"np03cs4s220198@heraldcollege.edu.np"},
+		To:      []string{email.Email},
+		Subject: "Reset Password",
+		Html: `<html>
+                <head>
+                </head>
+                <body>
+                    <p>Dear User,</p>
+                    <p>Your password has been reset successfully.</p>
+                    <p>Your new password is: <span style="color:red;">` + string(password) + `</span></p>
+                    <p>For security purposes, we highly recommend that you change your password immediately upon logging in.</p>
+					<p>If you did not request this password reset or have any concerns about the security of your account, please contact our support team immediately.</p>
+					<p>Thank you for your attention to this matter.</p>
+					<p>Best Regards,<br>Diwash</p>
+                </body>
+            </html>`,
+	}
+
+	_, err = client.Emails.Send(params)
+
+	if err != nil {
+		fmt.Println("Error sending email:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to send email",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Email sent successfully",
+		"success": true,
+	})
 }

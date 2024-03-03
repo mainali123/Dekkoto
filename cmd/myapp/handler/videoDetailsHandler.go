@@ -21,10 +21,10 @@ import (
 // checks if the title and description are not empty, and saves the details to a global variable.
 func VideoDetails(c *gin.Context) {
 	type videoDetails struct {
-		VideoDescription string   `json:"description"`
-		VideoName        string   `json:"title"`
-		Genres           []string `json:"genres"`
-		Types            string   `json:"types"`
+		VideoDescription string `json:"description"`
+		VideoName        string `json:"title"`
+		Genres           string `json:"genres"`
+		Types            string `json:"types"`
 	}
 
 	var videoDetailsStruct videoDetails

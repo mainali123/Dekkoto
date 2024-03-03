@@ -5,7 +5,9 @@ let sideNavLinks = document.querySelectorAll(".side-nav a");
 let main = document.querySelector("main");
 let currentActive = document.querySelector(".side-nav .active");
 let currentPageName = document.querySelector(".current-page-name");
-let currentScript  = localStorage.getItem("currentScript");
+let currentScript = localStorage.getItem("currentScript");
+let content = document.querySelector("#content");
+
 
 
 
@@ -26,9 +28,13 @@ window.addEventListener("load", () => {
 	preloader.addEventListener("animationend", () => {
 		preloader.style.display = "none";
 
+
 	});
 
 	let index = localStorage.getItem("currentPageIndex")
+	setTimeout(() => {
+		addScript(currentScript);
+	}, 1000);
 	sideNavLinks[index].click();
 	
 });
@@ -50,10 +56,8 @@ toggleSidebar.addEventListener("click", () => {
 
 sideNavLinks.forEach((link,index) => {
 	link.addEventListener("click", () => {
-		
 		let htmlFile = link.getAttribute("data-link");
-		let scriptSrc = link.getAttribute("data-script")
-		
+		let scriptSrc = link.getAttribute("data-script")		
 			setTimeout(() => {
 				if (scriptSrc !== currentScript) {
 					deleteScript(currentScript)
@@ -73,24 +77,28 @@ sideNavLinks.forEach((link,index) => {
 });
 
 
-
-let content = document.querySelector("#content");
-
 function showContent(htmlFile, title) {
-	let xhr = new XMLHttpRequest();
-	xhr.open("GET", htmlFile, true);
-	xhr.onreadystatechange = function () {
-		if (xhr.readyState == 4 && xhr.status == 200) {
-			content.innerHTML = xhr.responseText;
+	fetch(htmlFile)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("HTTP error " + response.status);
+			}
+			return response.text();
+		})
+		.then(data => {
+			content.innerHTML = data;
 			document.title = "DEKKOTO - " + title;
-
-		}
-	};
-	xhr.send();
+		})
+		.catch(function () {
+			console.log('Fetch Error :-S', err);
+		});
 }
 
 
 // Attach an event listener to the document body
+
+
+
 document.addEventListener('click', function (e) {
 	let fileInput;
 	let selectName;
@@ -159,10 +167,9 @@ content.addEventListener('dragleave', function (e) {
 });
 
 function addScript(src) {
-
 		let script = document.createElement("script");
 		script.src = src;
-		script.async = true;
+		script.defer = true;
 		document.body.appendChild(script);
 }
 
@@ -173,7 +180,6 @@ function deleteScript(src) {
 		let pathname = scriptUrl.pathname;
 		let scriptSrc = ".." + pathname
 		if (scriptSrc === src) {
-
 			document.body.removeChild(js);
 		}
 	});

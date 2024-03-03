@@ -32,15 +32,15 @@ var GfileName string
 
 // videoDetails is a struct that holds various details about the uploaded video.
 type videoDetails struct {
-	FileName             string   `json:"fileName"`
-	VideoTitle           string   `json:"videoTitle"`
-	VideoDescription     string   `json:"videoDescription"`
-	VideoStoragePath     string   `json:"videoStoragePath"`
-	ThumbnailStoragePath string   `json:"thumbnailStoragePath"`
-	UploaderId           string   `json:"uploaderId"`
-	VideoDuration        string   `json:"videoDuration"`
-	Genres               []string `json:"genres"`
-	Types                string   `json:"types"`
+	FileName             string `json:"fileName"`
+	VideoTitle           string `json:"videoTitle"`
+	VideoDescription     string `json:"videoDescription"`
+	VideoStoragePath     string `json:"videoStoragePath"`
+	ThumbnailStoragePath string `json:"thumbnailStoragePath"`
+	UploaderId           string `json:"uploaderId"`
+	VideoDuration        string `json:"videoDuration"`
+	Genres               string `json:"genres"`
+	Types                string `json:"types"`
 }
 
 // VideoDetailsInfo is a global variable of type videoDetails that stores the details of the uploaded video.
@@ -66,6 +66,7 @@ var VideoDetailsInfo videoDetails
 func HandleVideoUpload(c *gin.Context) {
 	file, _, err := c.Request.FormFile("video")
 	if err != nil {
+		fmt.Println("ERROR 1")
 		c.String(500, "Failed to read file from request")
 		return
 	}
@@ -80,6 +81,7 @@ func HandleVideoUpload(c *gin.Context) {
 
 	out, err := os.Create("./userUploadDatas/videos/" + fileName)
 	if err != nil {
+		fmt.Println("ERROR 2")
 		c.String(500, "Failed to create file")
 		return
 	}
@@ -87,6 +89,7 @@ func HandleVideoUpload(c *gin.Context) {
 
 	_, err = io.Copy(out, file)
 	if err != nil {
+		fmt.Println("ERROR 3")
 		c.String(500, "Failed to save file")
 		return
 	}
@@ -95,6 +98,7 @@ func HandleVideoUpload(c *gin.Context) {
 	videoFilePath := "./userUploadDatas/videos/" + fileName
 	duration, quality, err := getVideoInfo(videoFilePath)
 	if err != nil {
+		fmt.Println("ERROR 4")
 		c.String(500, "Failed to get video info")
 		return
 	}
