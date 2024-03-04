@@ -8,12 +8,14 @@ package main
 import (
 	"Dekkoto/cmd/myapp/handler"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/resend/resend-go/v2"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -33,6 +35,7 @@ func (app *application) login(c *gin.Context) {
 		return
 	}
 
+	app.deviceInfo(c.Request)
 	err = t.Execute(c.Writer, nil)
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1943,4 +1946,139 @@ func (app *application) duration(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, duration)
+}
+
+func (app *application) deviceInfo(r *http.Request) {
+
+	resp, err := http.Get("https://api.ipify.org?format=json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var result map[string]string
+	json.Unmarshal([]byte(body), &result)
+
+	fmt.Println(result)
+
+	publicIP := result["ip"]
+
+	// Get the User-Agent header
+	userAgent := r.UserAgent()
+
+	// The User-Agent header contains information about the device type, OS and Browser
+	// You can parse this header to extract the information you need
+	// Note: This is a simplified example, in reality parsing the User-Agent header can be complex
+	deviceType := ""
+	deviceOS := ""
+
+	// Determine the device type
+	if strings.Contains(userAgent, "Mobile") {
+		deviceType = "Mobile"
+	} else if strings.Contains(userAgent, "Tablet") {
+		deviceType = "Tablet"
+	} else if strings.Contains(userAgent, "Windows") || strings.Contains(userAgent, "Mac OS") || strings.Contains(userAgent, "Linux") {
+		deviceType = "Desktop"
+	} else {
+		deviceType = "Other"
+	}
+
+	if strings.Contains(userAgent, "Windows") {
+		deviceOS = "Windows"
+	} else if strings.Contains(userAgent, "Mac OS") {
+		deviceOS = "Mac OS"
+	} else if strings.Contains(userAgent, "Linux") {
+		deviceOS = "Linux"
+	} else if strings.Contains(userAgent, "Android") {
+		deviceOS = "Android"
+	} else if strings.Contains(userAgent, "iOS") {
+		deviceOS = "iOS"
+	} else {
+		deviceOS = "Other"
+	}
+
+	// Get the Browser
+	browser := ""
+	if strings.Contains(userAgent, "Chrome/") {
+		browser = "Chrome"
+	} else if strings.Contains(userAgent, "Safari/") {
+		browser = "Safari"
+	} else if strings.Contains(userAgent, "Firefox/") {
+		browser = "Firefox"
+	} else if strings.Contains(userAgent, "Edge/") {
+		browser = "Edge"
+	} else if strings.Contains(userAgent, "Opera/") {
+		browser = "Opera"
+	} else if strings.Contains(userAgent, "MSIE") {
+		browser = "Internet Explorer"
+	} else {
+		browser = "Other"
+	}
+
+	fmt.Println("IP:", publicIP)
+	fmt.Println("Device Type:", deviceType)
+	fmt.Println("Device OS:", deviceOS)
+	fmt.Println("Browser:", browser)
+
+	type networkInfo struct {
+		IP          string  `json:"ip"`
+		CountryCode string  `json:"country_code"`
+		CountryName string  `json:"country_name"`
+		RegionName  string  `json:"region_name"`
+		CityName    string  `json:"city_name"`
+		Latitude    float64 `json:"latitude"`
+		Longitude   float64 `json:"longitude"`
+		ZipCode     string  `json:"zip_code"`
+		TimeZone    string  `json:"time_zone"`
+		ASN         string  `json:"asn"`
+		AS          string  `json:"as"`
+		IsProxy     bool    `json:"is_proxy"`
+	}
+
+	var network_info networkInfo
+
+	url := "https://api.ip2location.io/?key=B98A09AA002A51699B5F3BC63B04A5D9&ip=" + publicIP + "&format=json"
+
+	resp, err = http.Get(url)
+	if err != nil {
+		fmt.Println("Error getting location:", err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+	}
+
+	// Bind the JSON data into network_info
+	err = json.Unmarshal(body, &network_info)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		return
+	}
+
+	// Get the current date and time in UTC
+	currentTime := time.Now().UTC()
+
+	// Format the date and time as a string
+	currentTimeString := currentTime.Format("2006-01-02 15:04:05 MST")
+
+	fmt.Printf("Network Info: %+v\n", network_info)
+
+	lastLoginJSON := fmt.Sprintf(`{"login_time": "%s"}`, currentTimeString)
+
+	// Insert the device information into the database
+	//IP, device_type, device_os, Browser, LastLogin, country_code, country_name, region_name, city_name, latitude, longitude, zip_code, time_zone, asn, as_, is_proxy
+	err = app.database.deviceInfo(publicIP, deviceType, deviceOS, browser, lastLoginJSON, network_info.CountryCode, network_info.CountryName, network_info.RegionName, network_info.CityName, network_info.Latitude, network_info.Longitude, network_info.ZipCode, network_info.TimeZone, network_info.AS, network_info.AS, network_info.IsProxy)
+	if err != nil {
+		fmt.Println("Error inserting device info into the database:", err)
+	} else {
+		fmt.Println("Device Info inserted successfully")
+	}
 }

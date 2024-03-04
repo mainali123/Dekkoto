@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
@@ -1848,4 +1849,65 @@ func (db *databaseConn) duration() ([]VideoDesc, error) {
 
 	// Return the results
 	return videos, nil
+}
+
+func (db *databaseConn) deviceInfo(IP string, deviceType string, deviceOS string, browser string, loginTime string, countryCode string, countryName string, regionName string, cityName string, latitude float64, longitude float64, zipCode string, timeZone string, asn string, as_ string, isProxy bool) error {
+	// Prepare the SQL query to select a record
+	query := `SELECT LastLogin FROM ServerLogs WHERE IP = ? AND device_type = ? AND device_os = ? AND Browser = ? AND country_code = ? AND country_name = ? AND region_name = ? AND city_name = ?`
+	row := db.DB.QueryRow(query, IP, deviceType, deviceOS, browser, countryCode, countryName, regionName, cityName)
+
+	// Check if a record exists
+	var lastLoginData string
+	err := row.Scan(&lastLoginData)
+	if err != nil && err != sql.ErrNoRows {
+		// If an error occurred other than no rows found, return it
+		return err
+	}
+
+	var lastLogins []string
+
+	if lastLoginData != "" {
+		// Parse the existing JSON data into a slice of strings
+		err := json.Unmarshal([]byte(lastLoginData), &lastLogins)
+		if err != nil {
+			// If unable to unmarshal as []string, try to unmarshal as map[string]interface{}
+			var lastLoginMap map[string]interface{}
+			err := json.Unmarshal([]byte(lastLoginData), &lastLoginMap)
+			if err != nil {
+				return err
+			}
+
+			// Convert map values to []string
+			for _, v := range lastLoginMap {
+				if s, ok := v.(string); ok {
+					lastLogins = append(lastLogins, s)
+				}
+			}
+		}
+	}
+
+	// Append the new login time to the slice
+	lastLogins = append(lastLogins, loginTime)
+
+	// Convert the updated slice back into JSON
+	updatedLastLoginData, err := json.Marshal(lastLogins)
+	if err != nil {
+		return err
+	}
+
+	if lastLoginData == "" {
+		// If no record exists, insert a new one
+		query = `INSERT INTO ServerLogs (IP, device_type, device_os, Browser, LastLogin, country_code, country_name, region_name, city_name, latitude, longitude, zip_code, time_zone, asn, as_, is_proxy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+		_, err = db.DB.Exec(query, IP, deviceType, deviceOS, browser, string(updatedLastLoginData), countryCode, countryName, regionName, cityName, latitude, longitude, zipCode, timeZone, asn, as_, isProxy)
+	} else {
+		// Update the LastLogin field in the database with the new JSON data
+		query = `UPDATE ServerLogs SET LastLogin = ? WHERE IP = ? AND device_type = ? AND device_os = ? AND Browser = ? AND country_code = ? AND country_name = ? AND region_name = ? AND city_name = ?`
+		_, err = db.DB.Exec(query, string(updatedLastLoginData), IP, deviceType, deviceOS, browser, countryCode, countryName, regionName, cityName)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
