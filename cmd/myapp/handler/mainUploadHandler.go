@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os/exec"
 	"strings"
 )
 
@@ -77,9 +78,27 @@ func MainUpload(c *gin.Context) {
 
 	println("Video uploaded successfully")
 
+	notification()
+
 	// Trigger /confirmVideo route using POST method
 	c.Request.Method = "POST"
 	c.Request.URL.Path = "/confirmVideo"
 	c.Writer.WriteHeader(http.StatusFound)
-	c.Writer.Header().Set("Location", "/confirmVideo")
+	c.Writer.Header().Set("Location", "/aakash")
+
+}
+
+func notification() {
+	command := "F:\\[FYP]\\Dekkoto\\internal\\toast64.exe " +
+		"--app-id \"Dekkoto\" " +
+		"--title \"Video_Uploaded\" " +
+		"--message \"Video_upload_successful\" " +
+		"--duration \"long\" "
+
+	//exec.Command
+	cmd := exec.Command("cmd", "/C", command)
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
 }
