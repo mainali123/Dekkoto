@@ -1911,3 +1911,52 @@ func (db *databaseConn) deviceInfo(IP string, deviceType string, deviceOS string
 
 	return nil
 }
+
+type ServerLog struct {
+	IP          string
+	DeviceType  string
+	DeviceOS    string
+	Browser     string
+	LoginTime   string
+	CountryCode string
+	CountryName string
+	RegionName  string
+	CityName    string
+	Latitude    float64
+	Longitude   float64
+	ZipCode     string
+	TimeZone    string
+	ASN         string
+	AS          string
+	IsProxy     bool
+}
+
+func (db *databaseConn) serverLog() ([]ServerLog, error) {
+	// Prepare the SQL query
+	//query := "SELECT * FROM serverlogs"
+
+	// select everything except ID
+	query := "SELECT IP, device_type, device_os, Browser, LastLogin, country_code, country_name, region_name, city_name, latitude, longitude, zip_code, time_zone, asn, as_, is_proxy FROM ServerLogs"
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to hold the results
+	var logs []ServerLog
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var log ServerLog
+		err := rows.Scan(&log.IP, &log.DeviceType, &log.DeviceOS, &log.Browser, &log.LoginTime, &log.CountryCode, &log.CountryName, &log.RegionName, &log.CityName, &log.Latitude, &log.Longitude, &log.ZipCode, &log.TimeZone, &log.ASN, &log.AS, &log.IsProxy)
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, log)
+	}
+
+	// Return the results
+	return logs, nil
+}

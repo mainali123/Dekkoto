@@ -123,7 +123,7 @@ func (app *application) routes(router *gin.Engine) {
 	router.GET("/aakash/addVideo", app.adminAddVideoTemp)
 	router.GET("/aakash/videoList", app.adminVideoListTemp)
 	router.GET("/aakash/analytics", app.adminAnalyticsTemp)
-	router.GET("/aakash/settings", app.adminSettingsTemp)
+	router.GET("/aakash/serverLogs", app.adminServerLogs)
 
 	// Forget Password
 	router.GET("/forgetPassword", app.forgetPassword)
@@ -133,5 +133,8 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/mostViewedVideos", app.mostViewedVideos)
 	router.POST("/likeVsDislike", app.likeVsDislike)
 	router.POST("/duration", app.duration)
+
+	// ServerLogs
+	router.POST("/serverLogsPost", app.serverLogsPost)
 
 }

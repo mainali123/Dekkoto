@@ -1679,9 +1679,9 @@ func (app *application) adminAnalyticsTemp(c *gin.Context) {
 	}
 }
 
-// adminSettingsTemp is a handler function that serves the settings page.
-func (app *application) adminSettingsTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin/admin_settings.html")
+// adminServerLogs is a handler function that serves the settings page.
+func (app *application) adminServerLogs(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin/admin_serverLogs.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -2075,10 +2075,26 @@ func (app *application) deviceInfo(r *http.Request) {
 
 	// Insert the device information into the database
 	//IP, device_type, device_os, Browser, LastLogin, country_code, country_name, region_name, city_name, latitude, longitude, zip_code, time_zone, asn, as_, is_proxy
-	err = app.database.deviceInfo(publicIP, deviceType, deviceOS, browser, lastLoginJSON, network_info.CountryCode, network_info.CountryName, network_info.RegionName, network_info.CityName, network_info.Latitude, network_info.Longitude, network_info.ZipCode, network_info.TimeZone, network_info.AS, network_info.AS, network_info.IsProxy)
+	err = app.database.deviceInfo(publicIP, deviceType, deviceOS, browser, lastLoginJSON, network_info.CountryCode, network_info.CountryName, network_info.RegionName, network_info.CityName, network_info.Latitude, network_info.Longitude, network_info.ZipCode, network_info.TimeZone, network_info.ASN, network_info.AS, network_info.IsProxy)
 	if err != nil {
 		fmt.Println("Error inserting device info into the database:", err)
 	} else {
 		fmt.Println("Device Info inserted successfully")
 	}
+}
+
+func (app *application) serverLogsPost(c *gin.Context) {
+	data, err := app.database.serverLog()
+	if err != nil {
+		//c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("Error getting server logs:", err)
+		return
+	}
+
+	// Send the server logs data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Server logs fetched successfully",
+		"success": true,
+		"logs":    data,
+	})
 }
