@@ -137,4 +137,7 @@ func (app *application) routes(router *gin.Engine) {
 	// ServerLogs
 	router.POST("/serverLogsPost", app.serverLogsPost)
 
+	// Location analysis
+	router.POST("/locationAnalysis", app.locationAnalysis)
+
 }

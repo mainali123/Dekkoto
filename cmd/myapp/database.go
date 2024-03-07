@@ -1960,3 +1960,36 @@ func (db *databaseConn) serverLog() ([]ServerLog, error) {
 	// Return the results
 	return logs, nil
 }
+
+func (db *databaseConn) locationAnalysis() (map[string]int, map[string]int, int, error) {
+	// Prepare the SQL query
+	query := "SELECT country_name, country_code FROM ServerLogs"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+	defer rows.Close()
+
+	// Initialize maps to hold the results
+	countryNameCount := make(map[string]int)
+	countryCodeCount := make(map[string]int)
+
+	// Initialize a variable to hold the count
+	count := 0
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var countryName, countryCode string
+		if err := rows.Scan(&countryName, &countryCode); err != nil {
+			return nil, nil, 0, err
+		}
+		countryNameCount[countryName]++
+		countryCodeCount[countryCode]++
+		count++
+	}
+
+	// Return the results
+	return countryNameCount, countryCodeCount, count, nil
+}

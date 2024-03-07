@@ -2098,3 +2098,29 @@ func (app *application) serverLogsPost(c *gin.Context) {
 		"logs":    data,
 	})
 }
+
+// Modify the ResponseData struct
+type ResponseData struct {
+	CountryNameCount map[string]int `json:"country_name_count"`
+	CountryCodeCount map[string]int `json:"country_code_count"`
+	Count            int            `json:"count"`
+}
+
+// Modify the locationAnalysis function
+func (app *application) locationAnalysis(c *gin.Context) {
+	// Call the locationAnalysis function from the databaseConn struct
+	countryNameCount, countryCodeCount, count, err := app.database.locationAnalysis()
+	if err != nil {
+		// Handle the error
+	}
+
+	// Create an instance of the ResponseData struct
+	data := ResponseData{
+		CountryNameCount: countryNameCount,
+		CountryCodeCount: countryCodeCount,
+		Count:            count,
+	}
+
+	// Send the data as a JSON response
+	c.JSON(http.StatusOK, data)
+}
