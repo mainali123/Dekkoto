@@ -113,21 +113,23 @@ body {
 
 /* <-- navbar --> */
 
-#carousel_video .carousel-item {
+#carouselExampleControls .carousel-item {
     height: 50%;
     max-height: 600px;
     content: initial;
     z-index: -1;
 }
 
+/*
 #carousel_video .carousel-item {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+*/
 
-#carousel_video .carousel-item::before {
+#carouselExampleControls .carousel-item::before {
     content: '';
     position: absolute;
     top: 0;
@@ -138,7 +140,7 @@ body {
     transition: opacity 0.3s;
 }
 
-#carousel_video .carousel-item:hover::before {
+#carouselExampleControls .carousel-item:hover::before {
     opacity: 0;
 }
 
