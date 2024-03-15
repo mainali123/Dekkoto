@@ -140,9 +140,9 @@ body {
     transition: opacity 0.3s;
 }
 
-#carouselExampleControls .carousel-item:hover::before {
+/*#carouselExampleControls .carousel-item:hover::before {
     opacity: 0;
-}
+}*/
 
 #carousel_video .carousel-item img {
     width: 50%;
