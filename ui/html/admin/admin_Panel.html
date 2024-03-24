@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEKKOTO - </title>
+    <link rel="shortcut icon" href="../../static/images/DEKKOTO.svg" type="image/x-ic" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarala&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.1/css/all.css">
+    <link rel="stylesheet" href="../../static/css/adminPannelTemp.css">
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script> -->
+    <link rel="stylesheet" href="../../static/css/table.css"/>
+
+    <!--    Swal alert-->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!--Swal alert end-->
+
+
+    <!--    Chart-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    <!--    Chart end-->
+
+</head>
+
+<body>
+<div class="preloader">
+    <img src="../../static/images/DEKKOTO.svg" alt="" srcset="">
+    <div class="loader"></div>
+</div>
+<header class="side-header">
+    <nav class="side-nav">
+        <div class="logo-name">
+            <img src="../../static/images/DEKKOTO.svg" alt="DEKKOTO">
+            <h1 class="side-name" data-name="DEKKOTO">DEKKOTO</h1>
+        </div>
+
+        <ul>
+            <li class="active" title="Dashboard"><a href="#" data-link="/adminPanel/dashboard"
+                                                    data-script="../static/js/admin/dashboard.js"><i
+                    class="fa-solid fa-chart-tree-map"></i><span>Dashboard</span></a></li>
+            <li title="Add New"><a href="#" data-link="/adminPanel/addVideo"
+                                   data-script="../static/js/admin/new_uploadVideo.js"><i
+                    class="fa-solid fa-video-plus"></i><span>Add
+                            New</span></a>
+            <li title="Videos"><a href="#" data-link="/adminPanel/showVideos"
+                                  data-script="../static/js/admin/viewVideosList.js"><i
+                    class="fa-solid fa-film"></i><span>Videos</span></a>
+            </li>
+            <li title="Analytics"><a href="#" data-link="/adminPanel/analytics"
+                                     data-script="../static/js/admin/analytics.js"><i
+                    class="fa-solid fa-chart-mixed"></i><span>Analytics</span></a></li>
+            <li title="Server Logs"><a href="#" data-link="/adminPanel/serverLogs"
+                                       data-script="../static/js/admin/serverLogs.js"><i
+                    class="fa-duotone fa-gear"></i><span>Server Logs</span></a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="copyright">
+        <p>&copy; 2024 DEKKOTO</p>
+        <p>By Diwash Mainali</p>
+    </div>
+</header>
+<main>
+    <nav class="top-nav">
+        <div class="hamburger">
+            <button id="toggleSidenav">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+            <h1 class="current-page-name">Dashboard</h1>
+        </div>
+        <!-- <form action="" class="search">
+            <input type="text" placeholder="Search">
+            <i class="fa-solid fa-search"></i>
+        </form> -->
+        <div class="user">
+            <i class="fa-solid fa-bell" style="color: #ffffff"></i>
+            <div class="user-info">
+                <img src="../../static/images/wp11268580.png" alt="User">
+                <p>Diwash Mainali</p>
+                <i class="fa-solid fa-caret-down"></i>
+            </div>
+        </div>
+    </nav>
+    <section id="content"></section>
+</main>
+<script src="../../static/js/admin/adminTemp.js" defer></script>
+<!--    <script src="../static/js/uplaodVideo.js" defer></script>-->
+</body>
+
+</html>

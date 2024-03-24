@@ -17,41 +17,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// VideoDetails handles the video details process. It reads the video details from the request,
-// checks if the title and description are not empty, and saves the details to a global variable.
-func VideoDetails(c *gin.Context) {
-	type videoDetails struct {
-		VideoDescription string   `json:"description"`
-		VideoName        string   `json:"title"`
-		Genres           []string `json:"genres"`
-		Types            string   `json:"types"`
-	}
-
-	var videoDetailsStruct videoDetails
-
-	err := c.BindJSON(&videoDetailsStruct)
-	if err != nil {
-		c.JSON(500, gin.H{
-			"error": "Invalid JSON",
-		})
-		return
-	}
-
+// Modify VideoDetails to accept video details as parameters
+func VideoDetails(c *gin.Context, title string, description string, category string, genresCSV string) (string, error) {
 	// if title and description is not empty
-	if videoDetailsStruct.VideoName == "" || videoDetailsStruct.VideoDescription == "" {
-		c.JSON(400, gin.H{
-			"error": "Video title or description cannot be empty",
-		})
-		return
+	if title == "" || description == "" || category == "" || genresCSV == "" {
+		//c.JSON(400, gin.H{
+		//	"error": "Video title or description cannot be empty",
+		//})
+		return "Video title or description cannot be empty", fmt.Errorf("Video title or description cannot be empty")
 	}
 
-	VideoDetailsInfo.VideoTitle = videoDetailsStruct.VideoName
-	VideoDetailsInfo.VideoDescription = videoDetailsStruct.VideoDescription
-	VideoDetailsInfo.Genres = videoDetailsStruct.Genres
-	VideoDetailsInfo.Types = videoDetailsStruct.Types
+	VideoDetailsInfo.VideoTitle = title
+	VideoDetailsInfo.VideoDescription = description
+	VideoDetailsInfo.Genres = genresCSV
+	VideoDetailsInfo.Types = category
 
 	fmt.Println(VideoDetailsInfo.VideoTitle, VideoDetailsInfo.VideoDescription, VideoDetailsInfo.Genres, VideoDetailsInfo.Types)
-	c.JSON(200, gin.H{
+	/*c.JSON(200, gin.H{
 		"message": "Video details uploaded successfully",
-	})
+	})*/
+	return "Video details uploaded successfully", nil
 }

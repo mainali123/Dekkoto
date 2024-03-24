@@ -29,16 +29,17 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/register", app.registerPostRequest)
 
 	// For admin panel
-	router.GET("/adminPanel", app.admin)
-	router.POST("/uploadVideo", handler.HandleVideoUpload)
-	router.POST("/uploadThumbnail", handler.HandleThumbnailUpload)
-	router.POST("/uploadBanner", handler.HandleBannerUpload)
-	router.POST("/videoDetails", handler.VideoDetails)
-	router.POST("/confirmVideo", app.uploadVideo)
+	//router.GET("/adminPanel", app.admin)
+	router.POST("/mainUpload", handler.MainUpload)
+	//router.POST("/uploadVideo", handler.HandleVideoUpload)
+	//router.POST("/uploadThumbnail", handler.HandleThumbnailUpload)
+	//router.POST("/uploadBanner", handler.HandleBannerUpload)
+	//router.POST("/videoDetails", handler.VideoDetails)
+	router.POST("/uploadVideoInDatabase", app.uploadVideo)
 	router.POST("/terminateVideo", app.terminateVideo)
 
 	// For admin video RUD operations
-	router.GET("/showVideos", app.showVideos)
+	router.GET("/adminPanel/showVideos", app.showVideos)
 	router.POST("/showVideosPost", app.showVideosPost)
 	router.GET("/editVideo", app.editVideo)
 	router.POST("/editVideo", app.editVideoPost)
@@ -117,10 +118,32 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/changePassword", app.changePasswordPost)
 
 	// TemporaryDevelopment of AdminPanel
-	router.GET("/aakash", app.adminPanelTemp)
-	router.GET("/aakash/dashboard", app.adminDashboardTemp)
-	router.GET("/aakash/addVideo", app.adminAddVideoTemp)
-	router.GET("/aakash/videoList", app.adminVideoListTemp)
-	router.GET("/aakash/analytics", app.adminAnalyticsTemp)
-	router.GET("/aakash/settings", app.adminSettingsTemp)
+	/*router.GET("/aakash", app.adminPanelTemp)
+	router.GET("/aakash/dashboard", app.adminDashboard)
+	router.GET("/aakash/addVideo", app.adminAddVideo)
+	router.GET("/aakash/videoList", app.adminVideoList)
+	router.GET("/aakash/analytics", app.adminAnalytics)
+	router.GET("/aakash/serverLogs", app.adminServerLogs)*/
+	router.GET("/adminPanel", app.adminPanel)
+	router.GET("/adminPanel/dashboard", app.adminDashboard)
+	router.GET("/adminPanel/addVideo", app.adminAddVideo)
+	router.GET("/adminPanel/videoList", app.adminVideoList)
+	router.GET("/adminPanel/analytics", app.adminAnalytics)
+	router.GET("/adminPanel/serverLogs", app.adminServerLogs)
+
+	// Forget Password
+	router.GET("/forgetPassword", app.forgetPassword)
+	router.POST("/sendEmail", app.sendEmail)
+
+	// Analytics
+	router.POST("/mostViewedVideos", app.mostViewedVideos)
+	router.POST("/likeVsDislike", app.likeVsDislike)
+	router.POST("/duration", app.duration)
+
+	// ServerLogs
+	router.POST("/serverLogsPost", app.serverLogsPost)
+
+	// Location analysis
+	router.POST("/locationAnalysis", app.locationAnalysis)
+
 }

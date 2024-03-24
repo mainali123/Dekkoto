@@ -13,6 +13,7 @@
 package handler
 
 import (
+	"fmt"
 	_ "fmt"
 	"github.com/gin-gonic/gin"
 	"image"
@@ -20,6 +21,7 @@ import (
 	"image/jpeg"
 	_ "image/png"
 	_ "io"
+	"mime/multipart"
 	"os"
 	_ "path/filepath"
 	_ "strings"
@@ -49,19 +51,21 @@ import (
 // If the function fails to create the file, it sends a 500 error response with the message "Failed to create file".
 // If the function fails to encode the image to JPEG, it sends a 500 error response with the message "Failed to encode image to JPEG".
 // If the function successfully uploads and converts the file, it sends a 200 response with the message "File uploaded and converted to 1080x1920 successfully"..
-func HandleThumbnailUpload(c *gin.Context) {
-	file, _, err := c.Request.FormFile("thumbnail")
+func HandleThumbnailUpload(c *gin.Context, thumbnailFile *multipart.FileHeader) (string, error) {
+	file, err := thumbnailFile.Open()
 	if err != nil {
-		c.String(500, "Failed to read file from request")
-		return
+		//c.String(500, "Failed to read file from request")
+		fmt.Println("Failed to read file from request")
+		return "Failed to read file from request", err
 	}
 	defer file.Close()
 
 	// Decode the image
 	img, _, err := image.Decode(file)
 	if err != nil {
-		c.String(500, "Failed to decode image file")
-		return
+		//c.String(500, "Failed to decode image file")
+		fmt.Println("Failed to decode image file")
+		return "Failed to decode image file", err
 	}
 
 	// Resize the image to 1080x1920
@@ -71,8 +75,9 @@ func HandleThumbnailUpload(c *gin.Context) {
 	fileName := GfileName + ".png"
 	out, err := os.Create("./userUploadDatas/thumbnails/" + fileName)
 	if err != nil {
-		c.String(500, "Failed to create file")
-		return
+		//c.String(500, "Failed to create file")
+		fmt.Println("Failed to create file")
+		return "Failed to create file", err
 	}
 	defer out.Close()
 
@@ -80,12 +85,15 @@ func HandleThumbnailUpload(c *gin.Context) {
 	opt := jpeg.Options{Quality: 80}
 	err = jpeg.Encode(out, thumbnail, &opt)
 	if err != nil {
-		c.String(500, "Failed to encode image to JPEG")
-		return
+		//c.String(500, "Failed to encode image to JPEG")
+		fmt.Println("Failed to encode image to JPEG")
+		return "Failed to encode image to JPEG", err
 	}
 
 	// Provide the storage path
 	VideoDetailsInfo.ThumbnailStoragePath = "./userUploadDatas/thumbnails/" + fileName
 
-	c.String(200, "File uploaded and converted to 1080x1920 successfully")
+	//c.String(200, "File uploaded and converted to 1080x1920 successfully")
+	fmt.Println("File uploaded and converted to 1080x1920 successfully")
+	return "File uploaded and converted to 1080x1920 successfully", nil
 }

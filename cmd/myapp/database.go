@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"strings"
 	"time"
@@ -37,6 +39,12 @@ func (db *databaseConn) registerUser(userName string, email string, password str
 	if err != nil {
 		return err
 	}
+
+	/*type userDatas struct {
+		loginDate []string
+		registerDate []string
+
+	}*/
 	return nil
 }
 
@@ -46,17 +54,29 @@ func (db *databaseConn) registerUser(userName string, email string, password str
 // If the user exists, it returns nil.
 // If the user does not exist, it returns an error.
 func (db *databaseConn) loginUser(email string, password string) error {
-	queryToLoginUser := "SELECT * FROM users WHERE Email = ? AND Password = ?"
-	rows, err := db.DB.Query(queryToLoginUser, email, password)
-	if err != nil {
+	// Query the database for the user with the provided email
+	row := db.DB.QueryRow("SELECT password FROM users WHERE email = ?", email)
+
+	// We create a variable to hold the hashed password from the database
+	var hashedPassword string
+
+	// Scan the result into our hashedPassword variable
+	if err := row.Scan(&hashedPassword); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// If no rows were returned from the query, it means the provided email does not exist in the database
+			return errors.New("the provided email does not exist in our records")
+		}
+		// If another error occurred, return it
 		return err
 	}
-	defer rows.Close()
 
-	if !rows.Next() {
-		// User with the provided email and password does not exist in the database
-		return errors.New("user does not exist")
+	// At this point, we have the hashed password, and the user-provided password. We will use bcrypt to compare the passwords
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)); err != nil {
+		// If the passwords do not match, return an error
+		return errors.New("the provided password is incorrect")
 	}
+
+	// If we've reached this point, it means the user-provided password matches the hashed password in the database. The user is authenticated!
 	return nil
 }
 
@@ -1687,4 +1707,316 @@ func (db *databaseConn) changePassword(oldPassword string, newPassword string, e
 		return err
 	}
 	return nil
+}
+
+func (db *databaseConn) resetPassword(email string, password string) error {
+	query := "SELECT Email FROM users WHERE Email = ?"
+	row := db.DB.QueryRow(query, email)
+	var userEmail string
+	err := row.Scan(&userEmail)
+	if err != nil {
+		return err
+	}
+	if userEmail != email {
+		return errors.New("email does not exist")
+	}
+
+	query = "UPDATE users SET Password = ? WHERE Email = ?"
+	_, err = db.DB.Exec(query, password, email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *databaseConn) mostViewedVideos() ([]VideoDesc, error) {
+	// Prepare the SQL query
+	query := "SELECT * FROM videos ORDER BY ViewsCount DESC LIMIT 10"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to hold the results
+	var videos []VideoDesc
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	// Return the results
+	return videos, nil
+}
+
+func (db *databaseConn) likeVsDislike() ([]VideoDesc, []VideoDesc, error) {
+	// Initialize a map to keep track of already selected video IDs
+	selectedVideoIDs := make(map[int]bool)
+
+	// Query for top 5 most liked videos
+	query := "SELECT * FROM videos ORDER BY LikesCount DESC LIMIT 5"
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	var likedVideos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		// Check if the video ID is already in the map
+		if _, exists := selectedVideoIDs[video.VideoID]; !exists {
+			// If not, add the video to the likedVideos slice and add its ID to the map
+			likedVideos = append(likedVideos, video)
+			selectedVideoIDs[video.VideoID] = true
+		}
+	}
+
+	// If the count of liked videos is less than 5, handle this case
+	if len(likedVideos) < 5 {
+		// Handle this case as per your requirements
+	}
+
+	// Query for top 5 most disliked videos
+	query = "SELECT * FROM videos ORDER BY DislikesCount DESC LIMIT 5"
+	rows, err = db.DB.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	var dislikedVideos []VideoDesc
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		// Check if the video ID is already in the map
+		if _, exists := selectedVideoIDs[video.VideoID]; !exists {
+			// If not, add the video to the dislikedVideos slice and add its ID to the map
+			dislikedVideos = append(dislikedVideos, video)
+			selectedVideoIDs[video.VideoID] = true
+		}
+	}
+
+	// If the count of disliked videos is less than 5, handle this case
+	if len(dislikedVideos) < 5 {
+		// Handle this case as per your requirements
+	}
+
+	return likedVideos, dislikedVideos, nil
+}
+
+func (db *databaseConn) duration() ([]VideoDesc, error) {
+	// Prepare the SQL query
+	query := "SELECT * FROM videos ORDER BY ViewsCount"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to hold the results
+	var videos []VideoDesc
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	// Return the results
+	return videos, nil
+}
+
+func (db *databaseConn) deviceInfo(IP string, deviceType string, deviceOS string, browser string, loginTime string, countryCode string, countryName string, regionName string, cityName string, latitude float64, longitude float64, zipCode string, timeZone string, asn string, as_ string, isProxy bool) error {
+	// Prepare the SQL query to select a record
+	query := `SELECT LastLogin FROM ServerLogs WHERE IP = ? AND device_type = ? AND device_os = ? AND Browser = ? AND country_code = ? AND country_name = ? AND region_name = ? AND city_name = ?`
+	row := db.DB.QueryRow(query, IP, deviceType, deviceOS, browser, countryCode, countryName, regionName, cityName)
+
+	// Check if a record exists
+	var lastLoginData string
+	err := row.Scan(&lastLoginData)
+	if err != nil && err != sql.ErrNoRows {
+		// If an error occurred other than no rows found, return it
+		return err
+	}
+
+	var lastLogins []string
+
+	if lastLoginData != "" {
+		// Parse the existing JSON data into a slice of strings
+		err := json.Unmarshal([]byte(lastLoginData), &lastLogins)
+		if err != nil {
+			// If unable to unmarshal as []string, try to unmarshal as map[string]interface{}
+			var lastLoginMap map[string]interface{}
+			err := json.Unmarshal([]byte(lastLoginData), &lastLoginMap)
+			if err != nil {
+				return err
+			}
+
+			// Convert map values to []string
+			for _, v := range lastLoginMap {
+				if s, ok := v.(string); ok {
+					lastLogins = append(lastLogins, s)
+				}
+			}
+		}
+	}
+
+	// Append the new login time to the slice
+	lastLogins = append(lastLogins, loginTime)
+
+	// Convert the updated slice back into JSON
+	updatedLastLoginData, err := json.Marshal(lastLogins)
+	if err != nil {
+		return err
+	}
+
+	if lastLoginData == "" {
+		// If no record exists, insert a new one
+		query = `INSERT INTO ServerLogs (IP, device_type, device_os, Browser, LastLogin, country_code, country_name, region_name, city_name, latitude, longitude, zip_code, time_zone, asn, as_, is_proxy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+		_, err = db.DB.Exec(query, IP, deviceType, deviceOS, browser, string(updatedLastLoginData), countryCode, countryName, regionName, cityName, latitude, longitude, zipCode, timeZone, asn, as_, isProxy)
+	} else {
+		// Update the LastLogin field in the database with the new JSON data
+		query = `UPDATE ServerLogs SET LastLogin = ? WHERE IP = ? AND device_type = ? AND device_os = ? AND Browser = ? AND country_code = ? AND country_name = ? AND region_name = ? AND city_name = ?`
+		_, err = db.DB.Exec(query, string(updatedLastLoginData), IP, deviceType, deviceOS, browser, countryCode, countryName, regionName, cityName)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type ServerLog struct {
+	IP          string
+	DeviceType  string
+	DeviceOS    string
+	Browser     string
+	LoginTime   string
+	CountryCode string
+	CountryName string
+	RegionName  string
+	CityName    string
+	Latitude    float64
+	Longitude   float64
+	ZipCode     string
+	TimeZone    string
+	ASN         string
+	AS          string
+	IsProxy     bool
+}
+
+func (db *databaseConn) serverLog() ([]ServerLog, error) {
+	// Prepare the SQL query
+	//query := "SELECT * FROM serverlogs"
+
+	// select everything except ID
+	query := "SELECT IP, device_type, device_os, Browser, LastLogin, country_code, country_name, region_name, city_name, latitude, longitude, zip_code, time_zone, asn, as_, is_proxy FROM ServerLogs"
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to hold the results
+	var logs []ServerLog
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var log ServerLog
+		err := rows.Scan(&log.IP, &log.DeviceType, &log.DeviceOS, &log.Browser, &log.LoginTime, &log.CountryCode, &log.CountryName, &log.RegionName, &log.CityName, &log.Latitude, &log.Longitude, &log.ZipCode, &log.TimeZone, &log.ASN, &log.AS, &log.IsProxy)
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, log)
+	}
+
+	// Return the results
+	return logs, nil
+}
+
+func (db *databaseConn) locationAnalysis() (map[string]int, map[string]int, int, error) {
+	// Prepare the SQL query
+	query := "SELECT country_name, country_code FROM ServerLogs"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+	defer rows.Close()
+
+	// Initialize maps to hold the results
+	countryNameCount := make(map[string]int)
+	countryCodeCount := make(map[string]int)
+
+	// Initialize a variable to hold the count
+	count := 0
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var countryName, countryCode string
+		if err := rows.Scan(&countryName, &countryCode); err != nil {
+			return nil, nil, 0, err
+		}
+		countryNameCount[countryName]++
+		countryCodeCount[countryCode]++
+		count++
+	}
+
+	// Return the results
+	return countryNameCount, countryCodeCount, count, nil
+}
+
+func (db *databaseConn) allVideoList() ([]VideoDesc, error) {
+	// Prepare the SQL query
+	query := "SELECT * FROM videos"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to hold the results
+	var videos []VideoDesc
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	// Return the results
+	return videos, nil
 }

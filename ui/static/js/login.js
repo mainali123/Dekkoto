@@ -1,5 +1,20 @@
 console.log('login.js loaded');
-document.addEventListener('DOMContentLoaded', loginValidation);
+
+
+import { showNotification } from './notification.js';
+
+
+// If register is success
+document.addEventListener('DOMContentLoaded', (event) => {
+    const registrationSuccessMessage = localStorage.getItem('registrationSuccess');
+    if (registrationSuccessMessage) {
+        // toastr.success(registrationSuccessMessage);
+        showNotification('success', 'toast-top-right', registrationSuccessMessage);
+        localStorage.removeItem('registrationSuccess');
+    }
+});
+
+showNotification('info', 'toast-top-right', 'Enter login credentials to continue.');
 
 
 let showPassword = document.querySelectorAll(".password-show");
@@ -86,6 +101,7 @@ function loginValidation() {
 
             // Convert the data to a JSON string
             let jsonData = JSON.stringify(data);
+            console.log(jsonData);
 
             // Send a POST request with the data
           fetch('/login', {
@@ -100,13 +116,15 @@ function loginValidation() {
                     if (data.error) {
                         if (data.error === "User does not exist") {
                             // show popup message to user
-                            alert("User does not exist. Please register first.")
+                            showNotification('error', 'toast-top-right', "User does not exist. Please register first.")
                             window.location.href = "/register";
                         }
+                        showNotification('error', 'toast-top-right', data.error);
                     } else {
                         // window.location.href = "/login";
                         console.log("logged in");
                         // window.location.href = "/adminPanel";
+                        localStorage.setItem('loginSuccess', 'Login successful.');
                         window.location.href = "/home";
                     }
                 })
@@ -115,8 +133,8 @@ function loginValidation() {
                     if (error === "User does not exist") {
                         // show popup message to user
                         console.log("User does not exist. Please register first.")
-                        alert("User does not exist. Please register first.")
-                        window.location.href = "/register";
+                        // alert("User does not exist. Please register first.")
+                        showNotification('error', 'toast-top-right', "User does not exist. Please register first.")
                     }
                 });
         }
@@ -124,4 +142,4 @@ function loginValidation() {
 
 }
 
-
+loginValidation();

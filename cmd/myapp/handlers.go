@@ -8,10 +8,14 @@ package main
 import (
 	"Dekkoto/cmd/myapp/handler"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/resend/resend-go/v2"
+	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -31,6 +35,7 @@ func (app *application) login(c *gin.Context) {
 		return
 	}
 
+	app.deviceInfo(c.Request)
 	err = t.Execute(c.Writer, nil)
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -94,7 +99,16 @@ func (app *application) registerPostRequest(c *gin.Context) {
 		return
 	}
 
-	err := app.database.registerUser(userData.Name, userData.Email, userData.Password)
+	encryptedPass, err := encrypt(userData.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to encrypt password",
+		})
+		return
+
+	}
+
+	err = app.database.registerUser(userData.Name, userData.Email, encryptedPass)
 
 	if err != nil {
 		if err.Error() == "user already exists" {
@@ -137,6 +151,8 @@ func (app *application) loginPostRequest(c *gin.Context) {
 		return
 	}
 
+	fmt.Println(encrypt(userData.Password))
+
 	err := app.database.loginUser(userData.Email, userData.Password)
 
 	if err != nil {
@@ -148,7 +164,7 @@ func (app *application) loginPostRequest(c *gin.Context) {
 		}
 		// For other errors during login, return a generic error response
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to login user",
+			"error": "Invalid email or password",
 		})
 		return
 	}
@@ -180,7 +196,7 @@ func (app *application) uploadVideo(c *gin.Context) {
 	currentDate := time.Now().Format("2006-01-02")
 
 	// Convert arrays to comma-separated strings
-	categoryString := strings.Join(videoInfo.Genres, ",")
+	categoryString := videoInfo.Genres
 
 	// Map genre and category strings to their respective IDs
 	var categoryID int
@@ -190,7 +206,9 @@ func (app *application) uploadVideo(c *gin.Context) {
 
 	// check if category is empty
 	if err != nil {
-		c.String(500, "Failed to get category ID with error: "+err.Error())
+		//c.String(500, "Failed to get category ID with error: "+err.Error())
+		fmt.Println("Error getting category ID with error: " + err.Error())
+		return
 	}
 
 	//genreID, err := app.database.getGenreID(videoInfo.Genres[0])
@@ -199,7 +217,9 @@ func (app *application) uploadVideo(c *gin.Context) {
 	categoryString = strings.ReplaceAll(categoryString, " ", "")
 	genreID, err := app.database.getGenreID(videoInfo.Types)
 	if err != nil {
-		c.String(500, "Failed to get genre ID with error: "+err.Error())
+		//c.String(500, "Failed to get genre ID with error: "+err.Error())
+		fmt.Println("Error getting genre ID with error: " + err.Error())
+		return
 	}
 
 	// print all the data
@@ -218,17 +238,10 @@ func (app *application) uploadVideo(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed to upload video",
-			"success": false,
-		})
+		fmt.Println("Failed to upload video with error: " + err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Video uploaded in the database successfully",
-		"success": true,
-	})
+	return
 }
 
 // terminateVideo is a handler function that handles the termination of a video upload.
@@ -258,7 +271,7 @@ var Data map[string]interface{}
 // It fetches the videos data from the database and sends it to the client.
 // If there is an error during fetching the videos data, it sends a server error response.
 func (app *application) showVideos(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/adminTables.html")
+	t, err := template.ParseFiles("ui/html/admin/adminTables.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -289,10 +302,17 @@ func (app *application) showVideos(c *gin.Context) {
 // showVideosPost is a handler function that handles the post request of the videos page.
 // It sends the videos data to the client as a JSON response.
 func (app *application) showVideosPost(c *gin.Context) {
+	videoList, err := app.database.allVideoList()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Failed to fetch video details",
+			"success": false,
+		})
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Video uploaded in the database successfully",
+		"message": "Successfully Fetched video details",
 		"success": true,
-		"videos":  Data,
+		"videos":  videoList,
 	})
 }
 
@@ -1569,8 +1589,8 @@ func (app *application) likeDislikeCount(c *gin.Context) {
 	})
 }
 
-func (app *application) adminPanelTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_PanelTest.html")
+func (app *application) adminPanel(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin/admin_Panel.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1596,9 +1616,9 @@ func (app *application) adminPanelTemp(c *gin.Context) {
 	//handler.HandleVideoUpload()
 }
 
-// adminAddVideoTemp is a handler function that serves the add video page.
-func (app *application) adminAddVideoTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_videoUpload.html")
+// adminAddVideo is a handler function that serves the add video page.
+func (app *application) adminAddVideo(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin/admin_videoUpload.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1611,8 +1631,8 @@ func (app *application) adminAddVideoTemp(c *gin.Context) {
 	}
 }
 
-func (app *application) adminDashboardTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_dashboard.html")
+func (app *application) adminDashboard(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin/admin_dashboard.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1625,9 +1645,9 @@ func (app *application) adminDashboardTemp(c *gin.Context) {
 	}
 }
 
-// adminVideoListTemp is a handler function that serves the video list page.
-func (app *application) adminVideoListTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/videoList.html")
+// adminVideoList is a handler function that serves the video list page.
+func (app *application) adminVideoList(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin/videoList.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1640,9 +1660,9 @@ func (app *application) adminVideoListTemp(c *gin.Context) {
 	}
 }
 
-// adminAnalyticsTemp is a handler function that serves the analytics page.
-func (app *application) adminAnalyticsTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_analytics.html")
+// adminAnalytics is a handler function that serves the analytics page.
+func (app *application) adminAnalytics(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin/admin_analytics.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1655,9 +1675,9 @@ func (app *application) adminAnalyticsTemp(c *gin.Context) {
 	}
 }
 
-// adminSettingsTemp is a handler function that serves the settings page.
-func (app *application) adminSettingsTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin_settings.html")
+// adminServerLogs is a handler function that serves the settings page.
+func (app *application) adminServerLogs(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin/admin_serverLogs.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1775,4 +1795,328 @@ func (app *application) changePasswordPost(c *gin.Context) {
 		"message": "Password changed successfully",
 		"success": true,
 	})
+}
+
+// encrypt function that takes a string and returns an encrypted string
+func encrypt(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedPassword), nil
+}
+
+func (app *application) forgetPassword(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/forgetPassword.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) sendEmail(c *gin.Context) {
+
+	type Email struct {
+		Email string `json:"email"`
+	}
+
+	var email Email
+
+	err := c.ShouldBindJSON(&email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	// Create a new source and randomizer
+	src := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(src)
+
+	// Create a random password of length 8
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}[]:;,.?/|\\"
+	password := make([]byte, 8)
+	for i := range password {
+		password[i] = charset[r.Intn(len(charset))]
+	}
+
+	// Encrypt the password
+	encryptedPassword, err := encrypt(string(password))
+
+	if err != nil {
+		fmt.Println("Error encrypting password:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to encrypt password",
+		})
+		return
+	}
+
+	err = app.database.resetPassword(email.Email, encryptedPassword)
+	if err != nil {
+		fmt.Println("Error resetting password:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "User does not exist. Please enter a valid email address.",
+		})
+		return
+	}
+
+	apiKey := "re_AESmEYab_Mub2tMp887SMot95Tftjn3wk"
+
+	client := resend.NewClient(apiKey)
+
+	params := &resend.SendEmailRequest{
+		From: "Diwash <diwash@diwashmainali.com.np>",
+		//To:      []string{"np03cs4s220198@heraldcollege.edu.np"},
+		To:      []string{email.Email},
+		Subject: "Reset Password",
+		Html: `<html>
+                <head>
+                </head>
+                <body>
+                    <p>Dear User,</p>
+                    <p>Your password has been reset successfully.</p>
+                    <p>Your new password is: <span style="color:red;">` + string(password) + `</span></p>
+                    <p>For security purposes, we highly recommend that you change your password immediately upon logging in.</p>
+					<p>If you did not request this password reset or have any concerns about the security of your account, please contact our support team immediately.</p>
+					<p>Thank you for your attention to this matter.</p>
+					<p>Best Regards,<br>Diwash</p>
+                </body>
+            </html>`,
+	}
+
+	_, err = client.Emails.Send(params)
+
+	if err != nil {
+		fmt.Println("Error sending email:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to send email",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Email sent successfully",
+		"success": true,
+	})
+}
+
+func (app *application) mostViewedVideos(c *gin.Context) {
+	// Call the mostViewedVideos method from the database connection
+	videos, err := app.database.mostViewedVideos()
+	if err != nil {
+		// If there is an error, return a 500 status code and error message
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// If there is no error, return a 200 status code and the videos in JSON format
+	c.JSON(http.StatusOK, videos)
+}
+
+func (app *application) likeVsDislike(c *gin.Context) {
+	mostLikedVideos, mostDislikedVideos, err := app.database.likeVsDislike()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mostLikedVideos":    mostLikedVideos,
+		"mostDislikedVideos": mostDislikedVideos,
+	})
+}
+
+func (app *application) duration(c *gin.Context) {
+	duration, err := app.database.duration()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, duration)
+}
+
+func (app *application) deviceInfo(r *http.Request) {
+
+	resp, err := http.Get("https://api.ipify.org?format=json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var result map[string]string
+	json.Unmarshal([]byte(body), &result)
+
+	fmt.Println(result)
+
+	publicIP := result["ip"]
+
+	// Get the User-Agent header
+	userAgent := r.UserAgent()
+
+	// The User-Agent header contains information about the device type, OS and Browser
+	// You can parse this header to extract the information you need
+	// Note: This is a simplified example, in reality parsing the User-Agent header can be complex
+	deviceType := ""
+	deviceOS := ""
+
+	// Determine the device type
+	if strings.Contains(userAgent, "Mobile") {
+		deviceType = "Mobile"
+	} else if strings.Contains(userAgent, "Tablet") {
+		deviceType = "Tablet"
+	} else if strings.Contains(userAgent, "Windows") || strings.Contains(userAgent, "Mac OS") || strings.Contains(userAgent, "Linux") {
+		deviceType = "Desktop"
+	} else {
+		deviceType = "Other"
+	}
+
+	if strings.Contains(userAgent, "Windows") {
+		deviceOS = "Windows"
+	} else if strings.Contains(userAgent, "Mac OS") {
+		deviceOS = "Mac OS"
+	} else if strings.Contains(userAgent, "Linux") {
+		deviceOS = "Linux"
+	} else if strings.Contains(userAgent, "Android") {
+		deviceOS = "Android"
+	} else if strings.Contains(userAgent, "iOS") {
+		deviceOS = "iOS"
+	} else {
+		deviceOS = "Other"
+	}
+
+	// Get the Browser
+	browser := ""
+	if strings.Contains(userAgent, "Chrome/") {
+		browser = "Chrome"
+	} else if strings.Contains(userAgent, "Safari/") {
+		browser = "Safari"
+	} else if strings.Contains(userAgent, "Firefox/") {
+		browser = "Firefox"
+	} else if strings.Contains(userAgent, "Edge/") {
+		browser = "Edge"
+	} else if strings.Contains(userAgent, "Opera/") {
+		browser = "Opera"
+	} else if strings.Contains(userAgent, "MSIE") {
+		browser = "Internet Explorer"
+	} else {
+		browser = "Other"
+	}
+
+	fmt.Println("IP:", publicIP)
+	fmt.Println("Device Type:", deviceType)
+	fmt.Println("Device OS:", deviceOS)
+	fmt.Println("Browser:", browser)
+
+	type networkInfo struct {
+		IP          string  `json:"ip"`
+		CountryCode string  `json:"country_code"`
+		CountryName string  `json:"country_name"`
+		RegionName  string  `json:"region_name"`
+		CityName    string  `json:"city_name"`
+		Latitude    float64 `json:"latitude"`
+		Longitude   float64 `json:"longitude"`
+		ZipCode     string  `json:"zip_code"`
+		TimeZone    string  `json:"time_zone"`
+		ASN         string  `json:"asn"`
+		AS          string  `json:"as"`
+		IsProxy     bool    `json:"is_proxy"`
+	}
+
+	var network_info networkInfo
+
+	url := "https://api.ip2location.io/?key=B98A09AA002A51699B5F3BC63B04A5D9&ip=" + publicIP + "&format=json"
+
+	resp, err = http.Get(url)
+	if err != nil {
+		fmt.Println("Error getting location:", err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+	}
+
+	// Bind the JSON data into network_info
+	err = json.Unmarshal(body, &network_info)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		return
+	}
+
+	// Get the current date and time in UTC
+	currentTime := time.Now().UTC()
+
+	// Format the date and time as a string
+	currentTimeString := currentTime.Format("2006-01-02 15:04:05 MST")
+
+	fmt.Printf("Network Info: %+v\n", network_info)
+
+	lastLoginJSON := fmt.Sprintf(`{"login_time": "%s"}`, currentTimeString)
+
+	// Insert the device information into the database
+	//IP, device_type, device_os, Browser, LastLogin, country_code, country_name, region_name, city_name, latitude, longitude, zip_code, time_zone, asn, as_, is_proxy
+	err = app.database.deviceInfo(publicIP, deviceType, deviceOS, browser, lastLoginJSON, network_info.CountryCode, network_info.CountryName, network_info.RegionName, network_info.CityName, network_info.Latitude, network_info.Longitude, network_info.ZipCode, network_info.TimeZone, network_info.ASN, network_info.AS, network_info.IsProxy)
+	if err != nil {
+		fmt.Println("Error inserting device info into the database:", err)
+	} else {
+		fmt.Println("Device Info inserted successfully")
+	}
+}
+
+func (app *application) serverLogsPost(c *gin.Context) {
+	data, err := app.database.serverLog()
+	if err != nil {
+		//c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("Error getting server logs:", err)
+		return
+	}
+
+	// Send the server logs data as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Server logs fetched successfully",
+		"success": true,
+		"logs":    data,
+	})
+}
+
+// Modify the ResponseData struct
+type ResponseData struct {
+	CountryNameCount map[string]int `json:"country_name_count"`
+	CountryCodeCount map[string]int `json:"country_code_count"`
+	Count            int            `json:"count"`
+}
+
+// Modify the locationAnalysis function
+func (app *application) locationAnalysis(c *gin.Context) {
+	// Call the locationAnalysis function from the databaseConn struct
+	countryNameCount, countryCodeCount, count, err := app.database.locationAnalysis()
+	if err != nil {
+		// Handle the error
+	}
+
+	// Create an instance of the ResponseData struct
+	data := ResponseData{
+		CountryNameCount: countryNameCount,
+		CountryCodeCount: countryCodeCount,
+		Count:            count,
+	}
+
+	// Send the data as a JSON response
+	c.JSON(http.StatusOK, data)
 }

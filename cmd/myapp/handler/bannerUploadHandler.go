@@ -13,11 +13,13 @@
 package handler
 
 import (
+	"fmt"
 	_ "fmt"
 	"github.com/gin-gonic/gin"
 	"image"
 	"image/jpeg"
 	_ "io"
+	"mime/multipart"
 	"os"
 	_ "path/filepath"
 	_ "strings"
@@ -47,19 +49,21 @@ import (
 // If the function fails to create the file, it sends a 500 error response with the message "Failed to create file".
 // If the function fails to encode the image to JPEG, it sends a 500 error response with the message "Failed to encode image to JPEG".
 // If the function successfully uploads and converts the file, it sends a 200 response with the message "File uploaded and converted to 1920x1080 successfully. Banner storage path: "+bannerStoragePath".
-func HandleBannerUpload(c *gin.Context) {
-	file, _, err := c.Request.FormFile("banner")
+func HandleBannerUpload(c *gin.Context, bannerFile *multipart.FileHeader) (string, error) {
+	file, err := bannerFile.Open()
 	if err != nil {
-		c.String(500, "Failed to read file from request")
-		return
+		//c.String(500, "Failed to read file from request")
+		fmt.Println("Failed to read file from request")
+		return "Failed to read file from request", err
 	}
 	defer file.Close()
 
 	// Decode the image
 	img, _, err := image.Decode(file)
 	if err != nil {
-		c.String(500, "Failed to decode image file")
-		return
+		//c.String(500, "Failed to decode image file")
+		fmt.Println("Failed to decode image file")
+		return "Failed to decode image file", err
 	}
 
 	// Resize the image to 1920x1080
@@ -70,7 +74,7 @@ func HandleBannerUpload(c *gin.Context) {
 	out, err := os.Create("./userUploadDatas/banners/" + fileName)
 	if err != nil {
 		c.String(500, "Failed to create file")
-		return
+		return "Failed to create file", err
 	}
 	defer out.Close()
 
@@ -78,12 +82,15 @@ func HandleBannerUpload(c *gin.Context) {
 	opt := jpeg.Options{Quality: 80}
 	err = jpeg.Encode(out, banner, &opt)
 	if err != nil {
-		c.String(500, "Failed to encode image to JPEG")
-		return
+		//c.String(500, "Failed to encode image to JPEG")
+		fmt.Println("Failed to encode image to JPEG")
+		return "Failed to encode image to JPEG", err
 	}
 
 	// Provide the storage path
 	bannerStoragePath := "./userUploadDatas/banners/" + fileName
 
-	c.String(200, "File uploaded and converted to 1920x1080 successfully. Banner storage path: "+bannerStoragePath)
+	//c.String(200, "File uploaded and converted to 1920x1080 successfully. Banner storage path: "+bannerStoragePath)
+	fmt.Println("File uploaded and converted to 1920x1080 successfully. Banner storage path: " + bannerStoragePath)
+	return "File uploaded and converted to 1920x1080 successfully. Banner storage path: " + bannerStoragePath, nil
 }

@@ -1,5 +1,19 @@
 console.log("Homepage.js loaded")
 
+import { showNotification } from './notification.js';
+function newAlert(type, css, message) {
+    showNotification(type, css, message);
+}
+
+// If login is success
+document.addEventListener('DOMContentLoaded', (event) => {
+    const loginSuccessMessage = localStorage.getItem('loginSuccess');
+    if (loginSuccessMessage) {
+        newAlert('success', 'toast-top-right', loginSuccessMessage);
+        localStorage.removeItem('loginSuccess');
+    }
+});
+
 
 // carousel
 // Fetch carousel data from the server
@@ -33,13 +47,13 @@ fetch('/caroselSlide', {
                 img.alt = item.Title;
                 img.dataset.videoDetails = JSON.stringify(item); // Store the video details in the img element
                 console.log(img.dataset.videoDetails)
-                // on click to the active carousel item, redirect to the watch video page
+                /*// on click to the active carousel item, redirect to the watch video page
                 carouselItem.addEventListener('click', function () {
                     console.log('Carousel item clicked'); // Add this line
                     // save the video details in local storage
                     localStorage.setItem('videoDetails', this.dataset.videoDetails);
                     window.location.href = '/watchVideo'; // Redirect to the watch video page
-                });
+                });*/
 
                 // Append the created HTML elements to the carousel item
                 carouselItem.appendChild(img);
@@ -52,6 +66,18 @@ fetch('/caroselSlide', {
     .catch((error) => {
         console.error('Error:', error);
     });
+
+const carouselContainer = document.querySelector('.carousel-inner'); // Select the HTML element where you want to display the carousel items
+
+carouselContainer.addEventListener('click', (event) => {
+    let activeElement = document.querySelector('.carousel-item.active img');
+    if (activeElement) {
+        let details = JSON.parse(activeElement.getAttribute('data-video-details'));
+        details = JSON.stringify(details);
+        localStorage.setItem('videoDetails', details);
+        window.location.href = '/watchVideo'; // Redirect to the watch video page
+    }
+});
 
 // Recently Added Videos
 fetch('/recentlyAdded', {

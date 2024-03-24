@@ -225,163 +225,6 @@ function getCommentDetails() {
 }
 
 
-// Like and Dislike functionality
-
-/*function likeVideo() {
-
-    fetch('/likeVideo', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({videoID: videoDetails.VideoID})
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data)
-            if (data.message === 'Video is already liked') {
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            alert('An error occurred: ' + error);
-        });
-}
-
-function reverseLikeVideo() {
-
-    fetch('/reverseLikeVideo', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({videoID: videoDetails.VideoID})
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data)
-            if (data.message === 'Video is already liked') {
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            alert('An error occurred: ' + error);
-        });
-}
-
-function dislikeVideo() {
-
-    fetch('/dislikeVideo', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({videoID: videoDetails.VideoID})
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data)
-            if (data.message === 'Video is already disliked') {
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            alert('An error occurred: ' + error);
-        });
-}
-
-function reverseDislikeVideo() {
-
-        fetch('/reverseDislikeVideo', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({videoID: videoDetails.VideoID})
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                if (data.message === 'Video is already disliked') {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                alert('An error occurred: ' + error);
-            });
-}
-
-function isLikedDisliked() {
-    fetch('/isLikedDisliked', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({videoID: videoDetails.VideoID})
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data)
-            if (data.isLiked) {
-                fontLike.classList.remove('fa-regular');
-                fontLike.classList.add('fa-solid', 'fa-thumbs-up');
-                likeBtn.classList.add('active');
-            } else if (data.isDisliked) {
-                fontDislike.classList.remove('fa-regular');
-                fontDislike.classList.add('fa-solid', 'fa-thumbs-down');
-                disLikeBtn.classList.add('active');
-            }
-        })
-        .catch(error => {
-            alert('An error occurred: ' + error);
-        });
-}
-
-function like_dislike() {
-
-    likeBtn.addEventListener('click', () => {
-        // Check if the dislike button is clicked
-        if (disLikeBtn.classList.contains('active')) {
-            // Undo the dislike button click
-            disLikeBtn.classList.remove('active');
-            fontDislike.classList.remove('fa-solid', 'fa-thumbs-down');
-            fontDislike.classList.add('fa-regular', 'fa-thumbs-down');
-        }
-
-        // Toggle the like button click
-        if (fontLike.classList.contains('fa-regular')) {
-            fontLike.classList.remove('fa-regular');
-            fontLike.classList.add('fa-solid', 'fa-thumbs-up');
-            likeBtn.classList.add('active');
-        } else {
-            fontLike.classList.remove('fa-solid', 'fa-thumbs-up');
-            fontLike.classList.add('fa-regular', 'fa-thumbs-up');
-            likeBtn.classList.remove('active');
-        }
-    });
-
-    disLikeBtn.addEventListener('click', () => {
-        // Check if the like button is clicked
-        if (likeBtn.classList.contains('active')) {
-            // Undo the like button click
-            likeBtn.classList.remove('active');
-            fontLike.classList.remove('fa-solid', 'fa-thumbs-up');
-            fontLike.classList.add('fa-regular', 'fa-thumbs-up');
-        }
-
-        // Toggle the dislike button click
-        if (fontDislike.classList.contains('fa-regular')) {
-            fontDislike.classList.remove('fa-regular');
-            fontDislike.classList.add('fa-solid', 'fa-thumbs-down');
-            disLikeBtn.classList.add('active');
-        } else {
-            fontDislike.classList.remove('fa-solid', 'fa-thumbs-down');
-            fontDislike.classList.add('fa-regular', 'fa-thumbs-down');
-            disLikeBtn.classList.remove('active');
-        }
-    });
-}*/
-
 // like_dislike();
 
 
@@ -396,11 +239,18 @@ likeBtn.addEventListener('click', function() {
     if (likeBtn.classList.contains('active')) {
         // If the video is already liked, send a request to unlike the video
         likeBtn.classList.remove('active');
+        fontLike.classList.remove('fa-solid')
+        fontLike.classList.add('fa-regular')
         reverseLikeVideo();
     } else {
         // If the video is not liked, send a request to like the video
         likeBtn.classList.add('active');
         dislikeBtn.classList.remove('active');
+        fontLike.classList.add('fa-solid')
+        fontLike.classList.remove('fa-regular')
+
+        fontDislike.classList.remove('fa-solid')
+        fontDislike.classList.add('fa-regular')
         likeVideo();
     }
 });
@@ -410,17 +260,45 @@ dislikeBtn.addEventListener('click', function() {
     if (dislikeBtn.classList.contains('active')) {
         // If the video is already disliked, send a request to undislike the video
         dislikeBtn.classList.remove('active');
+        fontDislike.classList.remove('fa-solid')
+        fontDislike.classList.add('fa-regular')
         reverseDislikeVideo();
     } else {
         // If the video is not disliked, send a request to dislike the video
         dislikeBtn.classList.add('active');
         likeBtn.classList.remove('active');
+        fontDislike.classList.add('fa-solid')
+        fontDislike.classList.remove('fa-regular')
+
+        fontLike.classList.remove('fa-solid')
+        fontLike.classList.add('fa-regular')
         dislikeVideo();
     }
 });
 
 // Function to like a video
+
 function likeVideo() {
+    console.log(JSON.stringify({videoID: videoDetails.VideoID}))
+    $.ajax({
+        url: '/likeVideo',
+        type: 'POST',
+        data: JSON.stringify({videoID: videoDetails.VideoID}),
+        success: function(data) {
+            // If the video is successfully liked, update the UI
+            if (data.success) {
+                likeBtn.classList.add('active');
+                dislikeBtn.classList.remove('active');
+                like_dislike_count();
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log('An error occurred: ' + error)
+        }
+    })
+}
+
+/*function likeVideo() {
     fetch('/likeVideo', {
         method: 'POST',
         headers: {
@@ -436,10 +314,46 @@ function likeVideo() {
             dislikeBtn.classList.remove('active');
         }
     });
-}
+}*/
 
 // Function to unlike a video
+
 function reverseLikeVideo() {
+    $.ajax({
+        url: '/reverseLikeVideo',
+        type: 'POST',
+        data: JSON.stringify({videoID: videoDetails.VideoID}),
+        success: function(data) {
+            // If the video is successfully unliked, update the UI
+            if (data.success) {
+                likeBtn.classList.remove('active');
+                like_dislike_count();
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log('An error occurred: ' + error)
+        }
+    })
+}
+
+/*function reverseLikeVideo() {
+    $.ajax({
+        url: '/reverseLikeVideo',
+        type: 'POST',
+        data: {videoID: videoDetails.VideoID},
+        success: function(data) {
+            // If the video is successfully unliked, update the UI
+            if (data.success) {
+                likeBtn.classList.remove('active');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log('An error occurred: ' + error)
+        }
+    })
+}*/
+
+/*function reverseLikeVideo() {
     fetch('/reverseLikeVideo', {
         method: 'POST',
         headers: {
@@ -454,10 +368,27 @@ function reverseLikeVideo() {
             likeBtn.classList.remove('active');
         }
     });
-}
+}*/
 
 // Function to dislike a video
+
 function dislikeVideo() {
+    $.ajax({
+        url: '/dislikeVideo',
+        type: 'POST',
+        data: JSON.stringify({videoID: videoDetails.VideoID}),
+        success: function (data) {
+            dislikeBtn.classList.add('active')
+            likeBtn.classList.remove('active')
+            like_dislike_count();
+        },
+        error: function (xhr, status, error) {
+            console.log("Error: " + error)
+        }
+    })
+}
+
+/*function dislikeVideo() {
     fetch('/dislikeVideo', {
         method: 'POST',
         headers: {
@@ -473,10 +404,25 @@ function dislikeVideo() {
             likeBtn.classList.remove('active');
         }
     });
-}
+}*/
 
 // Function to undislike a video
 function reverseDislikeVideo() {
+    $.ajax({
+        url: '/reverseDislikeVideo',
+        type: 'POST',
+        data: JSON.stringify({videoID: videoDetails.VideoID}),
+        success: function (data) {
+            dislikeBtn.classList.remove('active')
+            like_dislike_count();
+        },
+        error: function (xhr, status, error) {
+            console.log("Error: " + error)
+        }
+    })
+}
+
+/*function reverseDislikeVideo() {
     fetch('/reverseDislikeVideo', {
         method: 'POST',
         headers: {
@@ -491,7 +437,29 @@ function reverseDislikeVideo() {
             dislikeBtn.classList.remove('active');
         }
     });
-}
+}*/
+
+/*function isLikedDisliked() {
+    $.ajax({
+        url: '/isLikedDisliked',
+        type: 'POST',
+        data: JSON.stringify({videoID: videoDetails.VideoID}),
+        success: function (data) {
+            if (data.isLiked) {
+                fontLike.classList.remove('fa-regular');
+                fontLike.classList.add('fa-solid', 'fa-thumbs-up');
+                likeBtn.classList.add('active');
+            } else if (data.isDisliked) {
+                fontDislike.classList.remove('fa-regular');
+                fontDislike.classList.add('fa-solid', 'fa-thumbs-down');
+                dislikeBtn.classList.add('active');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log('An error occurred: ' + error)
+        }
+    })
+}*/
 
 function isLikedDisliked() {
     fetch('/isLikedDisliked', {
@@ -506,12 +474,14 @@ function isLikedDisliked() {
             console.log(data)
             if (data.isLiked) {
                 fontLike.classList.remove('fa-regular');
-                fontLike.classList.add('fa-solid', 'fa-thumbs-up');
+                fontLike.classList.add('fa-solid');
                 likeBtn.classList.add('active');
+                console.log('liked');
             } else if (data.isDisliked) {
                 fontDislike.classList.remove('fa-regular');
-                fontDislike.classList.add('fa-solid', 'fa-thumbs-down');
+                fontDislike.classList.add('fa-solid');
                 dislikeBtn.classList.add('active');
+                console.log('disliked');
             }
         })
         .catch(error => {
@@ -520,6 +490,22 @@ function isLikedDisliked() {
 }
 
 isLikedDisliked();
+
+/*function like_dislike_count() {
+    $.ajax({
+        url: '/likeDislikeCount',
+        type: 'POST',
+        data: JSON.stringify({videoID: videoDetails.VideoID}),
+        success: function (data) {
+            console.log(data)
+            document.querySelector('.liked-video-count').innerText = data.likes;
+            document.querySelector('.dislike-video-count').innerText = data.dislikes;
+        },
+        error: function (xhr, status, error) {
+            console.log('An error occurred: ' + error)
+        }
+    })
+}*/
 
 function like_dislike_count() {
     fetch('/likeDislikeCount', {
@@ -534,6 +520,7 @@ function like_dislike_count() {
         console.log(data)
         document.querySelector('.liked-video-count').innerText = data.likes;
         document.querySelector('.dislike-video-count').innerText = data.dislikes;
+        // isLikedDisliked();
     })
     .catch(error => {
         alert('An error occurred: ' + error);

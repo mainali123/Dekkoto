@@ -1,14 +1,22 @@
 console.log('user_changePassword.js');
 
+import {showNotification} from "./notification.js";
+
+
 document.querySelector('.button').addEventListener('click', function (event) {
     event.preventDefault();
 
-    var oldPassword = document.getElementById('old-password').value;
-    var newPassword = document.getElementById('new-password').value;
-    var confirmPassword = document.getElementById('confirm-password').value;
+    let oldPassword = document.getElementById('old-password').value;
+    let newPassword = document.getElementById('new-password').value;
+    let confirmPassword = document.getElementById('confirm-password').value;
+
+    console.log('oldPassword:', oldPassword);
+    console.log('newPassword:', newPassword);
+    console.log('confirmPassword)', confirmPassword);
 
     if (newPassword !== confirmPassword) {
-        alert('New password and confirm password do not match');
+        // alert('New password and confirm password do not match');
+        showNotification('error', 'toast-top-right', 'New password and confirm password do not match');
         return;
     }
 
@@ -28,8 +36,9 @@ document.querySelector('.button').addEventListener('click', function (event) {
             // alert(data.message);
             // handle the 500 error
             if (data.error) {
-                alert(data.error);
-                return;
+                showNotification('error', 'toast-top-right', data.error);
+            } else {
+                showNotification('success', 'toast-top-right', data.message);
             }
         })
         .catch(error => {

@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"net/http"
+	"mime/multipart"
 	"os"
 	"os/exec"
 	"strconv"
@@ -32,15 +32,15 @@ var GfileName string
 
 // videoDetails is a struct that holds various details about the uploaded video.
 type videoDetails struct {
-	FileName             string   `json:"fileName"`
-	VideoTitle           string   `json:"videoTitle"`
-	VideoDescription     string   `json:"videoDescription"`
-	VideoStoragePath     string   `json:"videoStoragePath"`
-	ThumbnailStoragePath string   `json:"thumbnailStoragePath"`
-	UploaderId           string   `json:"uploaderId"`
-	VideoDuration        string   `json:"videoDuration"`
-	Genres               []string `json:"genres"`
-	Types                string   `json:"types"`
+	FileName             string `json:"fileName"`
+	VideoTitle           string `json:"videoTitle"`
+	VideoDescription     string `json:"videoDescription"`
+	VideoStoragePath     string `json:"videoStoragePath"`
+	ThumbnailStoragePath string `json:"thumbnailStoragePath"`
+	UploaderId           string `json:"uploaderId"`
+	VideoDuration        string `json:"videoDuration"`
+	Genres               string `json:"genres"`
+	Types                string `json:"types"`
 }
 
 // VideoDetailsInfo is a global variable of type videoDetails that stores the details of the uploaded video.
@@ -63,11 +63,12 @@ var VideoDetailsInfo videoDetails
 // The function saves the video in the "./userUploadDatas/videos/" directory.
 // The function provides the storage path of the video in the VideoDetailsInfo.VideoStoragePath variable.
 // The function provides the duration of the video in the VideoDetailsInfo.VideoDuration variable.
-func HandleVideoUpload(c *gin.Context) {
-	file, _, err := c.Request.FormFile("video")
+func HandleVideoUpload(c *gin.Context, videoFile *multipart.FileHeader) (string, error) {
+	file, err := videoFile.Open()
 	if err != nil {
-		c.String(500, "Failed to read file from request")
-		return
+		fmt.Println("ERROR 1")
+		//c.String(500, "Failed to read file from request")
+		return "Failed to read file from request", err
 	}
 	defer file.Close()
 
@@ -80,23 +81,26 @@ func HandleVideoUpload(c *gin.Context) {
 
 	out, err := os.Create("./userUploadDatas/videos/" + fileName)
 	if err != nil {
-		c.String(500, "Failed to create file")
-		return
+		fmt.Println("ERROR 2")
+		//c.String(500, "Failed to create file")
+		return "Failed to create file", err
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, file)
 	if err != nil {
-		c.String(500, "Failed to save file")
-		return
+		fmt.Println("ERROR 3")
+		//c.String(500, "Failed to save file")
+		return "Failed to save file", err
 	}
 
 	// Before encoding the video, get its duration and quality
 	videoFilePath := "./userUploadDatas/videos/" + fileName
 	duration, quality, err := getVideoInfo(videoFilePath)
 	if err != nil {
-		c.String(500, "Failed to get video info")
-		return
+		fmt.Println("ERROR 4")
+		//c.String(500, "Failed to get video info")
+		return "Failed to get video info", err
 	}
 
 	// convert quality from string to int
@@ -128,16 +132,16 @@ func HandleVideoUpload(c *gin.Context) {
 	err = cmd.Run()
 	if err != nil {
 		fmt.Println(err) // Print out the error
-		c.String(500, "Failed to convert video")
-		return
+		//c.String(500, "Failed to convert video")
+		return "Failed to convert video", err
 	}
 
 	// stop using the old file
 	err = out.Close()
 	if err != nil {
 		fmt.Println(err) // Print out the error
-		c.String(500, "Failed to stop using the old file")
-		return
+		//c.String(500, "Failed to stop using the old file")
+		return "Failed to stop using the old file", err
 	}
 
 	// Delete the old file
@@ -145,11 +149,11 @@ func HandleVideoUpload(c *gin.Context) {
 	if err != nil {
 		fmt.Println("Failed to delete old file:", err) // Print out the error
 		//c.String(500, "Failed to delete old file")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed to delete old file",
-			"success": false,
-		})
-		return
+		//c.JSON(http.StatusInternalServerError, gin.H{
+		//	"message": "Failed to delete old file",
+		//	"success": false,
+		//})
+		return "Failed to delete old file", err
 	}
 
 	VideoDetailsInfo.FileName = fileName
@@ -157,10 +161,11 @@ func HandleVideoUpload(c *gin.Context) {
 	VideoDetailsInfo.VideoDuration = duration
 
 	//c.String(200, "File uploaded, converted to AV1, and old file deleted successfully")
-	c.JSON(http.StatusOK, gin.H{
-		"message": "File uploaded and old file deleted successfully",
-		"success": true,
-	})
+	//c.JSON(http.StatusOK, gin.H{
+	//	"message": "File uploaded and old file deleted successfully",
+	//	"success": true,
+	//})
+	return "File uploaded, converted to H.265, and old file deleted successfully", nil
 }
 
 // encodeVideo is a helper function that returns a command to encode a video file using ffmpeg.
