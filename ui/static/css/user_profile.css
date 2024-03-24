@@ -12,6 +12,8 @@ body {
     margin: 1rem 2rem;
 }
 
+
+
 .user-info {
     cursor: pointer;
     display: flex;
@@ -53,7 +55,8 @@ p {
     color: #c5c5c5;
     transition: color 0.3s linear;
 }
-.user-options{
+
+.user-options {
     cursor: pointer;
 }
 
@@ -61,7 +64,7 @@ p {
     padding: 1rem;
 }
 
-.user-options p:hover{
+.user-options p:hover {
     color: #2f4ab6;
 }
 

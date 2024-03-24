@@ -11,8 +11,8 @@ body {
 .card-display{
     padding: 20px;
     display: grid;
-    grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
+    grid-template-columns:repeat(auto-fit, minmax(250px, max-content));
+    gap: 3rem;
 }
 
 .card-video {
@@ -21,18 +21,16 @@ body {
 
 .card {
     position: relative;
-    display: flex;
-    flex-direction: column;
     align-items: center;
     border: none;
-    box-shadow: none;
     background-color: transparent;
     cursor: pointer;
     width: 250px;
     height: 435px;
-    scale: 1;
     transition: all 0.3s linear;
 }
+
+
 
 .card:hover{
     scale: 1.05;

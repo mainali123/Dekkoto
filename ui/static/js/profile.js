@@ -93,6 +93,8 @@ fetch('/watchingVideos', {
         if (videos.length > 0) {
             videos.forEach(video => {
                 // Create HTML elements for each video
+                const imageDiv = document.createElement('div');
+                imageDiv.classList.add('imageDiv')
                 const img = document.createElement('img');
                 img.src = '../../' + video.ThumbnailURL; // Adjust the path relative to the HTML file
                 img.dataset.videoDetails = JSON.stringify(video); // Store the video details in the img element
@@ -105,7 +107,8 @@ fetch('/watchingVideos', {
                 });
 
                 // Append the created HTML elements to the video container
-                videoContainer.appendChild(img);
+                videoContainer.appendChild(imageDiv);
+                imageDiv.appendChild(img);
             });
         }
     })
@@ -128,6 +131,8 @@ fetch('/onHoldVideos', {
         if (videos.length > 0) {
             videos.forEach(video => {
                 // Create HTML elements for each video
+                const imageDiv = document.createElement('imageDiv');
+                imageDiv.classList.add('imageDiv');
                 const img = document.createElement('img');
                 img.src = '../../' + video.ThumbnailURL; // Adjust the path relative to the HTML file
                 img.dataset.videoDetails = JSON.stringify(video); // Store the video details in the img element
@@ -140,7 +145,8 @@ fetch('/onHoldVideos', {
                 });
 
                 // Append the created HTML elements to the video container
-                videoContainer.appendChild(img);
+                videoContainer.appendChild(imageDiv);
+                imageDiv.appendChild(img);
             });
         }
     })
