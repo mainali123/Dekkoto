@@ -282,7 +282,7 @@ var Data map[string]interface{}
 // It fetches the videos data from the database and sends it to the client.
 // If there is an error during fetching the videos data, it sends a server error response.
 func (app *application) showVideos(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/adminTables.html")
+	t, err := template.ParseFiles("ui/html/admin/adminTables.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -313,10 +313,17 @@ func (app *application) showVideos(c *gin.Context) {
 // showVideosPost is a handler function that handles the post request of the videos page.
 // It sends the videos data to the client as a JSON response.
 func (app *application) showVideosPost(c *gin.Context) {
+	videoList, err := app.database.allVideoList()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Failed to fetch video details",
+			"success": false,
+		})
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Video uploaded in the database successfully",
+		"message": "Successfully Fetched video details",
 		"success": true,
-		"videos":  Data,
+		"videos":  videoList,
 	})
 }
 
@@ -1593,8 +1600,8 @@ func (app *application) likeDislikeCount(c *gin.Context) {
 	})
 }
 
-func (app *application) adminPanelTemp(c *gin.Context) {
-	t, err := template.ParseFiles("ui/html/admin/admin_PanelTest.html")
+func (app *application) adminPanel(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/admin/admin_Panel.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
@@ -1620,8 +1627,8 @@ func (app *application) adminPanelTemp(c *gin.Context) {
 	//handler.HandleVideoUpload()
 }
 
-// adminAddVideoTemp is a handler function that serves the add video page.
-func (app *application) adminAddVideoTemp(c *gin.Context) {
+// adminAddVideo is a handler function that serves the add video page.
+func (app *application) adminAddVideo(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/admin/admin_videoUpload.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1635,7 +1642,7 @@ func (app *application) adminAddVideoTemp(c *gin.Context) {
 	}
 }
 
-func (app *application) adminDashboardTemp(c *gin.Context) {
+func (app *application) adminDashboard(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/admin/admin_dashboard.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1649,8 +1656,8 @@ func (app *application) adminDashboardTemp(c *gin.Context) {
 	}
 }
 
-// adminVideoListTemp is a handler function that serves the video list page.
-func (app *application) adminVideoListTemp(c *gin.Context) {
+// adminVideoList is a handler function that serves the video list page.
+func (app *application) adminVideoList(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/admin/videoList.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1664,8 +1671,8 @@ func (app *application) adminVideoListTemp(c *gin.Context) {
 	}
 }
 
-// adminAnalyticsTemp is a handler function that serves the analytics page.
-func (app *application) adminAnalyticsTemp(c *gin.Context) {
+// adminAnalytics is a handler function that serves the analytics page.
+func (app *application) adminAnalytics(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/admin/admin_analytics.html")
 	if err != nil {
 		app.serverError(c.Writer, err)

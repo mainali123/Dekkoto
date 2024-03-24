@@ -1993,3 +1993,30 @@ func (db *databaseConn) locationAnalysis() (map[string]int, map[string]int, int,
 	// Return the results
 	return countryNameCount, countryCodeCount, count, nil
 }
+
+func (db *databaseConn) allVideoList() ([]VideoDesc, error) {
+	// Prepare the SQL query
+	query := "SELECT * FROM videos"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to hold the results
+	var videos []VideoDesc
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var video VideoDesc
+		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		if err != nil {
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+	// Return the results
+	return videos, nil
+}
