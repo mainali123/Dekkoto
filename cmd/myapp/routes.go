@@ -35,7 +35,7 @@ func (app *application) routes(router *gin.Engine) {
 	//router.POST("/uploadThumbnail", handler.HandleThumbnailUpload)
 	//router.POST("/uploadBanner", handler.HandleBannerUpload)
 	//router.POST("/videoDetails", handler.VideoDetails)
-	router.GET("/confirmVideo", app.uploadVideo)
+	router.POST("/uploadVideoInDatabase", app.uploadVideo)
 	router.POST("/terminateVideo", app.terminateVideo)
 
 	// For admin video RUD operations

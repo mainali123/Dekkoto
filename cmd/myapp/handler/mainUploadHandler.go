@@ -78,14 +78,8 @@ func MainUpload(c *gin.Context) {
 
 	println("Video uploaded successfully")
 
-	notification()
-
-	// Trigger /confirmVideo route using POST method
-	c.Request.Method = "POST"
-	c.Request.URL.Path = "/confirmVideo"
-	c.Writer.WriteHeader(http.StatusFound)
-	c.Writer.Header().Set("Location", "/aakash")
-
+	uploadOnDatabase()
+	c.Redirect(http.StatusFound, "/adminPanel")
 }
 
 func notification() {
@@ -101,4 +95,26 @@ func notification() {
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}
+}
+
+func uploadOnDatabase() {
+	command := "curl -X POST http://localhost:8080/uploadVideoInDatabase"
+	cmd := exec.Command("cmd", "/C", command)
+	err := cmd.Run()
+	if err != nil {
+		command := "F:\\[FYP]\\Dekkoto\\internal\\toast64.exe " +
+			"--app-id \"Dekkoto\" " +
+			"--title \"Video_Uploaded\" " +
+			"--message \"Unable_to_upload_video\" " +
+			"--duration \"long\" "
+
+		//exec.Command
+		cmd := exec.Command("cmd", "/C", command)
+		err := cmd.Run()
+		if err != nil {
+			fmt.Println("Error: ", err)
+		}
+		return
+	}
+	notification()
 }

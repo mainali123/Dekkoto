@@ -238,20 +238,9 @@ func (app *application) uploadVideo(c *gin.Context) {
 	)
 
 	if err != nil {
-		/*c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed to upload video",
-			"success": false,
-		})
-		return*/
 		fmt.Println("Failed to upload video with error: " + err.Error())
 		return
 	}
-
-	/*c.JSON(http.StatusOK, gin.H{
-		"message": "Video uploaded in the database successfully",
-		"success": true,
-	})*/
-	fmt.Println("Video uploaded in the database successfully")
 	return
 }
 
