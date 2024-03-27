@@ -562,7 +562,7 @@ func (db *databaseConn) searchVideos(searchQuery string, userID int) ([]Videosea
 
 	// If the searchQuery is empty, return all the videos in ascending order of their title
 	if searchQuery == "" {
-		query1 := "SELECT V.*, G.GenreName, VA.Watching, VA.Completed, VA.On_hold, VA.Considering, VA.Dropped FROM videos V JOIN genres G ON V.GenreID = G.GenreID LEFT JOIN videoactions VA ON V.VideoID = VA.VideoID AND VA.UserID = ? ORDER BY V.Title ASC LIMIT 10"
+		query1 := "SELECT V.*, G.GenreName, VA.Watching, VA.Completed, VA.On_hold, VA.Considering, VA.Dropped FROM videos V JOIN genres G ON V.GenreID = G.GenreID LEFT JOIN videoactions VA ON V.VideoID = VA.VideoID AND VA.UserID = ? ORDER BY V.Title ASC LIMIT 18"
 		rows, err := db.DB.Query(query1, userID)
 		if err != nil {
 			return nil, err

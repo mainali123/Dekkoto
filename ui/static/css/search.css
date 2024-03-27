@@ -1,4 +1,4 @@
-*{
+* {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -89,7 +89,7 @@ li a:hover:before {
     opacity: 0;
 }
 
-.logo{
+.logo {
     width: 50%;
     height: 100%;
     object-fit: cover;
@@ -100,7 +100,7 @@ li a:hover:before {
 body {
     margin: 0;
     padding: 0;
-   background-color: #0e121a; 
+    background-color: #0e121a;
 }
 
 
@@ -112,7 +112,8 @@ body {
     margin: 100px 50px;
     gap: 50px;
 }
-.results-container{
+
+.results-container {
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -120,7 +121,8 @@ body {
     gap: 50px;
 
 }
-.search-bar{
+
+.search-bar {
     width: 100%;
     height: max-content;
     display: flex;
@@ -132,7 +134,7 @@ body {
 
 .search-input {
     width: 70%;
-    padding: 15px 20px ;
+    padding: 15px 20px;
     height: max-content;
     border-radius: 30px;
     border: none;
@@ -140,21 +142,25 @@ body {
     color: #fff;
     margin: 20px;
     background-color: rgba(0, 0, 0, 0.5);
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.473);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.473);
 
 }
-.search-input:focus{
+
+.search-input:focus {
     outline: none;
 }
-.search-input::placeholder{
+
+.search-input::placeholder {
     color: #c7c7c7;
 }
-.filter-btn{
+
+.filter-btn {
     right: 11vw !important;
     background: none !important;
     font-size: 1.5rem;
 }
-.search-bar button{
+
+.search-bar button {
     width: 70px;
     height: 40px;
     border-radius: 30px;
@@ -168,14 +174,15 @@ body {
 }
 
 /*autocomplete wrapper*/
-.body{
+.body {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
 }
-.autoComplete_wrapper{
+
+.autoComplete_wrapper {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -184,7 +191,7 @@ body {
     position: relative;
 }
 
-#autoComplete_list_1{
+#autoComplete_list_1 {
     width: 70%;
     background-color: rgba(0, 0, 0, 0.5);
     color: #fff;
@@ -204,32 +211,33 @@ body {
 
 }
 
-#autoComplete_list_1 li{
+#autoComplete_list_1 li {
     width: 100%;
 }
 
-mark{
+mark {
     background-color: #ec0033;
     color: #fff;
     border-radius: 5px;
 
 }
 
-.search-item{
+.search-item {
     cursor: pointer;
     padding: 10px;
     width: 100%;
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
     font-family: Sarala, sans-serif;
-    width: 100% !important; 
+    width: 100% !important;
 
 }
 
-.search-item:hover{
+.search-item:hover {
     background-color: #424242;
     color: #fff;
 }
+
 /*-----------------*/
 
 
@@ -242,7 +250,7 @@ mark{
 
 .info {
     margin: 4em 0;
-    
+
 }
 
 .title {
@@ -259,18 +267,40 @@ mark{
     padding-bottom: 0.3em;
 }
 
-.type {
+/* .type {
     color: rgba(0, 255, 163, 0.6);
     font-size: 40px;
     font-weight: 500;
     padding-right: 0.5em;
-}
+} */
 
 .status {
-    color: #00b2ff;
+    color: #fff;
     font-weight: 500;
-    font-size: 40px;
+    /* font-size: 40px; */
     text-transform: uppercase;
+    width: fit-content;
+    padding: .4rem;
+}
+
+.card {
+    width: 260px;
+}
+
+.card .rating {
+    bottom: 22%;
+    left: .5rem;
+}
+
+.type {
+    position: absolute;
+    background-color: #019fb6;
+    right: .5rem;
+    bottom: 22%;
+    padding: .4rem;
+    border-radius: 24px;
+    color: #fff;
+    width: fit-content;
 }
 
 .hamburger-menu {
@@ -283,14 +313,12 @@ mark{
     body {
         margin: 0;
         padding: 0;
-        background-image: linear-gradient(
-                to bottom,
+        background-image: linear-gradient(to bottom,
                 rgba(0, 0, 0, 1) 0.5%,
                 rgba(0, 0, 0, 0) 75%,
                 rgba(14, 18, 26, 0.1) 75.1%,
-                rgba(14, 18, 26, 1) 100%
-        ),
-        url('../images/deer-anim3.gif');
+                rgba(14, 18, 26, 1) 100%),
+            url('../images/deer-anim3.gif');
         background-repeat: no-repeat;
         background-size: 100% 75%;
         overflow: hidden;
@@ -349,22 +377,22 @@ mark{
         font-size: 20px;
     }
 
-    .info{
+    .info {
         margin: 0;
     }
 
-    ul.clicked{
+    ul.clicked {
         margin-top: 5rem;
         transform: translate(-9%, 0%);
     }
 
-    .nav-bar.clicked::before{
+    .nav-bar.clicked::before {
         content: '';
         width: 100vw;
         height: 100vh;
         position: absolute;
         top: 0;
         bottom: 0;
-        background-color:rgba(0,0,0,0.9);
+        background-color: rgba(0, 0, 0, 0.9);
     }
 }
