@@ -247,11 +247,11 @@ strong {
     background-color: #000;
 }
 
-.dropdown {
+/*.dropdown {
     display: flex;
     justify-content: end;
     top: -20.6rem;
-}
+}*/
 
 .dropdown:focus-within {
     outline: none;
