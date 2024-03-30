@@ -1755,11 +1755,19 @@ func (db *databaseConn) changePassword(oldPassword string, newPassword string, e
 	if err != nil {
 		return err
 	}
-	if password != oldPassword {
+	res := bcrypt.CompareHashAndPassword([]byte(password), []byte(oldPassword))
+	if res != nil {
 		return errors.New("old password is incorrect")
+
 	}
+	//if password != oldPassword {
+	//	return errors.New("old password is incorrect")
+	//}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+
 	query = "UPDATE users SET Password = ? WHERE Email = ?"
-	_, err = db.DB.Exec(query, newPassword, email)
+	_, err = db.DB.Exec(query, encryptedPassword, email)
 	if err != nil {
 		return err
 	}
@@ -1767,6 +1775,7 @@ func (db *databaseConn) changePassword(oldPassword string, newPassword string, e
 }
 
 func (db *databaseConn) resetPassword(email string, password string) error {
+	fmt.Println("Reset password is triggered with email: ", email, "and password: ", password)
 	query := "SELECT Email FROM users WHERE Email = ?"
 	row := db.DB.QueryRow(query, email)
 	var userEmail string

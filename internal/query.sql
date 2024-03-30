@@ -8,7 +8,8 @@ CREATE TABLE Users
     UserName VARCHAR(50),
     Email    VARCHAR(100),
     Password VARCHAR(100),
-    Data     TEXT
+    Data     TEXT,
+    Admin   TINYINT DEFAULT 0
 );
 
 -- Create Categories table

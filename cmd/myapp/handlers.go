@@ -2004,6 +2004,15 @@ func (app *application) sendEmail(c *gin.Context) {
 		return
 	}
 
+	err = app.database.resetPassword(email.Email, encryptedPassword)
+	if err != nil {
+		fmt.Println("Error resetting password:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to reset password",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Email sent successfully",
 		"success": true,
