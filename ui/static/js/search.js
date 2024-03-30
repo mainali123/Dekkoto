@@ -47,17 +47,20 @@ function clearSearchResults() {
 
 // Function to create a new DOM element for each video result
 function createVideoElement(video) {
+    // Encode video details to Base64
+    const videoDetailsBase64 = btoa(JSON.stringify(video));
 
     let cardOfVideo = `
-                                <div class="card">
-                                    <img class="card-img-top" src="${video.ThumbnailURL}" data-video-details='${JSON.stringify(video)}'/>
-                                    <p class="card-text">${video.Title}</p>
-                                    <p class="rating status">${video.Status}</p>
-                                    <p class=" type">${video.Genre}</p>
-                                    <div class="card-body"></div>
-                                </div>`;
+        <div class="card">
+            <img class="card-img-top" src="${video.ThumbnailURL}" data-video-details="${videoDetailsBase64}"/>
+            <p class="card-text">${video.Title}</p>
+            <p class="rating status">${video.Status}</p>
+            <p class=" type">${video.Genre}</p>
+            <div class="card-body"></div>
+        </div>`;
     resultsContainer.innerHTML += cardOfVideo;
 }
+
 
 // Attach an event listener to the input field
 searchInput.addEventListener('keyup', function () {
@@ -111,9 +114,14 @@ searchData.addEventListener('input', function () {
 
 // Add event listener to the video cards
 resultsContainer.addEventListener('click', function (event) {
-    let videoDetails = event.target.getAttribute('data-video-details');
-    if (videoDetails) {
-        const video = JSON.parse(videoDetails);
-        console.log(video);
+    let videoDetailsBase64 = event.target.getAttribute('data-video-details');
+    if (videoDetailsBase64) {
+        // Decode Base64 to JSON
+        const videoDetails = JSON.parse(atob(videoDetailsBase64));
+        console.log(videoDetails);
+        // Store the selected video's details in local storage
+        localStorage.setItem('videoDetails', JSON.stringify(videoDetails));
+        // Redirect to the watch video page
+        window.location.href = '/watchVideo';
     }
 });
