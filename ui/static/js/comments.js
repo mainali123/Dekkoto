@@ -38,31 +38,6 @@ postButton.addEventListener('click', function (event) {
 
 
     // Send a POST request to the '/comment' endpoint
-    /*fetch('/comment', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({comment: comment, videoID: videoDetails.VideoID})
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                // Display the error message to the user
-                alert(data.error);
-            } else {
-                // Clear the comment input field and display the success message
-                commentInput.value = '';
-                alert('Comment posted successfully');
-                comments();
-
-            }
-        })
-        .catch(error => {
-            // Display the error message to the user
-            alert('An error occurred: ' + error);
-        });*/
-
     $.ajax({
         url: '/comment',
         type: 'POST',
@@ -75,8 +50,12 @@ postButton.addEventListener('click', function (event) {
                 // Clear the comment input field and display the success message
                 commentInput.value = '';
                 alert('Comment posted successfully');
-                comments();
+                // Reload page
+                // location.reload();
 
+                const commentsSectionValue = document.querySelector('.comment');
+                commentsSectionValue.innerHTML = '';
+                comments();
             }
         },
         error: function (xhr, status, error) {
@@ -88,65 +67,6 @@ postButton.addEventListener('click', function (event) {
 // Fetch comments from the server
 
 let loadOnce = true;
-
-/*function comments() {
-    fetch('/displayComments', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({videoID: videoDetails.VideoID})
-    })
-        .then(response => response.json())
-        .then(data => {
-            const comments = data.comments;
-            console.log(comments);
-
-            // Select the comments section in the HTML
-            const commentsSection = document.querySelector('.comments-section');
-
-            // Clear the comments section
-            // commentsSection.innerHTML = '';
-
-            // For each comment, create a new div and append it to the comments section
-            comments.forEach(comment => {
-                const commentDiv = document.createElement('div');
-                commentDiv.classList.add('other-comments');
-                let commentVotes = comment.Upvotes - comment.Downvotes;
-                commentDiv.innerHTML = `
-                <div class="comment">
-                    <div class="other-user-name">
-                        <div class="userrrrr">
-                            <p class="name">${comment.UserName}</p>
-                            <span class="time">${new Date(comment.CommentDate).toLocaleDateString()}</span>
-                        </div>
-                        <img src="../static/images/boruto.jpg" alt="default profile" class="other-user-profile" />
-                    </div>
-                    <p class="other-user-comment">
-                        ${comment.CommentText}
-                    </p>
-                    <div class="upvotes">
-                        <img src="../static/images/upDrop.svg" data-id="${comment.CommentID}" alt="" class="upVotes">
-                        <span class="voteNumbers" style="color: ${commentVotes < 0 ? '#FF0000' : (commentVotes > 0 ? '#00FF0A' : '')}">${commentVotes}</span>
-                        <img src="../static/images/downDrop.svg" data-id="${comment.CommentID}" alt="" class="downVotes">
-                    </div>
-                </div>
-                `;
-                commentsSection.appendChild(commentDiv);
-            });
-
-            // Add event listeners to the upvote and downvote buttons
-            upvote_downvote();
-            if (loadOnce) {
-                getCommentDetails();
-                loadOnce = false;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-}*/
-
 function comments() {
     console.log('comments function called')
     $.ajax({
@@ -194,7 +114,7 @@ function comments() {
             upvote_downvote();
             if (loadOnce) {
                 getCommentDetails();
-                loadOnce = false;
+                // loadOnce = false;
             }
         },
         error: function (xhr, status, error) {
@@ -202,123 +122,6 @@ function comments() {
         }
     })
 }
-
-
-/*function upvote_downvote() {
-    console.log('upvote_downvote function loaded')
-    const upvote = document.querySelectorAll('.upVotes');
-    const downvote = document.querySelectorAll('.downVotes');
-
-    upvote.forEach((upvote) => {
-        upvote.addEventListener('click', (event) => {
-            console.log("upvote clicked")
-            // convert the commentID to a number
-            comment_ID = parseInt(event.target.dataset.id);
-
-            /!*fetch('/upvote', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({commentID: comment_ID})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
-
-                    // If the message is 'Comment is already upvoted', alert the user
-                    if (data.message === 'Comment is already upvoted') {
-                        alert(data.message);
-                    }
-
-                    if (!data.success) {
-                        // Display the error message to the user
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    // Display the error message to the user
-                    alert('An error occurred: ' + error);
-                });*!/
-
-            // upvote a video
-            $.ajax({
-                url: '/upvote',
-                type: 'POST',
-                data: JSON.stringify({commentID: comment_ID}),
-                success: function(data) {
-                    console.log(data)
-
-                    if (data.message === 'Comment is already upvoted') {
-                        alert(data.message);
-                    }
-                    if (!data.success) {
-                        alert(data.message);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log('An error occurred: ' + error)
-                }
-            })
-        });
-    });
-
-    downvote.forEach((downvote) => {
-        downvote.addEventListener('click', (event) => {
-            console.log("downvote clicked")
-            // convert the commentID to a number
-            let comment_ID = parseInt(event.target.dataset.id);
-
-            /!*fetch('/downvote', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({commentID: comment_ID})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
-
-                    // If the message is 'Comment is already downvoted', alert the user
-                    if (data.message === 'Comment is already downvoted') {
-                        alert(data.message);
-                    }
-
-                    if (!data.success) {
-                        // Display the error message to the user
-                        alert(data.message);
-                    }
-                    getCommentDetails();
-                })
-                .catch(error => {
-                    // Display the error message to the user
-                    alert('An error occurred: ' + error);
-                });*!/
-
-            $.ajax({
-                url: '/downvote',
-                type: 'POST',
-                data: JSON.stringify({commentID: comment_ID}),
-                success: function(data) {
-                    console.log(data)
-
-                    if (data.message === 'Comment is already downvoted') {
-                        alert(data.message);
-                    }
-
-                    if (!data.success) {
-                        alert(data.message);
-                    }
-                    getCommentDetails();
-                },
-                error: function (xhr, status, error) {
-                    console.log('An error occurred: ' + error)
-                }
-            })
-        });
-    });
-}*/
 
 function upvote_downvote() {
     console.log('upvote_downvote function loaded');
