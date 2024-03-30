@@ -7,10 +7,12 @@ package main
 
 import (
 	"Dekkoto/cmd/myapp/handler"
+	"encoding/base64"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/resend/resend-go/v2"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
@@ -2230,4 +2232,50 @@ func (app *application) locationAnalysis(c *gin.Context) {
 
 	// Send the data as a JSON response
 	c.JSON(http.StatusOK, data)
+}
+
+func (app *application) imageUploadDynamic(c *gin.Context) {
+	type image struct {
+		Image string `json:"image"`
+	}
+
+	var img image
+
+	err := c.ShouldBindJSON(&img)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	base64String := img.Image
+
+	// Decode the base64 string
+	imageBytes, err := base64.StdEncoding.DecodeString(base64String)
+	if err != nil {
+		fmt.Println("Error decoding base64 string:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Error decoding base64 string",
+		})
+		return
+	}
+
+	// create a unique file name unique to the image
+	uniqueFile := uuid.New().String()
+
+	//./userUploadDatas/videos/" + fileName
+	// Save the image to a file
+	err = ioutil.WriteFile("./userUploadDatas/userProfileImage/"+uniqueFile+".png", imageBytes, 0644)
+	if err != nil {
+		fmt.Println("Error saving image to file:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Error saving image to file",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Image saved successfully",
+	})
 }
