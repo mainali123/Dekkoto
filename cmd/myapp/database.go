@@ -1333,21 +1333,21 @@ func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
 func (db *databaseConn) upvoteComment(commentID int, userID int) error {
 	// Check if the comment exists
 	var exists int
-	err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
+	/*err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
 	if err != nil {
 		return err
 	}
 	if exists == 0 {
-		return errors.New("Comment does not exist")
-	}
+		return errors.New("comment does not exist")
+	}*/
 
 	// Check if the user exists
-	err = db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
 	if err != nil {
 		return err
 	}
 	if exists == 0 {
-		return errors.New("User does not exist")
+		return errors.New("user does not exist")
 	}
 
 	// Query the CommentActions table to check if the user has already upvoted or downvoted the comment
@@ -1358,35 +1358,59 @@ func (db *databaseConn) upvoteComment(commentID int, userID int) error {
 	err = row.Scan(&upvotes, &downvotes)
 
 	// If the user has already upvoted the comment, return an error message
-	if err == nil && upvotes == 1 {
+	/*if err == nil && upvotes == 1 {
 		return errors.New("Comment is already upvoted")
-	}
+	}*/
 
 	// If the user has not performed any action before, insert a new upvote
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		query = "INSERT INTO CommentActions (CommentID, UserID, Upvotes, Downvotes) VALUES (?, ?, 1, 0)"
 		_, err = db.DB.Exec(query, commentID, userID)
-	} else if err == nil && downvotes == 1 { // If the user has previously downvoted the comment, update the record
+	} else { // If the user has previously downvoted the comment, update the record
 		query = "UPDATE CommentActions SET Upvotes = 1, Downvotes = 0 WHERE CommentID = ? AND UserID = ?"
 		_, err = db.DB.Exec(query, commentID, userID)
 	}
+	return err
+}
 
+func (db *databaseConn) reverseUpvoteComment(commentID int, userID int) error {
+	// Check if the comment exists
+	//var exists int
+
+	// Check if the user exists
+	/*err := db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("User does not exist")
+	}*/
+
+	// Query the CommentActions table to check if the user has already upvoted or downvoted the comment
+	query := "SELECT Upvotes, Downvotes FROM CommentActions WHERE CommentID = ? AND UserID = ?"
+	row := db.DB.QueryRow(query, commentID, userID)
+
+	var upvotes, downvotes int
+	err := row.Scan(&upvotes, &downvotes)
+
+	query = "UPDATE CommentActions SET Upvotes = 0, Downvotes = 0 WHERE CommentID = ? AND UserID = ?"
+	_, err = db.DB.Exec(query, commentID, userID)
 	return err
 }
 
 func (db *databaseConn) downvoteComment(commentID int, userID int) error {
 	// Check if the comment exists
 	var exists int
-	err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
+	/*err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
 	if err != nil {
 		return err
 	}
 	if exists == 0 {
 		return errors.New("Comment does not exist")
-	}
+	}*/
 
 	// Check if the user exists
-	err = db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
 	if err != nil {
 		return err
 	}
@@ -1402,18 +1426,51 @@ func (db *databaseConn) downvoteComment(commentID int, userID int) error {
 	err = row.Scan(&upvotes, &downvotes)
 
 	// If the user has already downvoted the comment, return an error message
-	if err == nil && downvotes == 1 {
+	/*if err == nil && downvotes == 1 {
 		return errors.New("Comment is already downvoted")
-	}
+	}*/
 
 	// If the user has not performed any action before, insert a new downvote
 	if err == sql.ErrNoRows {
 		query = "INSERT INTO CommentActions (CommentID, UserID, Upvotes, Downvotes) VALUES (?, ?, 0, 1)"
 		_, err = db.DB.Exec(query, commentID, userID)
-	} else if err == nil && upvotes == 1 { // If the user has previously upvoted the comment, update the record
+	} else { // If the user has previously upvoted the comment, update the record
 		query = "UPDATE CommentActions SET Upvotes = 0, Downvotes = 1 WHERE CommentID = ? AND UserID = ?"
 		_, err = db.DB.Exec(query, commentID, userID)
 	}
+
+	return err
+}
+
+func (db *databaseConn) reverseDownvoteComment(commentID int, userID int) error {
+	// Check if the comment exists
+	var exists int
+	/*err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("Comment does not exist")
+	}*/
+
+	// Check if the user exists
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("User does not exist")
+	}
+
+	// Query the CommentActions table to check if the user has already upvoted or downvoted the comment
+	query := "SELECT Upvotes, Downvotes FROM CommentActions WHERE CommentID = ? AND UserID = ?"
+	row := db.DB.QueryRow(query, commentID, userID)
+
+	var upvotes, downvotes int
+	err = row.Scan(&upvotes, &downvotes)
+
+	query = "UPDATE CommentActions SET Upvotes = 0, Downvotes = 0 WHERE CommentID = ? AND UserID = ?"
+	_, err = db.DB.Exec(query, commentID, userID)
 
 	return err
 }

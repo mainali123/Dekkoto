@@ -99,7 +99,9 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/comment", app.comment)
 	router.POST("/displayComments", app.getComments)
 	router.POST("/upvote", app.upvote)
+	router.POST("/reverseUpvote", app.reverseUpvote)
 	router.POST("/downvote", app.downvote)
+	router.POST("/reverseDownvote", app.reverseDownvote)
 	router.POST("/commentDetails", app.commentDetails)
 
 	// like & dislike video

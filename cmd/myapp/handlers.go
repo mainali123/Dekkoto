@@ -1329,6 +1329,57 @@ func (app *application) upvote(c *gin.Context) {
 	})
 }
 
+func (app *application) reverseUpvote(c *gin.Context) {
+	type comment_id struct {
+		CommentID int `json:"commentID"`
+	}
+
+	var commentID comment_id
+
+	err := c.ShouldBindJSON(&commentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.reverseUpvoteComment(commentID.CommentID, userInfo.UserId)
+
+	if err != nil {
+		if err.Error() == "Comment does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Comment does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "User does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "User does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "Comment is already upvoted" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Comment is already upvoted",
+				"success": true,
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to upvote comment with error: " + err.Error(),
+				"success": false,
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Comment upvoted successfully",
+		"success": true,
+	})
+}
+
 func (app *application) downvote(c *gin.Context) {
 	type comment_id struct {
 		CommentID int `json:"commentID"`
@@ -1345,6 +1396,57 @@ func (app *application) downvote(c *gin.Context) {
 	}
 
 	err = app.database.downvoteComment(commentID.CommentID, userInfo.UserId)
+
+	if err != nil {
+		if err.Error() == "Comment does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Comment does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "User does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "User does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "Comment is already downvoted" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Comment is already downvoted",
+				"success": true,
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to downvote comment with error: " + err.Error(),
+				"success": false,
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Comment downvoted successfully",
+		"success": true,
+	})
+}
+
+func (app *application) reverseDownvote(c *gin.Context) {
+	type comment_id struct {
+		CommentID int `json:"commentID"`
+	}
+
+	var commentID comment_id
+
+	err := c.ShouldBindJSON(&commentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.reverseDownvoteComment(commentID.CommentID, userInfo.UserId)
 
 	if err != nil {
 		if err.Error() == "Comment does not exist" {

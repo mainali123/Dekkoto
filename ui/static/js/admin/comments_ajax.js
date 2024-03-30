@@ -1,3 +1,4 @@
+/*
 console.log('comments.js loaded')
 let loaded = 0;
 
@@ -38,7 +39,7 @@ postButton.addEventListener('click', function (event) {
 
 
     // Send a POST request to the '/comment' endpoint
-    /*fetch('/comment', {
+    fetch('/comment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -54,42 +55,19 @@ postButton.addEventListener('click', function (event) {
                 // Clear the comment input field and display the success message
                 commentInput.value = '';
                 alert('Comment posted successfully');
-                comments();
-
             }
         })
         .catch(error => {
             // Display the error message to the user
             alert('An error occurred: ' + error);
-        });*/
-
-    $.ajax({
-        url: '/comment',
-        type: 'POST',
-        data: JSON.stringify({comment: comment, videoID: videoDetails.VideoID}),
-        success: function (data) {
-            if (data.error) {
-                // Display the error message to the user
-                alert(data.error);
-            } else {
-                // Clear the comment input field and display the success message
-                commentInput.value = '';
-                alert('Comment posted successfully');
-                comments();
-
-            }
-        },
-        error: function (xhr, status, error) {
-            console.log('An error occurred: ' + error);
-        }
-    })
+        });
 });
 
 // Fetch comments from the server
 
 let loadOnce = true;
 
-/*function comments() {
+function comments() {
     fetch('/displayComments', {
         method: 'POST',
         headers: {
@@ -145,66 +123,9 @@ let loadOnce = true;
         .catch(error => {
             console.error('Error:', error);
         });
-}*/
-
-function comments() {
-    console.log('comments function called')
-    $.ajax({
-        url: '/displayComments',
-        type: 'POST',
-        data: JSON.stringify({videoID: videoDetails.VideoID}),
-        success: function (data) {
-            const comments = data.comments;
-            console.log(comments);
-
-            // Select the comments section in the HTML
-            const commentsSection = document.querySelector('.comments-section');
-
-            // Clear the comments section
-            // commentsSection.innerHTML = '';
-
-            // For each comment, create a new div and append it to the comments section
-            comments.forEach(comment => {
-                const commentDiv = document.createElement('div');
-                commentDiv.classList.add('other-comments');
-                let commentVotes = comment.Upvotes - comment.Downvotes;
-                commentDiv.innerHTML = `
-                <div class="comment">
-                    <div class="other-user-name">
-                        <div class="userrrrr">
-                            <p class="name">${comment.UserName}</p>
-                            <span class="time">${new Date(comment.CommentDate).toLocaleDateString()}</span>
-                        </div>
-                        <img src="../static/images/boruto.jpg" alt="default profile" class="other-user-profile" />
-                    </div>
-                    <p class="other-user-comment">
-                        ${comment.CommentText}
-                    </p>
-                    <div class="upvotes">
-                        <img src="../static/images/upDrop.svg" data-id="${comment.CommentID}" alt="" class="upVotes">
-                        <span class="voteNumbers" style="color: ${commentVotes < 0 ? '#FF0000' : (commentVotes > 0 ? '#00FF0A' : '')}">${commentVotes}</span>
-                        <img src="../static/images/downDrop.svg" data-id="${comment.CommentID}" alt="" class="downVotes">
-                    </div>
-                </div>
-                `;
-                commentsSection.appendChild(commentDiv);
-            });
-
-            // Add event listeners to the upvote and downvote buttons
-            upvote_downvote();
-            if (loadOnce) {
-                getCommentDetails();
-                loadOnce = false;
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error:', error);
-        }
-    })
 }
 
-
-/*function upvote_downvote() {
+/!*function upvote_downvote() {
     console.log('upvote_downvote function loaded')
     const upvote = document.querySelectorAll('.upVotes');
     const downvote = document.querySelectorAll('.downVotes');
@@ -318,7 +239,7 @@ function comments() {
             })
         });
     });
-}*/
+}*!/
 
 function upvote_downvote() {
     console.log('upvote_downvote function loaded');
@@ -347,7 +268,6 @@ function upvote_downvote() {
                     type: 'POST',
                     data: JSON.stringify({commentID: comment_ID}),
                     success: function (data) {
-                        console.log(data)
                         if (!data.success) {
                             alert(data.message);
                         } else {
@@ -363,13 +283,13 @@ function upvote_downvote() {
                 });
 
             } else if (imageName === 'upDrop.svg') {
+                console.log('not upvoted');
+
                 $.ajax({
                     url: '/upvote',
                     type: 'POST',
                     data: JSON.stringify({commentID: comment_ID}),
                     success: function (data) {
-                        console.log(data);
-
                         if (!data.success) {
                             alert(data.message);
                         } else {
@@ -668,4 +588,4 @@ function like_dislike_count() {
         });
 }
 
-like_dislike_count();
+like_dislike_count();*/
