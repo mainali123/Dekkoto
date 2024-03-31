@@ -31,6 +31,12 @@ import (
 // It parses the login.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) login(c *gin.Context) {
+	// If logged-In
+	if userInfo.UserId != 0 && userInfo.Email != "" {
+		app.homePage(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/login.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -49,6 +55,12 @@ func (app *application) login(c *gin.Context) {
 // It parses the register.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) register(c *gin.Context) {
+	// If logged-In
+	if userInfo.UserId != 0 && userInfo.Email != "" {
+		app.homePage(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/register.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -289,6 +301,12 @@ var Data map[string]interface{}
 // It fetches the videos data from the database and sends it to the client.
 // If there is an error during fetching the videos data, it sends a server error response.
 func (app *application) showVideos(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/adminTables.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -338,6 +356,12 @@ func (app *application) showVideosPost(c *gin.Context) {
 // It parses the adminEditVideo.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) editVideo(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/adminEditVideo.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -613,6 +637,12 @@ func (app *application) deleteVideo(c *gin.Context) {
 // It parses the homePage.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) homePage(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/homePage.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -648,6 +678,12 @@ func (app *application) homePageVideos(c *gin.Context) {
 // It parses the watchVideo.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) watchVideo(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/watchVideo.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -824,6 +860,12 @@ func (app *application) caroselSlide(c *gin.Context) {
 // It parses the search.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) search(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/search.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -954,6 +996,12 @@ func (app *application) videoActionChanged(c *gin.Context) {
 }
 
 func (app *application) userProfile(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/profile.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1223,6 +1271,12 @@ func (app *application) droppedVideoList(c *gin.Context) {
 }
 
 func (app *application) about(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/about.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1710,6 +1764,12 @@ func (app *application) likeDislikeCount(c *gin.Context) {
 }
 
 func (app *application) adminPanel(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_Panel.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1738,6 +1798,12 @@ func (app *application) adminPanel(c *gin.Context) {
 
 // adminAddVideo is a handler function that serves the add video page.
 func (app *application) adminAddVideo(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_videoUpload.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1752,6 +1818,12 @@ func (app *application) adminAddVideo(c *gin.Context) {
 }
 
 func (app *application) adminDashboard(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_dashboard.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1767,6 +1839,12 @@ func (app *application) adminDashboard(c *gin.Context) {
 
 // adminVideoList is a handler function that serves the video list page.
 func (app *application) adminVideoList(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/videoList.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1782,6 +1860,12 @@ func (app *application) adminVideoList(c *gin.Context) {
 
 // adminAnalytics is a handler function that serves the analytics page.
 func (app *application) adminAnalytics(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_analytics.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1797,6 +1881,12 @@ func (app *application) adminAnalytics(c *gin.Context) {
 
 // adminServerLogs is a handler function that serves the settings page.
 func (app *application) adminServerLogs(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_serverLogs.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1811,6 +1901,12 @@ func (app *application) adminServerLogs(c *gin.Context) {
 }
 
 func (app *application) profile(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/user_profile.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1825,6 +1921,12 @@ func (app *application) profile(c *gin.Context) {
 }
 
 func (app *application) editProfile(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/user_editProfile.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1839,6 +1941,12 @@ func (app *application) editProfile(c *gin.Context) {
 }
 
 func (app *application) changePassword(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/user_changePassword.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
