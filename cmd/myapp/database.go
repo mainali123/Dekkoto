@@ -1297,17 +1297,20 @@ type Comment struct {
 	CommentDate string
 	Upvotes     int
 	Downvotes   int
+	ImageURL    string
 }
 
 func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
-	query := `SELECT C.CommentID, C.UserID, C.VideoID, U.UserName, C.CommentText, C.CommentDate,
-              COALESCE(SUM(CA.Upvotes), 0) AS Upvotes, COALESCE(SUM(CA.Downvotes), 0) AS Downvotes
-              FROM comments C
-              JOIN users U ON C.UserID = U.UserID
-              LEFT JOIN CommentActions CA ON C.CommentID = CA.CommentID
-              WHERE C.VideoID = ?
-              GROUP BY C.CommentID
-              ORDER BY C.CommentDate DESC`
+	query := `SELECT C.CommentID, C.UserID, C.VideoID, U.UserName, C.CommentText, C.CommentDate, 
+				COALESCE(SUM(CA.Upvotes), 0) AS Upvotes, COALESCE(SUM(CA.Downvotes), 0) AS Downvotes, 
+				MAX(I.ImageURL) AS ImageURL
+				FROM comments C 
+				JOIN users U ON C.UserID = U.UserID 
+				LEFT JOIN CommentActions CA ON C.CommentID = CA.CommentID 
+				LEFT JOIN userprofileimages I ON C.UserID = I.UserID 
+				WHERE C.VideoID = ? 
+				GROUP BY C.CommentID 
+				ORDER BY C.CommentDate DESC;`
 	rows, err := db.DB.Query(query, videoID)
 	if err != nil {
 		return nil, err
@@ -1317,7 +1320,7 @@ func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
 	var comments []Comment
 	for rows.Next() {
 		var comment Comment
-		if err := rows.Scan(&comment.CommentID, &comment.UserID, &comment.VideoID, &comment.UserName, &comment.CommentText, &comment.CommentDate, &comment.Upvotes, &comment.Downvotes); err != nil {
+		if err := rows.Scan(&comment.CommentID, &comment.UserID, &comment.VideoID, &comment.UserName, &comment.CommentText, &comment.CommentDate, &comment.Upvotes, &comment.Downvotes, &comment.ImageURL); err != nil {
 			return nil, err
 		}
 		comments = append(comments, comment)

@@ -95,7 +95,7 @@ function comments() {
                             <p class="name">${comment.UserName}</p>
                             <span class="time">${new Date(comment.CommentDate).toLocaleDateString()}</span>
                         </div>
-                        <img src="../static/images/boruto.jpg" alt="default profile" class="other-user-profile" />
+                        <img src="${"../../" + comment.ImageURL}" alt="default profile" class="other-user-profile" />
                     </div>
                     <p class="other-user-comment">
                         ${comment.CommentText}
