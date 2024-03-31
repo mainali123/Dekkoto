@@ -151,4 +151,8 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/imageUploadDynamic", app.imageUploadDynamic)
 	router.POST("/userProfileImage", app.displayUserProfileImage)
 
+	// Error page
+	router.GET("/404", app.error404)
+	router.GET("/403", app.error403)
+
 }

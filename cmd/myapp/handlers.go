@@ -2315,3 +2315,33 @@ func (app *application) displayUserProfileImage(c *gin.Context) {
 		"imagePath": imagePath,
 	})
 }
+
+func (app *application) error403(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/errorPage/403.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	app.deviceInfo(c.Request)
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) error404(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/errorPage/404.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	app.deviceInfo(c.Request)
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
