@@ -562,7 +562,7 @@ func (db *databaseConn) searchVideos(searchQuery string, userID int) ([]Videosea
 
 	// If the searchQuery is empty, return all the videos in ascending order of their title
 	if searchQuery == "" {
-		query1 := "SELECT V.*, G.GenreName, VA.Watching, VA.Completed, VA.On_hold, VA.Considering, VA.Dropped FROM videos V JOIN genres G ON V.GenreID = G.GenreID LEFT JOIN videoactions VA ON V.VideoID = VA.VideoID AND VA.UserID = ? ORDER BY V.Title ASC LIMIT 10"
+		query1 := "SELECT V.*, G.GenreName, VA.Watching, VA.Completed, VA.On_hold, VA.Considering, VA.Dropped FROM videos V JOIN genres G ON V.GenreID = G.GenreID LEFT JOIN videoactions VA ON V.VideoID = VA.VideoID AND VA.UserID = ? ORDER BY V.Title ASC LIMIT 18"
 		rows, err := db.DB.Query(query1, userID)
 		if err != nil {
 			return nil, err
@@ -1297,17 +1297,20 @@ type Comment struct {
 	CommentDate string
 	Upvotes     int
 	Downvotes   int
+	ImageURL    string
 }
 
 func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
-	query := `SELECT C.CommentID, C.UserID, C.VideoID, U.UserName, C.CommentText, C.CommentDate,
-              COALESCE(SUM(CA.Upvotes), 0) AS Upvotes, COALESCE(SUM(CA.Downvotes), 0) AS Downvotes
-              FROM comments C
-              JOIN users U ON C.UserID = U.UserID
-              LEFT JOIN CommentActions CA ON C.CommentID = CA.CommentID
-              WHERE C.VideoID = ?
-              GROUP BY C.CommentID
-              ORDER BY C.CommentDate DESC`
+	query := `SELECT C.CommentID, C.UserID, C.VideoID, U.UserName, C.CommentText, C.CommentDate, 
+				COALESCE(SUM(CA.Upvotes), 0) AS Upvotes, COALESCE(SUM(CA.Downvotes), 0) AS Downvotes, 
+				MAX(I.ImageURL) AS ImageURL
+				FROM comments C 
+				JOIN users U ON C.UserID = U.UserID 
+				LEFT JOIN CommentActions CA ON C.CommentID = CA.CommentID 
+				LEFT JOIN userprofileimages I ON C.UserID = I.UserID 
+				WHERE C.VideoID = ? 
+				GROUP BY C.CommentID 
+				ORDER BY C.CommentDate DESC;`
 	rows, err := db.DB.Query(query, videoID)
 	if err != nil {
 		return nil, err
@@ -1317,7 +1320,7 @@ func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
 	var comments []Comment
 	for rows.Next() {
 		var comment Comment
-		if err := rows.Scan(&comment.CommentID, &comment.UserID, &comment.VideoID, &comment.UserName, &comment.CommentText, &comment.CommentDate, &comment.Upvotes, &comment.Downvotes); err != nil {
+		if err := rows.Scan(&comment.CommentID, &comment.UserID, &comment.VideoID, &comment.UserName, &comment.CommentText, &comment.CommentDate, &comment.Upvotes, &comment.Downvotes, &comment.ImageURL); err != nil {
 			return nil, err
 		}
 		comments = append(comments, comment)
@@ -1333,21 +1336,21 @@ func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
 func (db *databaseConn) upvoteComment(commentID int, userID int) error {
 	// Check if the comment exists
 	var exists int
-	err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
+	/*err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
 	if err != nil {
 		return err
 	}
 	if exists == 0 {
-		return errors.New("Comment does not exist")
-	}
+		return errors.New("comment does not exist")
+	}*/
 
 	// Check if the user exists
-	err = db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
 	if err != nil {
 		return err
 	}
 	if exists == 0 {
-		return errors.New("User does not exist")
+		return errors.New("user does not exist")
 	}
 
 	// Query the CommentActions table to check if the user has already upvoted or downvoted the comment
@@ -1358,35 +1361,59 @@ func (db *databaseConn) upvoteComment(commentID int, userID int) error {
 	err = row.Scan(&upvotes, &downvotes)
 
 	// If the user has already upvoted the comment, return an error message
-	if err == nil && upvotes == 1 {
+	/*if err == nil && upvotes == 1 {
 		return errors.New("Comment is already upvoted")
-	}
+	}*/
 
 	// If the user has not performed any action before, insert a new upvote
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		query = "INSERT INTO CommentActions (CommentID, UserID, Upvotes, Downvotes) VALUES (?, ?, 1, 0)"
 		_, err = db.DB.Exec(query, commentID, userID)
-	} else if err == nil && downvotes == 1 { // If the user has previously downvoted the comment, update the record
+	} else { // If the user has previously downvoted the comment, update the record
 		query = "UPDATE CommentActions SET Upvotes = 1, Downvotes = 0 WHERE CommentID = ? AND UserID = ?"
 		_, err = db.DB.Exec(query, commentID, userID)
 	}
+	return err
+}
 
+func (db *databaseConn) reverseUpvoteComment(commentID int, userID int) error {
+	// Check if the comment exists
+	//var exists int
+
+	// Check if the user exists
+	/*err := db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("User does not exist")
+	}*/
+
+	// Query the CommentActions table to check if the user has already upvoted or downvoted the comment
+	query := "SELECT Upvotes, Downvotes FROM CommentActions WHERE CommentID = ? AND UserID = ?"
+	row := db.DB.QueryRow(query, commentID, userID)
+
+	var upvotes, downvotes int
+	err := row.Scan(&upvotes, &downvotes)
+
+	query = "UPDATE CommentActions SET Upvotes = 0, Downvotes = 0 WHERE CommentID = ? AND UserID = ?"
+	_, err = db.DB.Exec(query, commentID, userID)
 	return err
 }
 
 func (db *databaseConn) downvoteComment(commentID int, userID int) error {
 	// Check if the comment exists
 	var exists int
-	err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
+	/*err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
 	if err != nil {
 		return err
 	}
 	if exists == 0 {
 		return errors.New("Comment does not exist")
-	}
+	}*/
 
 	// Check if the user exists
-	err = db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
 	if err != nil {
 		return err
 	}
@@ -1402,18 +1429,51 @@ func (db *databaseConn) downvoteComment(commentID int, userID int) error {
 	err = row.Scan(&upvotes, &downvotes)
 
 	// If the user has already downvoted the comment, return an error message
-	if err == nil && downvotes == 1 {
+	/*if err == nil && downvotes == 1 {
 		return errors.New("Comment is already downvoted")
-	}
+	}*/
 
 	// If the user has not performed any action before, insert a new downvote
 	if err == sql.ErrNoRows {
 		query = "INSERT INTO CommentActions (CommentID, UserID, Upvotes, Downvotes) VALUES (?, ?, 0, 1)"
 		_, err = db.DB.Exec(query, commentID, userID)
-	} else if err == nil && upvotes == 1 { // If the user has previously upvoted the comment, update the record
+	} else { // If the user has previously upvoted the comment, update the record
 		query = "UPDATE CommentActions SET Upvotes = 0, Downvotes = 1 WHERE CommentID = ? AND UserID = ?"
 		_, err = db.DB.Exec(query, commentID, userID)
 	}
+
+	return err
+}
+
+func (db *databaseConn) reverseDownvoteComment(commentID int, userID int) error {
+	// Check if the comment exists
+	var exists int
+	/*err := db.DB.QueryRow("SELECT COUNT(*) FROM comments WHERE CommentID = ?", commentID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("Comment does not exist")
+	}*/
+
+	// Check if the user exists
+	err := db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE UserID = ?", userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		return errors.New("User does not exist")
+	}
+
+	// Query the CommentActions table to check if the user has already upvoted or downvoted the comment
+	query := "SELECT Upvotes, Downvotes FROM CommentActions WHERE CommentID = ? AND UserID = ?"
+	row := db.DB.QueryRow(query, commentID, userID)
+
+	var upvotes, downvotes int
+	err = row.Scan(&upvotes, &downvotes)
+
+	query = "UPDATE CommentActions SET Upvotes = 0, Downvotes = 0 WHERE CommentID = ? AND UserID = ?"
+	_, err = db.DB.Exec(query, commentID, userID)
 
 	return err
 }
@@ -1698,11 +1758,19 @@ func (db *databaseConn) changePassword(oldPassword string, newPassword string, e
 	if err != nil {
 		return err
 	}
-	if password != oldPassword {
+	res := bcrypt.CompareHashAndPassword([]byte(password), []byte(oldPassword))
+	if res != nil {
 		return errors.New("old password is incorrect")
+
 	}
+	//if password != oldPassword {
+	//	return errors.New("old password is incorrect")
+	//}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+
 	query = "UPDATE users SET Password = ? WHERE Email = ?"
-	_, err = db.DB.Exec(query, newPassword, email)
+	_, err = db.DB.Exec(query, encryptedPassword, email)
 	if err != nil {
 		return err
 	}
@@ -1710,6 +1778,7 @@ func (db *databaseConn) changePassword(oldPassword string, newPassword string, e
 }
 
 func (db *databaseConn) resetPassword(email string, password string) error {
+	fmt.Println("Reset password is triggered with email: ", email, "and password: ", password)
 	query := "SELECT Email FROM users WHERE Email = ?"
 	row := db.DB.QueryRow(query, email)
 	var userEmail string
@@ -2019,4 +2088,69 @@ func (db *databaseConn) allVideoList() ([]VideoDesc, error) {
 	}
 	// Return the results
 	return videos, nil
+}
+
+func (db *databaseConn) saveUserProfile(imageFileName string, userID int) error {
+	// check if the user exists
+	query := "SELECT COUNT(*) FROM users WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("user does not exist")
+	}
+
+	// Check if the user has already uploaded a profile picture
+	query = "SELECT ImageURL FROM userprofileimages WHERE UserID = ?"
+	row = db.DB.QueryRow(query, userID)
+	var imageURL string
+	err = row.Scan(&imageURL)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+
+	// If the user has already uploaded a profile picture, update the record
+
+	if imageFileName == "" {
+		// If the user has not uploaded a profile picture, insert a new record for the first time
+		query = "INSERT INTO userprofileimages (UserID) VALUES (?)"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if imageURL != "" {
+		query = "UPDATE userprofileimages SET ImageURL = ? WHERE UserID = ?"
+		_, err = db.DB.Exec(query, imageFileName, userID)
+		if err != nil {
+			return err
+		}
+		return nil
+	} else {
+		// If the user has not uploaded a profile picture, insert a new record
+		query = "INSERT INTO userprofileimages (UserID, ImageURL) VALUES (?, ?)"
+		_, err = db.DB.Exec(query, userID, imageFileName)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) displayUserProfileImage(userID int) (string, error) {
+	query := "SELECT ImageURL FROM userprofileimages WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var imageURL string
+
+	err := row.Scan(&imageURL)
+	if err != nil {
+		return "", err
+	}
+	return imageURL, nil
 }

@@ -7,10 +7,12 @@ package main
 
 import (
 	"Dekkoto/cmd/myapp/handler"
+	"encoding/base64"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/resend/resend-go/v2"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
@@ -120,6 +122,22 @@ func (app *application) registerPostRequest(c *gin.Context) {
 		// For other errors during registration, return a generic error response
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to register user",
+		})
+		return
+	}
+
+	userID, err := app.database.userId(userData.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get user id",
+		})
+		return
+	}
+
+	err = app.database.saveUserProfile("", userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to save user profile",
 		})
 		return
 	}
@@ -1329,6 +1347,57 @@ func (app *application) upvote(c *gin.Context) {
 	})
 }
 
+func (app *application) reverseUpvote(c *gin.Context) {
+	type comment_id struct {
+		CommentID int `json:"commentID"`
+	}
+
+	var commentID comment_id
+
+	err := c.ShouldBindJSON(&commentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.reverseUpvoteComment(commentID.CommentID, userInfo.UserId)
+
+	if err != nil {
+		if err.Error() == "Comment does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Comment does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "User does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "User does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "Comment is already upvoted" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Comment is already upvoted",
+				"success": true,
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to upvote comment with error: " + err.Error(),
+				"success": false,
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Comment upvoted successfully",
+		"success": true,
+	})
+}
+
 func (app *application) downvote(c *gin.Context) {
 	type comment_id struct {
 		CommentID int `json:"commentID"`
@@ -1345,6 +1414,57 @@ func (app *application) downvote(c *gin.Context) {
 	}
 
 	err = app.database.downvoteComment(commentID.CommentID, userInfo.UserId)
+
+	if err != nil {
+		if err.Error() == "Comment does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Comment does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "User does not exist" {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "User does not exist",
+				"success": false,
+			})
+			return
+		} else if err.Error() == "Comment is already downvoted" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Comment is already downvoted",
+				"success": true,
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to downvote comment with error: " + err.Error(),
+				"success": false,
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Comment downvoted successfully",
+		"success": true,
+	})
+}
+
+func (app *application) reverseDownvote(c *gin.Context) {
+	type comment_id struct {
+		CommentID int `json:"commentID"`
+	}
+
+	var commentID comment_id
+
+	err := c.ShouldBindJSON(&commentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	err = app.database.reverseDownvoteComment(commentID.CommentID, userInfo.UserId)
 
 	if err != nil {
 		if err.Error() == "Comment does not exist" {
@@ -1902,6 +2022,15 @@ func (app *application) sendEmail(c *gin.Context) {
 		return
 	}
 
+	err = app.database.resetPassword(email.Email, encryptedPassword)
+	if err != nil {
+		fmt.Println("Error resetting password:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to reset password",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Email sent successfully",
 		"success": true,
@@ -2119,4 +2248,70 @@ func (app *application) locationAnalysis(c *gin.Context) {
 
 	// Send the data as a JSON response
 	c.JSON(http.StatusOK, data)
+}
+
+func (app *application) imageUploadDynamic(c *gin.Context) {
+	type image struct {
+		Image string `json:"image"`
+	}
+
+	var img image
+
+	err := c.ShouldBindJSON(&img)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	base64String := img.Image
+
+	// Decode the base64 string
+	imageBytes, err := base64.StdEncoding.DecodeString(base64String)
+	if err != nil {
+		fmt.Println("Error decoding base64 string:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Error decoding base64 string",
+		})
+		return
+	}
+
+	// create a unique file name unique to the image
+	uniqueFile := uuid.New().String()
+
+	// Save the image to a file
+	err = ioutil.WriteFile("./userUploadDatas/userProfileImage/"+uniqueFile+".png", imageBytes, 0644)
+	if err != nil {
+		fmt.Println("Error saving image to file:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Error saving image to file",
+		})
+		return
+	}
+
+	err = app.database.saveUserProfile("./userUploadDatas/userProfileImage/"+uniqueFile+".png", userInfo.UserId)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Image saved successfully",
+	})
+}
+
+func (app *application) displayUserProfileImage(c *gin.Context) {
+	imagePath, err := app.database.displayUserProfileImage(userInfo.UserId)
+	if err != nil {
+		fmt.Println("Error displaying user profile image:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"succes": false,
+			"error":  "Error displaying user profile image",
+		})
+		return
+	}
+
+	// Return the image path as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"success":   true,
+		"message":   "User profile image displayed successfully",
+		"imagePath": imagePath,
+	})
 }

@@ -286,7 +286,7 @@ fetch('/watchVideoPost', {
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
-    console.error('Error:', error);
+    console.log(response);
 });
 
 

@@ -25,6 +25,29 @@ document.querySelector('.button').addEventListener('click', function (event) {
     sendData();
 });
 
+fetch('/userProfileImage', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+})
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        let success = data.success;
+        if (success === false) {
+            return;
+        } else {
+            let image = "../../" + data.imagePath;
+            console.log(image);
+            let imageElement = document.getElementById('updateImg');
+            imageElement.src = image;
+        }
+    })
+    .catch(error => {
+        console.log('Error:', error);
+    });
+
 function sendData() {
     let name = document.getElementById('name').value;
     let email = document.getElementById('email').value;

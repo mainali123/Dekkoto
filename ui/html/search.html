@@ -1,43 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="../static/images/DEKKOTO.svg" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Sarala&display=swap" rel="stylesheet">
     <!-- <link rel="stylesheet" href="../static/css/navbar.css"/> -->
     <title>Document</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/10.2.7/autoComplete.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/10.2.7/autoComplete.min.js"></script>
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/10.2.7/css/autoComplete.min.css"> -->
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.4.2/css/all.css">
-
-    <link rel="stylesheet" href="../static/css/search.css"/>
-    <link rel="stylesheet" href="../static/css/navbar.css"/>
+    <link rel="stylesheet" href="../static/css/home.css">
+    <link rel="stylesheet" href="../static/css/search.css" />
+    <link rel="stylesheet" href="../static/css/navbar.css" />
 </head>
+
 <body>
-<header class="nav-bar">
-    <div class="head">
-        <img src="../static/images/DEKKOTO.svg" alt="logo" class="logo"/>
-        <h1>dekkoto</h1>
-    </div>
+    <header class="nav-bar">
+        <div class="head">
+            <img src="../static/images/DEKKOTO.svg" alt="logo" class="logo" />
+            <h1>dekkoto</h1>
+        </div>
 
-    <img
-            src="../static/images/hamburger-menu.svg"
-            alt="hamburger-menu"
-            class="hamburger-menu"
-            id="hamburger-menu"
-            onclick="hamburger()"
-    />
-    <ul>
-        <li><a href="/home">home</a></li>
-        <li><a href="/userProfile">profile</a></li>
-        <li><a href="/search" class="active">search</a></li>
-        <li><a href="/about">about</a></li>
-    </ul>
-</header>
+        <img src="../static/images/hamburger-menu.svg" alt="hamburger-menu" class="hamburger-menu" id="hamburger-menu"
+            onclick="hamburger()" />
+        <ul>
+            <li><a href="/home">home</a></li>
+            <li><a href="/userProfile">profile</a></li>
+            <li><a href="/search" class="active">search</a></li>
+            <li><a href="/about">about</a></li>
+        </ul>
+    </header>
 
-<main>
-    <!--<form action="" class="search-bar">
+    <main>
+        <!--<form action="" class="search-bar">
         <input type="text" placeholder="Search for video..." class="search-input" id="search"/>
         <button type="submit" class="search-btn" id="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
         <button id="filter-btn" class="filter-btn">
@@ -45,21 +43,87 @@
         </button>
     </form>-->
 
-    <div class="container search-bar">
-        <div class="body" >
-            <div class="autoComplete_wrapper">
-                <input id="autoComplete" type="text" tabindex="1" class="search-input">
+        <div class="container search-bar">
+            <div class="body">
+                <div class="autoComplete_wrapper">
+                    <input id="autoComplete" type="text" tabindex="1" class="search-input">
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="result-container-wrapper">
+        <div class="card-video-continue-watching card-display">
+            <div class="card">
+                <img class="card-img-top" src="../static/images/boruto.jpg"
+                    data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}' />
+                <p class="card-text">Title</p>
+                <p class="rating status">Watching</p>
+                <p class=" type">Anime</p>
+                <div class="card-body"></div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="../static/images/cote.jpeg"
+                    data-video-details='{"VideoID":43,"Title":"Today","Description":"desc","URL":"./userUploadDatas/videos/20240114132515.194150_c1070fb0-9f29-46ee-ae9d-21178979fda5_814659710756_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240114132515.194150_c1070fb0-9f29-46ee-ae9d-21178979fda5_814659710756.png","UploaderID":1,"UploadDate":"2024-01-14T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":63,"GenreID":1}' />
+                <p class="card-text">Today</p>
+                <p class="rating status">Completed</p>
+                <p class=" type">Movie</p>
+                <div class="card-body"></div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="../static/images/boruto.jpg"
+                    data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}' />
+                <p class="card-text">Title</p>
+                <p class="rating status">Watching</p>
+                <p class=" type">Anime</p>
+                <div class="card-body"></div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="../static/images/boruto.jpg"
+                    data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}' />
+                <p class="card-text">Title</p>
+                <p class="rating status">Watching</p>
+                <p class=" type">Anime</p>
+                <div class="card-body"></div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="../static/images/boruto.jpg"
+                    data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}' />
+                <p class="card-text">Title</p>
+                <p class="rating status">Watching</p>
+                <p class=" type">Anime</p>
+                <div class="card-body"></div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="../static/images/boruto.jpg"
+                    data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}' />
+                <p class="card-text">Title</p>
+                <p class="rating status">Watching</p>
+                <p class=" type">Anime</p>
+                <div class="card-body"></div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="../static/images/boruto.jpg"
+                    data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}' />
+                <p class="card-text">Title</p>
+                <p class="rating status">Watching</p>
+                <p class=" type">Anime</p>
+                <div class="card-body"></div>
+            </div>
+            <div class="card">
+                <img class="card-img-top" src="../static/images/boruto.jpg"
+                    data-video-details='{"VideoID":41,"Title":"Title","Description":"description","URL":"./userUploadDatas/videos/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525_encoded.mp4","ThumbnailURL":"./userUploadDatas/thumbnails/20240112145203.513605_8dd39ff1-6f77-4c7a-8952-4e6e273595e0_655472931525.png","UploaderID":1,"UploadDate":"2024-01-12T00:00:00Z","ViewsCount":0,"LikesCount":0,"DislikesCount":0,"Duration":"00:00:26","CategoryID":7,"GenreID":3}' />
+                <p class="card-text">Title</p>
+                <p class="rating status">Watching</p>
+                <p class=" type">Anime</p>
+                <div class="card-body"></div>
+            </div>
+        </div>
 
-    </div>
 
-</main>
+
+    </main>
 
 <script src="../static/js/search.js"></script>
 <script src="../static/js/autoCompleteSearch.js"></script>
 </body>
+
 </html>

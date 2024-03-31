@@ -52,17 +52,19 @@
                 id="email"
         />
 
-        <button class="button">Save Changes</button>
+        <button id="saveUpdates" class="button">Save Changes</button>
     </div>
 </form>
 
+<script src="../static/js/uploadUserImage.js"></script>
+
 <script>
     function displayImage(input) {
-        var updateImg = document.getElementById('updateImg');
-        var file = input.files[0];
+        let updateImg = document.getElementById('updateImg');
+        let file = input.files[0];
 
         if (file) {
-            var reader = new FileReader();
+            let reader = new FileReader();
 
             reader.onload = function (e) {
                 updateImg.src = e.target.result;
@@ -72,6 +74,7 @@
         } else {
             updateImg.src = '/Resources/default-image.png';
         }
+        encryptAndSend(input);
     }
 </script>
 </body>

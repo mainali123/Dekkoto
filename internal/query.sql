@@ -8,7 +8,8 @@ CREATE TABLE Users
     UserName VARCHAR(50),
     Email    VARCHAR(100),
     Password VARCHAR(100),
-    Data     TEXT
+    Data     TEXT,
+    Admin   TINYINT DEFAULT 0
 );
 
 -- Create Categories table
@@ -203,4 +204,14 @@ CREATE TABLE ServerLogs
     asn          VARCHAR(50),
     as_           VARCHAR(255),
     is_proxy     VARCHAR(50)
+);
+
+
+CREATE TABLE UserProfileImages
+(
+    ID          INT PRIMARY KEY AUTO_INCREMENT,
+    UserID      INT,
+    ImageURL    VARCHAR(255) DEFAULT './userUploadDatas/userProfileImage/defaultProfile.png',
+    UploadDate  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users (UserID)
 );

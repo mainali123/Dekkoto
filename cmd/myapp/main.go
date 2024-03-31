@@ -60,7 +60,7 @@ func main() {
 	// Initialize Gin router, load all the html files, static files and user uploaded data.
 	router := gin.Default()
 	router.LoadHTMLGlob("ui/html/**/*")
-	router.Static("/static", "./ui/static")
+	router.StaticFS("/static", http.Dir("./ui/static"))
 	router.StaticFS("/userUploadDatas", http.Dir("./userUploadDatas"))
 	router.StaticFS("/internalImages", http.Dir("./internal"))
 	router.StaticFS("/favicon.ico", http.Dir("./internal/favicon.ico"))
