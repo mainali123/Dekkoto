@@ -205,3 +205,13 @@ CREATE TABLE ServerLogs
     as_           VARCHAR(255),
     is_proxy     VARCHAR(50)
 );
+
+
+CREATE TABLE UserProfileImages
+(
+    ID          INT PRIMARY KEY AUTO_INCREMENT,
+    UserID      INT,
+    ImageURL    VARCHAR(255) DEFAULT './userUploadDatas/userProfileImage/defaultProfile.png',
+    UploadDate  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users (UserID)
+);

@@ -126,6 +126,22 @@ func (app *application) registerPostRequest(c *gin.Context) {
 		return
 	}
 
+	userID, err := app.database.userId(userData.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get user id",
+		})
+		return
+	}
+
+	err = app.database.saveUserProfile("", userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to save user profile",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "User created successfully",
 	})
@@ -2264,7 +2280,6 @@ func (app *application) imageUploadDynamic(c *gin.Context) {
 	// create a unique file name unique to the image
 	uniqueFile := uuid.New().String()
 
-	//./userUploadDatas/videos/" + fileName
 	// Save the image to a file
 	err = ioutil.WriteFile("./userUploadDatas/userProfileImage/"+uniqueFile+".png", imageBytes, 0644)
 	if err != nil {
@@ -2275,7 +2290,28 @@ func (app *application) imageUploadDynamic(c *gin.Context) {
 		return
 	}
 
+	err = app.database.saveUserProfile("./userUploadDatas/userProfileImage/"+uniqueFile+".png", userInfo.UserId)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Image saved successfully",
+	})
+}
+
+func (app *application) displayUserProfileImage(c *gin.Context) {
+	imagePath, err := app.database.displayUserProfileImage(userInfo.UserId)
+	if err != nil {
+		fmt.Println("Error displaying user profile image:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"succes": false,
+			"error":  "Error displaying user profile image",
+		})
+		return
+	}
+
+	// Return the image path as a JSON response
+	c.JSON(http.StatusOK, gin.H{
+		"success":   true,
+		"message":   "User profile image displayed successfully",
+		"imagePath": imagePath,
 	})
 }

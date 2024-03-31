@@ -2086,3 +2086,68 @@ func (db *databaseConn) allVideoList() ([]VideoDesc, error) {
 	// Return the results
 	return videos, nil
 }
+
+func (db *databaseConn) saveUserProfile(imageFileName string, userID int) error {
+	// check if the user exists
+	query := "SELECT COUNT(*) FROM users WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("user does not exist")
+	}
+
+	// Check if the user has already uploaded a profile picture
+	query = "SELECT ImageURL FROM userprofileimages WHERE UserID = ?"
+	row = db.DB.QueryRow(query, userID)
+	var imageURL string
+	err = row.Scan(&imageURL)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+
+	// If the user has already uploaded a profile picture, update the record
+
+	if imageFileName == "" {
+		// If the user has not uploaded a profile picture, insert a new record for the first time
+		query = "INSERT INTO userprofileimages (UserID) VALUES (?)"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if imageURL != "" {
+		query = "UPDATE userprofileimages SET ImageURL = ? WHERE UserID = ?"
+		_, err = db.DB.Exec(query, imageFileName, userID)
+		if err != nil {
+			return err
+		}
+		return nil
+	} else {
+		// If the user has not uploaded a profile picture, insert a new record
+		query = "INSERT INTO userprofileimages (UserID, ImageURL) VALUES (?, ?)"
+		_, err = db.DB.Exec(query, userID, imageFileName)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) displayUserProfileImage(userID int) (string, error) {
+	query := "SELECT ImageURL FROM userprofileimages WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var imageURL string
+
+	err := row.Scan(&imageURL)
+	if err != nil {
+		return "", err
+	}
+	return imageURL, nil
+}

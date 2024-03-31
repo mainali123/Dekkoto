@@ -149,4 +149,6 @@ func (app *application) routes(router *gin.Engine) {
 	router.POST("/locationAnalysis", app.locationAnalysis)
 
 	router.POST("/imageUploadDynamic", app.imageUploadDynamic)
+	router.POST("/userProfileImage", app.displayUserProfileImage)
+
 }

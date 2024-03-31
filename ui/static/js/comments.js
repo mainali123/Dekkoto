@@ -472,3 +472,27 @@ function like_dislike_count() {
 }
 
 like_dislike_count();
+
+// Dynamic image profile display
+fetch('/userProfileImage', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+})
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        let success = data.success;
+        if (success === false) {
+            return;
+        } else {
+            let image = "../../" + data.imagePath;
+            console.log(image);
+            let imageElement = document.getElementById('updateImg');
+            imageElement.src = image;
+        }
+    })
+    .catch(error => {
+        console.log('Error:', error);
+    });
