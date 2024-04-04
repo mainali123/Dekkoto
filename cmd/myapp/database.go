@@ -40,11 +40,28 @@ func (db *databaseConn) registerUser(userName string, email string, password str
 		return err
 	}
 
-	/*type userDatas struct {
-		loginDate []string
-		registerDate []string
+	queryToGetUserId := "SELECT UserID FROM users WHERE Email = ?"
+	rows, err = db.DB.Query(queryToGetUserId, email)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
 
-	}*/
+	var userId int
+	for rows.Next() {
+		err := rows.Scan(&userId)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Insert into useraccesslevels
+	queryToInsertUserAccessLevels := "INSERT INTO useraccesslevels (UserID) VALUES (?)"
+	_, err = db.DB.Exec(queryToInsertUserAccessLevels, userId)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -2153,4 +2170,315 @@ func (db *databaseConn) displayUserProfileImage(userID int) (string, error) {
 		return "", err
 	}
 	return imageURL, nil
+}
+
+type access struct {
+	UserId           int    `json:"user_id"`
+	UserName         string `json:"user_name"`
+	Email            string `json:"email"`
+	DashboardAccess  int    `json:"dashboard_access"`
+	UploadAccess     int    `json:"upload_access"`
+	EditDeleteAccess int    `json:"edit_delete_access"`
+	AnalyticsAccess  int    `json:"analytics_access"`
+	ServerLogAccess  int    `json:"server_log_access"`
+	UserAccess       int    `json:"user_access"`
+}
+
+func (db *databaseConn) allUserAdminAccess(userID int) ([]access, error) {
+	// Initialize a slice to hold the access objects
+	var accesses []access
+
+	// Prepare the SQL query
+	query := "SELECT U.UserID AS user_id, U.UserName AS user_name, U.Email AS email, UA.Dashboard AS dashboard_access, UA.Upload AS upload_access, UA.Edit_Delete AS edit_delete_access, UA.Analytics AS analytics_access, UA.ServerLogs AS server_log_access, UA.UserAccess AS user_access FROM Users U LEFT JOIN useraccesslevels UA ON U.UserID = UA.UserID ORDER BY U.UserName ASC"
+
+	// Execute the query
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Iterate over the rows in the result set
+	for rows.Next() {
+		var a access
+		err := rows.Scan(&a.UserId, &a.UserName, &a.Email, &a.DashboardAccess, &a.UploadAccess, &a.EditDeleteAccess, &a.AnalyticsAccess, &a.ServerLogAccess, &a.UserAccess)
+		if err != nil {
+			return nil, err
+		}
+
+		// Append the access object to the slice
+		accesses = append(accesses, a)
+	}
+
+	// Return the slice of access objects
+	return accesses, nil
+}
+
+func (db *databaseConn) giveDashboardAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		query = "INSERT INTO useraccesslevels (UserID, Dashboard) VALUES (?, 1)"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	} else {
+		query = "UPDATE useraccesslevels SET Dashboard = 1 WHERE UserID = ?"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) removeDashboardAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("user does not have access")
+	}
+	query = "UPDATE useraccesslevels SET Dashboard = 0 WHERE UserID = ?"
+	_, err = db.DB.Exec(query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *databaseConn) giveUploadAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		query = "INSERT INTO useraccesslevels (UserID, Upload) VALUES (?, 1)"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	} else {
+		query = "UPDATE useraccesslevels SET Upload = 1 WHERE UserID = ?"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) removeUploadAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("user does not have access")
+	}
+	query = "UPDATE useraccesslevels SET Upload = 0 WHERE UserID = ?"
+	_, err = db.DB.Exec(query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *databaseConn) giveEditDeleteAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		query = "INSERT INTO useraccesslevels (UserID, Edit_Delete) VALUES (?, 1)"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	} else {
+		query = "UPDATE useraccesslevels SET Edit_Delete = 1 WHERE UserID = ?"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) removeEditDeleteAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("user does not have access")
+	}
+	query = "UPDATE useraccesslevels SET Edit_Delete = 0 WHERE UserID = ?"
+	_, err = db.DB.Exec(query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *databaseConn) giveAnalyticsAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		query = "INSERT INTO useraccesslevels (UserID, Analytics) VALUES (?, 1)"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	} else {
+		query = "UPDATE useraccesslevels SET Analytics = 1 WHERE UserID = ?"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) removeAnalyticsAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("user does not have access")
+	}
+	query = "UPDATE useraccesslevels SET Analytics = 0 WHERE UserID = ?"
+	_, err = db.DB.Exec(query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *databaseConn) giveServerLogAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		query = "INSERT INTO useraccesslevels (UserID, ServerLogs) VALUES (?, 1)"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	} else {
+		query = "UPDATE useraccesslevels SET ServerLogs = 1 WHERE UserID = ?"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) removeServerLogAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("user does not have access")
+	}
+	query = "UPDATE useraccesslevels SET ServerLogs = 0 WHERE UserID = ?"
+	_, err = db.DB.Exec(query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *databaseConn) giveUserAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		query = "INSERT INTO useraccesslevels (UserID, UserAccess) VALUES (?, 1)"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	} else {
+		query = "UPDATE useraccesslevels SET UserAccess = 1 WHERE UserID = ?"
+		_, err = db.DB.Exec(query, userID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (db *databaseConn) removeUserAccess(userID int) error {
+	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("user does not have access")
+	}
+	query = "UPDATE useraccesslevels SET UserAccess = 0 WHERE UserID = ?"
+	_, err = db.DB.Exec(query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *databaseConn) userAccess(userID int) (int, int, int, int, int, int, error) {
+	query := "SELECT Dashboard, Upload, Edit_Delete, Analytics, ServerLogs, UserAccess FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var dashboard, upload, editDelete, analytics, serverLogs, userAccess int
+	err := row.Scan(&dashboard, &upload, &editDelete, &analytics, &serverLogs, &userAccess)
+	if err != nil {
+		return 0, 0, 0, 0, 0, 0, err
+	}
+	return dashboard, upload, editDelete, analytics, serverLogs, userAccess, nil
 }

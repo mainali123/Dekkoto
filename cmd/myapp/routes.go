@@ -132,6 +132,9 @@ func (app *application) routes(router *gin.Engine) {
 	router.GET("/adminPanel/videoList", app.adminVideoList)
 	router.GET("/adminPanel/analytics", app.adminAnalytics)
 	router.GET("/adminPanel/serverLogs", app.adminServerLogs)
+	router.GET("/adminPanel/userAccess", app.adminUserAccess)
+	router.POST("/userAccess", app.adminUserAccessPost)
+	router.POST("/adminUserAccessChange", app.adminUserAccessChange)
 
 	// Forget Password
 	router.GET("/forgetPassword", app.forgetPassword)

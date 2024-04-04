@@ -307,6 +307,17 @@ func (app *application) showVideos(c *gin.Context) {
 		return
 	}
 
+	// Check if user have access to user access page
+	_, _, editDelete, _, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if editDelete == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/adminTables.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1804,6 +1815,17 @@ func (app *application) adminAddVideo(c *gin.Context) {
 		return
 	}
 
+	// Check if user have access to user access page
+	_, upload, _, _, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if upload == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_videoUpload.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1821,6 +1843,17 @@ func (app *application) adminDashboard(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
 		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	dashboard, _, _, _, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if dashboard == 0 {
+		app.error403(c)
 		return
 	}
 
@@ -1845,6 +1878,17 @@ func (app *application) adminVideoList(c *gin.Context) {
 		return
 	}
 
+	// Check if user have access to user access page
+	_, _, editDelete, _, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if editDelete == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/videoList.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1863,6 +1907,17 @@ func (app *application) adminAnalytics(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
 		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	_, _, _, analytics, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if analytics == 0 {
+		app.error403(c)
 		return
 	}
 
@@ -1887,6 +1942,17 @@ func (app *application) adminServerLogs(c *gin.Context) {
 		return
 	}
 
+	// Check if user have access to user access page
+	_, _, _, _, serverLogs, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if serverLogs == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_serverLogs.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1897,6 +1963,207 @@ func (app *application) adminServerLogs(c *gin.Context) {
 	if err != nil {
 		app.serverError(c.Writer, err)
 		return
+	}
+}
+
+func (app *application) adminUserAccess(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	_, _, _, _, _, useraccess, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if useraccess == 0 {
+		app.error403(c)
+		return
+	}
+
+	t, err := template.ParseFiles("ui/html/admin/admin_userAccess.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) adminUserAccessPost(c *gin.Context) {
+	adminAccess, err := app.database.allUserAdminAccess(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch user access", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":     true,
+		"message":     "User access fetched successfully",
+		"adminAccess": adminAccess,
+	})
+}
+
+func (app *application) adminUserAccessChange(c *gin.Context) {
+	type user struct {
+		UserID      int    `json:"userID"`
+		Access      int    `json:"access"`
+		AccessValue string `json:"accessValue"`
+	}
+
+	var userAccess user
+
+	err := c.ShouldBindJSON(&userAccess)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+
+	fmt.Println("User ID: ", userAccess.UserID, "Access: ", userAccess.Access, "Access Value: ", userAccess.AccessValue)
+
+	// Give dashboard access
+	if userAccess.AccessValue == "dashboard" && userAccess.Access == 0 {
+		err = app.database.giveDashboardAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke dashboard access
+	if userAccess.AccessValue == "dashboard" && userAccess.Access == 1 {
+		err = app.database.removeDashboardAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give upload access
+	if userAccess.AccessValue == "upload" && userAccess.Access == 0 {
+		err = app.database.giveUploadAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "upload" && userAccess.Access == 1 {
+		err = app.database.removeUploadAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give edit_delete access
+	if userAccess.AccessValue == "edit_delete" && userAccess.Access == 0 {
+		err = app.database.giveEditDeleteAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "edit_delete" && userAccess.Access == 1 {
+		err = app.database.removeEditDeleteAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give analytics access
+	if userAccess.AccessValue == "analytics" && userAccess.Access == 0 {
+		err = app.database.giveAnalyticsAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "analytics" && userAccess.Access == 1 {
+		err = app.database.removeAnalyticsAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give server_log access
+	if userAccess.AccessValue == "server_log" && userAccess.Access == 0 {
+		err = app.database.giveServerLogAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "server_log" && userAccess.Access == 1 {
+		err = app.database.removeServerLogAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give server_log access
+	if userAccess.AccessValue == "user" && userAccess.Access == 0 {
+		err = app.database.giveUserAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "user" && userAccess.Access == 1 {
+		err = app.database.removeUserAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
 	}
 }
 
