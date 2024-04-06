@@ -2698,7 +2698,7 @@ func (app *application) error403(c *gin.Context) {
 		return
 	}
 
-	app.deviceInfo(c.Request)
+	//app.deviceInfo(c.Request)
 	err = t.Execute(c.Writer, nil)
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -2713,7 +2713,7 @@ func (app *application) error404(c *gin.Context) {
 		return
 	}
 
-	app.deviceInfo(c.Request)
+	//app.deviceInfo(c.Request)
 	err = t.Execute(c.Writer, nil)
 	if err != nil {
 		app.serverError(c.Writer, err)
