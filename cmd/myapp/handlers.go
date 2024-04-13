@@ -13,9 +13,12 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/nfnt/resize"
 	"github.com/resend/resend-go/v2"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"image"
+	"image/jpeg"
 	"io"
 	"io/ioutil"
 	"log"
@@ -448,60 +451,139 @@ func (app *application) showGenresName(c *gin.Context) {
 func (app *application) editVideoPost(c *gin.Context) {
 	fmt.Println("edit video post")
 
-	//app.editVideo(c)
-
-	// get the data from the post request that was sent by JS
 	type Video struct {
-		VideoID     string `json:"videoID"`
+		VideoID     int    `json:"videoID"`
 		Title       string `json:"title"`
 		Description string `json:"description"`
-		CategoryID  string `json:"categoryID"`
-		GenreID     string `json:"genreID"`
+		Genre       string `json:"genre"`
+		Category    string `json:"category"`
+		Thumbnail   string `json:"thumbnail"`
+		Banner      string `json:"banner"`
+		FileName    string `json:"fileName"`
 	}
 
 	var videoData Video
 
-	rawData, _ := c.GetRawData()
-	fmt.Println(string(rawData))
-
 	// Bind the JSON data from the request to the userData struct
 	if err := c.ShouldBindJSON(&videoData); err != nil {
-		fmt.Println("Error binding JSON data")
+		fmt.Println("Error binding JSON data: ", err) // Print the error
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid JSON",
 		})
 		return
 	}
+	//fmt.Println(videoData)
 
-	fmt.Println(videoData)
+	var compressImage = func(imagePath string, imageName string, width uint, height uint) error {
+		// Open the image file
+		imgFile, err := os.Open(imagePath)
+		if err != nil {
+			return fmt.Errorf("failed to open image file: %v", err)
+		}
+		defer imgFile.Close()
 
-	// convert id to int
-	videoIDInt, err := strconv.Atoi(videoData.VideoID)
-	if err != nil {
-		fmt.Println("Error converting videoID to int")
+		// Decode the image
+		img, _, err := image.Decode(imgFile)
+		if err != nil {
+			return fmt.Errorf("failed to decode image: %v", err)
+		}
+
+		// Resize the image to 1080x1920
+		thumbnail := resize.Resize(width, height, img, resize.Lanczos3)
+		//thumbnail := resize.Resize(1080, 1920, img, resize.Lanczos3)
+
+		// Compress and save the thumbnail as png
+		//out, err := os.Create("./userUploadDatas/thumbnails/" + imageName)
+		out, err := os.Create(imagePath)
+		if err != nil {
+			return fmt.Errorf("failed to create file: %v", err)
+		}
+		defer out.Close()
+
+		// Encode the thumbnail as PNG
+		err = jpeg.Encode(out, thumbnail, nil)
+		if err != nil {
+			return fmt.Errorf("failed to encode image to PNG: %v", err)
+		}
+		return nil
 	}
 
-	genreIDInt, err := strconv.Atoi(videoData.GenreID)
-	if err != nil {
-		fmt.Println("Error converting genreID to int")
+	if videoData.Thumbnail != "Same Image" {
+		// Split the data URI to get only the base64-encoded part
+		thumbnailDataParts := strings.Split(videoData.Thumbnail, ",")
+		if len(thumbnailDataParts) != 2 {
+			fmt.Println("Invalid data URI format")
+			return
+		}
+
+		// Decode the base64 data
+		thumbnailBytes, err := base64.StdEncoding.DecodeString(thumbnailDataParts[1])
+		if err != nil {
+			fmt.Println("Error decoding thumbnail data:", err)
+			return
+		}
+
+		// Save the decoded image to a file
+		err = ioutil.WriteFile("./userUploadDatas/thumbnails/"+videoData.FileName, thumbnailBytes, 0644)
+		if err != nil {
+			fmt.Println("Error saving image:", err)
+			return
+		}
+
+		fmt.Println("Thumbnail image saved successfully!")
+		err = compressImage("./userUploadDatas/thumbnails/"+videoData.FileName, videoData.FileName, 1080, 1920)
+		if err != nil {
+			fmt.Println("Error compressing image:", err)
+			return
+		}
+		fmt.Println("Thumbnail image compressed successfully!")
 	}
 
-	genreName, err := app.database.getGenreName(genreIDInt)
+	if videoData.Banner != "Same Image" {
+		// Split the data URI to get only the base64-encoded part
+		bannerDataParts := strings.Split(videoData.Banner, ",")
+		if len(bannerDataParts) != 2 {
+			fmt.Println("Invalid data URI format")
+			return
+		}
+
+		// Decode the base64 data
+		bannerBytes, err := base64.StdEncoding.DecodeString(bannerDataParts[1])
+		if err != nil {
+			fmt.Println("Error decoding thumbnail data:", err)
+			return
+		}
+
+		// Save the decoded image to a file
+		err = ioutil.WriteFile("./userUploadDatas/banners/"+videoData.FileName, bannerBytes, 0644)
+		if err != nil {
+			fmt.Println("Error saving image:", err)
+			return
+		}
+
+		fmt.Println("Banner image saved successfully!")
+		err = compressImage("./userUploadDatas/banners/"+videoData.FileName, videoData.FileName, 1920, 1080)
+		if err != nil {
+			fmt.Println("Error compressing image:", err)
+			return
+		}
+		fmt.Println("Banner image compressed successfully!")
+	}
+
+	err := app.database.updateVideo(videoData.Title, videoData.Description, videoData.Genre, videoData.Category, videoData.VideoID)
 	if err != nil {
-		fmt.Println("Error getting genre name")
+		fmt.Println("Error updating video details:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to update video details",
+			"success": false,
+		})
 		return
 	}
 
-	// send the post request to the another js file to show the data in the form
 	c.JSON(http.StatusOK, gin.H{
-		"message":     "Video data fetched successfully",
-		"success":     true,
-		"videoID":     videoIDInt,
-		"title":       videoData.Title,
-		"description": videoData.Description,
-		"genreID":     genreName,
+		"message": "Video details updated successfully",
+		"success": true,
 	})
-
 }
 
 // updateVideoDetails is a handler function that handles the updating of video details.

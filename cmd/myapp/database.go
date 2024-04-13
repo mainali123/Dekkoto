@@ -2080,7 +2080,25 @@ func (db *databaseConn) locationAnalysis() (map[string]int, map[string]int, int,
 	return countryNameCount, countryCodeCount, count, nil
 }
 
-func (db *databaseConn) allVideoList() ([]VideoDesc, error) {
+type VideoDescEdit struct {
+	VideoID       int
+	Title         string
+	Description   string
+	URL           string
+	ThumbnailURL  string
+	UploaderID    int
+	UploadDate    string
+	ViewsCount    int
+	LikesCount    int
+	DislikesCount int
+	Duration      string
+	CategoryID    int
+	GenreID       int
+	CategoryName  string
+	GenreName     string
+}
+
+func (db *databaseConn) allVideoList() ([]VideoDescEdit, error) {
 	// Prepare the SQL query
 	query := "SELECT * FROM videos"
 
@@ -2092,12 +2110,14 @@ func (db *databaseConn) allVideoList() ([]VideoDesc, error) {
 	defer rows.Close()
 
 	// Initialize a slice to hold the results
-	var videos []VideoDesc
+	var videos []VideoDescEdit
 
 	// Iterate over the rows in the result set
 	for rows.Next() {
-		var video VideoDesc
+		var video VideoDescEdit
 		err := rows.Scan(&video.VideoID, &video.Title, &video.Description, &video.URL, &video.ThumbnailURL, &video.UploaderID, &video.UploadDate, &video.ViewsCount, &video.LikesCount, &video.DislikesCount, &video.Duration, &video.CategoryID, &video.GenreID)
+		video.GenreName, _ = db.getGenreName(video.GenreID)
+		video.CategoryName, _ = db.getCategoryName(video.CategoryID)
 		if err != nil {
 			return nil, err
 		}
@@ -2481,4 +2501,26 @@ func (db *databaseConn) userAccess(userID int) (int, int, int, int, int, int, er
 		return 0, 0, 0, 0, 0, 0, err
 	}
 	return dashboard, upload, editDelete, analytics, serverLogs, userAccess, nil
+}
+
+func (db *databaseConn) updateVideo(title string, description string, category string, genre string, videoID int) error {
+	categoryID, err := db.getCategoryID(genre)
+	if err != nil {
+		return err
+	}
+	genreID, err := db.getGenreID(category)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("categoryID: ", categoryID)
+	fmt.Println("genreID: ", genreID)
+
+	query := "UPDATE videos SET Title = ?, Description = ?, CategoryID = ?, GenreID = ? WHERE VideoID = ?"
+	_, err = db.DB.Exec(query, title, description, categoryID, genreID, videoID)
+	if err != nil {
+		fmt.Println("error: ", err)
+		return err
+	}
+	return nil
 }

@@ -1,7 +1,7 @@
 let preloader = document.querySelector(".preloader");
 let toggleSidebar = document.querySelector("#toggleSidenav");
 let sidebar = document.querySelector(".side-header");
-let sideNavLinks = document.querySelectorAll(".side-nav a");
+let sideNavLinks = document.querySelectorAll(".side-nav ul li a");
 let main = document.querySelector("main");
 let currentActive = document.querySelector(".side-nav .active");
 let currentPageName = document.querySelector(".current-page-name");
@@ -55,7 +55,7 @@ toggleSidebar.addEventListener("click", () => {
 });
 
 sideNavLinks.forEach((link,index) => {
-	link.addEventListener("click", () => {
+	link.addEventListener("click", async () => {
 		let htmlFile = link.getAttribute("data-link");
 		let scriptSrc = link.getAttribute("data-script")		
 			setTimeout(() => {
@@ -72,12 +72,12 @@ sideNavLinks.forEach((link,index) => {
 		currentActive = link.parentElement;
 		localStorage.setItem("currentPageIndex",index)
 		currentPageName.textContent = title;
-		showContent(htmlFile, title);
+		await showContent(htmlFile, title);
 	});
 });
 
 
-function showContent(htmlFile, title) {
+async function showContent(htmlFile, title) {
 	fetch(htmlFile)
 		.then(response => {
 			if (!response.ok) {
@@ -88,6 +88,7 @@ function showContent(htmlFile, title) {
 		.then(data => {
 			content.innerHTML = data;
 			document.title = "DEKKOTO - " + title;
+			return true;
 		})
 		.catch(function () {
 			console.log('Fetch Error :-S', err);
