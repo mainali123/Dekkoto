@@ -13,9 +13,12 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/nfnt/resize"
 	"github.com/resend/resend-go/v2"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"image"
+	"image/jpeg"
 	"io"
 	"io/ioutil"
 	"log"
@@ -31,6 +34,12 @@ import (
 // It parses the login.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) login(c *gin.Context) {
+	// If logged-In
+	if userInfo.UserId != 0 && userInfo.Email != "" {
+		app.homePage(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/login.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -49,6 +58,12 @@ func (app *application) login(c *gin.Context) {
 // It parses the register.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) register(c *gin.Context) {
+	// If logged-In
+	if userInfo.UserId != 0 && userInfo.Email != "" {
+		app.homePage(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/register.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -289,6 +304,23 @@ var Data map[string]interface{}
 // It fetches the videos data from the database and sends it to the client.
 // If there is an error during fetching the videos data, it sends a server error response.
 func (app *application) showVideos(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	_, _, editDelete, _, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if editDelete == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/adminTables.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -338,6 +370,12 @@ func (app *application) showVideosPost(c *gin.Context) {
 // It parses the adminEditVideo.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) editVideo(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/adminEditVideo.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -413,60 +451,139 @@ func (app *application) showGenresName(c *gin.Context) {
 func (app *application) editVideoPost(c *gin.Context) {
 	fmt.Println("edit video post")
 
-	//app.editVideo(c)
-
-	// get the data from the post request that was sent by JS
 	type Video struct {
-		VideoID     string `json:"videoID"`
+		VideoID     int    `json:"videoID"`
 		Title       string `json:"title"`
 		Description string `json:"description"`
-		CategoryID  string `json:"categoryID"`
-		GenreID     string `json:"genreID"`
+		Genre       string `json:"genre"`
+		Category    string `json:"category"`
+		Thumbnail   string `json:"thumbnail"`
+		Banner      string `json:"banner"`
+		FileName    string `json:"fileName"`
 	}
 
 	var videoData Video
 
-	rawData, _ := c.GetRawData()
-	fmt.Println(string(rawData))
-
 	// Bind the JSON data from the request to the userData struct
 	if err := c.ShouldBindJSON(&videoData); err != nil {
-		fmt.Println("Error binding JSON data")
+		fmt.Println("Error binding JSON data: ", err) // Print the error
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid JSON",
 		})
 		return
 	}
+	//fmt.Println(videoData)
 
-	fmt.Println(videoData)
+	var compressImage = func(imagePath string, imageName string, width uint, height uint) error {
+		// Open the image file
+		imgFile, err := os.Open(imagePath)
+		if err != nil {
+			return fmt.Errorf("failed to open image file: %v", err)
+		}
+		defer imgFile.Close()
 
-	// convert id to int
-	videoIDInt, err := strconv.Atoi(videoData.VideoID)
-	if err != nil {
-		fmt.Println("Error converting videoID to int")
+		// Decode the image
+		img, _, err := image.Decode(imgFile)
+		if err != nil {
+			return fmt.Errorf("failed to decode image: %v", err)
+		}
+
+		// Resize the image to 1080x1920
+		thumbnail := resize.Resize(width, height, img, resize.Lanczos3)
+		//thumbnail := resize.Resize(1080, 1920, img, resize.Lanczos3)
+
+		// Compress and save the thumbnail as png
+		//out, err := os.Create("./userUploadDatas/thumbnails/" + imageName)
+		out, err := os.Create(imagePath)
+		if err != nil {
+			return fmt.Errorf("failed to create file: %v", err)
+		}
+		defer out.Close()
+
+		// Encode the thumbnail as PNG
+		err = jpeg.Encode(out, thumbnail, nil)
+		if err != nil {
+			return fmt.Errorf("failed to encode image to PNG: %v", err)
+		}
+		return nil
 	}
 
-	genreIDInt, err := strconv.Atoi(videoData.GenreID)
-	if err != nil {
-		fmt.Println("Error converting genreID to int")
+	if videoData.Thumbnail != "Same Image" {
+		// Split the data URI to get only the base64-encoded part
+		thumbnailDataParts := strings.Split(videoData.Thumbnail, ",")
+		if len(thumbnailDataParts) != 2 {
+			fmt.Println("Invalid data URI format")
+			return
+		}
+
+		// Decode the base64 data
+		thumbnailBytes, err := base64.StdEncoding.DecodeString(thumbnailDataParts[1])
+		if err != nil {
+			fmt.Println("Error decoding thumbnail data:", err)
+			return
+		}
+
+		// Save the decoded image to a file
+		err = ioutil.WriteFile("./userUploadDatas/thumbnails/"+videoData.FileName, thumbnailBytes, 0644)
+		if err != nil {
+			fmt.Println("Error saving image:", err)
+			return
+		}
+
+		fmt.Println("Thumbnail image saved successfully!")
+		err = compressImage("./userUploadDatas/thumbnails/"+videoData.FileName, videoData.FileName, 1080, 1920)
+		if err != nil {
+			fmt.Println("Error compressing image:", err)
+			return
+		}
+		fmt.Println("Thumbnail image compressed successfully!")
 	}
 
-	genreName, err := app.database.getGenreName(genreIDInt)
+	if videoData.Banner != "Same Image" {
+		// Split the data URI to get only the base64-encoded part
+		bannerDataParts := strings.Split(videoData.Banner, ",")
+		if len(bannerDataParts) != 2 {
+			fmt.Println("Invalid data URI format")
+			return
+		}
+
+		// Decode the base64 data
+		bannerBytes, err := base64.StdEncoding.DecodeString(bannerDataParts[1])
+		if err != nil {
+			fmt.Println("Error decoding thumbnail data:", err)
+			return
+		}
+
+		// Save the decoded image to a file
+		err = ioutil.WriteFile("./userUploadDatas/banners/"+videoData.FileName, bannerBytes, 0644)
+		if err != nil {
+			fmt.Println("Error saving image:", err)
+			return
+		}
+
+		fmt.Println("Banner image saved successfully!")
+		err = compressImage("./userUploadDatas/banners/"+videoData.FileName, videoData.FileName, 1920, 1080)
+		if err != nil {
+			fmt.Println("Error compressing image:", err)
+			return
+		}
+		fmt.Println("Banner image compressed successfully!")
+	}
+
+	err := app.database.updateVideo(videoData.Title, videoData.Description, videoData.Genre, videoData.Category, videoData.VideoID)
 	if err != nil {
-		fmt.Println("Error getting genre name")
+		fmt.Println("Error updating video details:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to update video details",
+			"success": false,
+		})
 		return
 	}
 
-	// send the post request to the another js file to show the data in the form
 	c.JSON(http.StatusOK, gin.H{
-		"message":     "Video data fetched successfully",
-		"success":     true,
-		"videoID":     videoIDInt,
-		"title":       videoData.Title,
-		"description": videoData.Description,
-		"genreID":     genreName,
+		"message": "Video details updated successfully",
+		"success": true,
 	})
-
 }
 
 // updateVideoDetails is a handler function that handles the updating of video details.
@@ -613,6 +730,12 @@ func (app *application) deleteVideo(c *gin.Context) {
 // It parses the homePage.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) homePage(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/homePage.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -648,6 +771,12 @@ func (app *application) homePageVideos(c *gin.Context) {
 // It parses the watchVideo.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) watchVideo(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/watchVideo.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -824,6 +953,12 @@ func (app *application) caroselSlide(c *gin.Context) {
 // It parses the search.html template and executes it, sending the output to the client.
 // If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) search(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/search.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -954,6 +1089,12 @@ func (app *application) videoActionChanged(c *gin.Context) {
 }
 
 func (app *application) userProfile(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/profile.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1223,6 +1364,12 @@ func (app *application) droppedVideoList(c *gin.Context) {
 }
 
 func (app *application) about(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/about.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1710,6 +1857,12 @@ func (app *application) likeDislikeCount(c *gin.Context) {
 }
 
 func (app *application) adminPanel(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_Panel.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1738,6 +1891,23 @@ func (app *application) adminPanel(c *gin.Context) {
 
 // adminAddVideo is a handler function that serves the add video page.
 func (app *application) adminAddVideo(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	_, upload, _, _, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if upload == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_videoUpload.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1752,6 +1922,23 @@ func (app *application) adminAddVideo(c *gin.Context) {
 }
 
 func (app *application) adminDashboard(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	dashboard, _, _, _, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if dashboard == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_dashboard.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1767,6 +1954,23 @@ func (app *application) adminDashboard(c *gin.Context) {
 
 // adminVideoList is a handler function that serves the video list page.
 func (app *application) adminVideoList(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	_, _, editDelete, _, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if editDelete == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/videoList.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1782,6 +1986,23 @@ func (app *application) adminVideoList(c *gin.Context) {
 
 // adminAnalytics is a handler function that serves the analytics page.
 func (app *application) adminAnalytics(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	_, _, _, analytics, _, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if analytics == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_analytics.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1797,6 +2018,23 @@ func (app *application) adminAnalytics(c *gin.Context) {
 
 // adminServerLogs is a handler function that serves the settings page.
 func (app *application) adminServerLogs(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	_, _, _, _, serverLogs, _, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if serverLogs == 0 {
+		app.error403(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/admin/admin_serverLogs.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1810,7 +2048,214 @@ func (app *application) adminServerLogs(c *gin.Context) {
 	}
 }
 
+func (app *application) adminUserAccess(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
+	// Check if user have access to user access page
+	_, _, _, _, _, useraccess, err := app.database.userAccess(userInfo.UserId)
+	if err != nil {
+		app.error403(c)
+		return
+	}
+	if useraccess == 0 {
+		app.error403(c)
+		return
+	}
+
+	t, err := template.ParseFiles("ui/html/admin/admin_userAccess.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) adminUserAccessPost(c *gin.Context) {
+	adminAccess, err := app.database.allUserAdminAccess(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch user access", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":     true,
+		"message":     "User access fetched successfully",
+		"adminAccess": adminAccess,
+	})
+}
+
+func (app *application) adminUserAccessChange(c *gin.Context) {
+	type user struct {
+		UserID      int    `json:"userID"`
+		Access      int    `json:"access"`
+		AccessValue string `json:"accessValue"`
+	}
+
+	var userAccess user
+
+	err := c.ShouldBindJSON(&userAccess)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+
+	fmt.Println("User ID: ", userAccess.UserID, "Access: ", userAccess.Access, "Access Value: ", userAccess.AccessValue)
+
+	// Give dashboard access
+	if userAccess.AccessValue == "dashboard" && userAccess.Access == 0 {
+		err = app.database.giveDashboardAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke dashboard access
+	if userAccess.AccessValue == "dashboard" && userAccess.Access == 1 {
+		err = app.database.removeDashboardAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give upload access
+	if userAccess.AccessValue == "upload" && userAccess.Access == 0 {
+		err = app.database.giveUploadAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "upload" && userAccess.Access == 1 {
+		err = app.database.removeUploadAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give edit_delete access
+	if userAccess.AccessValue == "edit_delete" && userAccess.Access == 0 {
+		err = app.database.giveEditDeleteAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "edit_delete" && userAccess.Access == 1 {
+		err = app.database.removeEditDeleteAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give analytics access
+	if userAccess.AccessValue == "analytics" && userAccess.Access == 0 {
+		err = app.database.giveAnalyticsAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "analytics" && userAccess.Access == 1 {
+		err = app.database.removeAnalyticsAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give server_log access
+	if userAccess.AccessValue == "server_log" && userAccess.Access == 0 {
+		err = app.database.giveServerLogAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "server_log" && userAccess.Access == 1 {
+		err = app.database.removeServerLogAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+
+	// Give server_log access
+	if userAccess.AccessValue == "user" && userAccess.Access == 0 {
+		err = app.database.giveUserAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+	// Revoke upload access
+	if userAccess.AccessValue == "user" && userAccess.Access == 1 {
+		err = app.database.removeUserAccess(userAccess.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change user access", "message": err.Error()})
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "User access changed successfully"})
+			return
+		}
+	}
+}
+
 func (app *application) profile(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/user_profile.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1825,6 +2270,12 @@ func (app *application) profile(c *gin.Context) {
 }
 
 func (app *application) editProfile(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/user_editProfile.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -1839,6 +2290,12 @@ func (app *application) editProfile(c *gin.Context) {
 }
 
 func (app *application) changePassword(c *gin.Context) {
+	// If not logged-In
+	if userInfo.UserId == 0 && userInfo.Email == "" {
+		app.error404(c)
+		return
+	}
+
 	t, err := template.ParseFiles("ui/html/user_changePassword.html")
 	if err != nil {
 		app.serverError(c.Writer, err)
@@ -2314,4 +2771,34 @@ func (app *application) displayUserProfileImage(c *gin.Context) {
 		"message":   "User profile image displayed successfully",
 		"imagePath": imagePath,
 	})
+}
+
+func (app *application) error403(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/errorPage/403.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	//app.deviceInfo(c.Request)
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+}
+
+func (app *application) error404(c *gin.Context) {
+	t, err := template.ParseFiles("ui/html/errorPage/404.html")
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
+
+	//app.deviceInfo(c.Request)
+	err = t.Execute(c.Writer, nil)
+	if err != nil {
+		app.serverError(c.Writer, err)
+		return
+	}
 }

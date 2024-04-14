@@ -4,14 +4,26 @@ CREATE DATABASE dekkoto;
 -- Create Users table
 CREATE TABLE Users
 (
-    UserID   INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT PRIMARY KEY AUTO_INCREMENT,
     UserName VARCHAR(50),
     Email    VARCHAR(100),
     Password VARCHAR(100),
-    Data     TEXT,
     Admin   TINYINT DEFAULT 0
 );
 
+-- Create useraccesslevels table
+CREATE TABLE useraccesslevels
+(
+    ID           INT PRIMARY KEY AUTO_INCREMENT,
+    UserID       INT,
+    Dashboard    TINYINT DEFAULT 0,
+    Upload       TINYINT DEFAULT 0,
+    Edit_Delete  TINYINT DEFAULT 0,
+    Analytics    TINYINT DEFAULT 0,
+    ServerLogs   TINYINT DEFAULT 0,
+    UserAccess   TINYINT DEFAULT 0,
+    FOREIGN KEY (UserID) REFERENCES Users (UserID)
+);
 -- Create Categories table
 CREATE TABLE Categories
 (
