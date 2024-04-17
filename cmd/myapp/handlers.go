@@ -2802,3 +2802,14 @@ func (app *application) error404(c *gin.Context) {
 		return
 	}
 }
+
+func (app *application) logout(c *gin.Context) {
+	//userInfo.UserId != 0 && userInfo.Email != ""
+	userInfo.UserId = 0
+	userInfo.Email = ""
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User logged out successfully",
+		"success": true,
+	})
+}

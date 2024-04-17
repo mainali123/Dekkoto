@@ -158,4 +158,6 @@ func (app *application) routes(router *gin.Engine) {
 	router.GET("/404", app.error404)
 	router.GET("/403", app.error403)
 
+	// Logout
+	router.POST("/logout", app.logout)
 }
