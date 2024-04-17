@@ -1,5 +1,31 @@
 console.log('profile.js loaded');
 
+function checkAdminAccess() {
+    // Fetch user details from the server
+    fetch('/checkAdminAccess', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Check if the request was successful
+            if (data.success) {
+                console.log(data)
+                // Check if the user is an admin
+                if (!data.adminAccess) {
+                    // hide the dropdown-item class
+                    document.querySelector('.admin-dropdownshow').style.display = 'none';
+                }
+            } else {
+                console.error('Failed to fetch user details:', data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+checkAdminAccess();
+
 function displayQuote() {
     // Fetch quotes from the server
     fetch('/quotes', {

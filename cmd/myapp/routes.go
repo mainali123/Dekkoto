@@ -160,4 +160,7 @@ func (app *application) routes(router *gin.Engine) {
 
 	// Logout
 	router.POST("/logout", app.logout)
+
+	// check if have admin access
+	router.POST("/checkAdminAccess", app.checkAdminAccess)
 }
