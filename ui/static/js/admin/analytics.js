@@ -50,7 +50,16 @@ function mostViewedVideos() {
                 options: {
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            // change the y-axis label to white
+                            ticks: {
+                                color: 'white'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            }
                         }
                     }
                 }
@@ -68,48 +77,56 @@ function likesVsDislikes() {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        const mostLikedVideos = data.mostLikedVideos.slice(0, 5);
-        const mostDislikedVideos = data.mostDislikedVideos.slice(0, 5);
+        .then(response => response.json())
+        .then(data => {
+            const mostLikedVideos = data.mostLikedVideos.slice(0, 5);
+            const mostDislikedVideos = data.mostDislikedVideos.slice(0, 5);
 
-        // Combine the two lists into one
-        let combinedVideos = mostLikedVideos.concat(mostDislikedVideos);
+            // Combine the two lists into one
+            let combinedVideos = mostLikedVideos.concat(mostDislikedVideos);
 
-        // Filter out videos with both likes and dislikes as 0
-        combinedVideos = combinedVideos.filter(video => !(video.LikesCount === 0 && video.DislikesCount === 0));
+            // Filter out videos with both likes and dislikes as 0
+            combinedVideos = combinedVideos.filter(video => !(video.LikesCount === 0 && video.DislikesCount === 0));
 
-        const ctx = document.getElementById('likesDislikesChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: combinedVideos.map(video => video.Title),
-                datasets: [{
-                    label: 'Likes',
-                    data: combinedVideos.map(video => video.LikesCount),
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    stack: 'Stack 0'
-                }, {
-                    label: 'Dislikes',
-                    data: combinedVideos.map(video => video.DislikesCount),
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1,
-                    stack: 'Stack 0'
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
+            const ctx = document.getElementById('likesDislikesChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: combinedVideos.map(video => video.Title),
+                    datasets: [{
+                        label: 'Likes',
+                        data: combinedVideos.map(video => video.LikesCount),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        stack: 'Stack 0'
+                    }, {
+                        label: 'Dislikes',
+                        data: combinedVideos.map(video => video.DislikesCount),
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        stack: 'Stack 0'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            }
+                        }
                     }
                 }
-            }
-        });
-    })
-    .catch(error => console.error('Error:', error));
+            });
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 
@@ -160,7 +177,15 @@ function durationDistribution() {
                 options: {
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            }
                         }
                     }
                 }
@@ -170,7 +195,6 @@ function durationDistribution() {
             console.log(error);
         });
 }
-
 
 
 durationDistribution();
