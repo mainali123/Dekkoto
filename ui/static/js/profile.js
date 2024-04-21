@@ -112,6 +112,9 @@ fetch('/watchingVideos', {
     .then(response => response.json())
     .then(data => {
         console.log(data);
+        if (data.videos.length === 0) {
+            document.querySelector('.waatch').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.watching'); // Select the HTML element where you want to display the videos
 
@@ -150,6 +153,9 @@ fetch('/onHoldVideos', {
     .then(response => response.json())
     .then(data => {
         console.log(data);
+        if (data.videos.length === 0) {
+            document.querySelector('.hoold').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.on-hold'); // Select the HTML element where you want to display the videos
 
@@ -188,6 +194,9 @@ fetch('/consideringVideos', {
     .then(response => response.json())
     .then(data => {
         console.log(data);
+        if (data.videos.length === 0) {
+            document.querySelector('.considered').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.considered-anime'); // Select the HTML element where you want to display the videos
 
@@ -223,6 +232,9 @@ fetch('/recentlyCompletedVideos', {
     .then(response => response.json())
     .then(data => {
         console.log(data);
+        if (data.videos.length === 0) {
+            document.querySelector('.recent').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.recently-completed');
 

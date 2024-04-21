@@ -292,6 +292,11 @@ fetch('/continueWatching', {
     })
     .then(data => {
         console.log(data)
+        // if data is empty then hide the class 'cont'
+        if (data.videos.length === 0) {
+            document.querySelector('.continue_watching').style.display = 'none';
+            document.querySelector('.card-video-continue-watching').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.card-video-continue-watching'); // Select the HTML element where you want to display the videos
 
