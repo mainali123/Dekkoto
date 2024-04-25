@@ -175,14 +175,20 @@ function addScript(src) {
 }
 
 function deleteScript(src) {
-	let script = document.querySelectorAll("script")
-	script.forEach((js) => {
-		let scriptUrl = new URL(js.src);
-		let pathname = scriptUrl.pathname;
-		let scriptSrc = ".." + pathname
-		if (scriptSrc === src) {
-			document.body.removeChild(js);
-		}
-	});
+    let script = document.querySelectorAll("script")
+    script.forEach((js) => {
+        if (js.src) { // Check if js.src is defined
+            try {
+                let scriptUrl = new URL(js.src);
+                let pathname = scriptUrl.pathname;
+                let scriptSrc = ".." + pathname
+                if (scriptSrc === src) {
+                    document.body.removeChild(js);
+                }
+            } catch (e) {
+                console.error(`Invalid URL: ${js.src}`);
+            }
+        }
+    });
 }
 
