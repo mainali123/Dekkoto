@@ -73,8 +73,11 @@ fetch('/userDetails', {
             // Select the 'user-name' element
             const userNameElement = document.querySelector('.user-name');
 
-            // Update the 'user-name' element with the received user name
+            // Update the 'user-name' element with the received username
             userNameElement.textContent = data.userName;
+
+            // update the value of button with id dropdownMenuButton1
+            document.getElementById('dropdownMenuButton1').textContent = data.userName;
         } else {
             console.error('Failed to fetch user details:', data.message);
         }
@@ -281,3 +284,33 @@ fetch('/recentlyCompletedVideos', {
         }
     })
     .catch(error => console.error(error));
+
+function changeUserImage() {
+    // Select the header element
+    let header = document.querySelector('header');
+    fetch('/userProfileImage', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            let success = data.success;
+            if (success === false) {
+                return;
+            } else {
+                let image = "../../" + data.imagePath;
+                console.log(image);
+                header.style.backgroundImage = "linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7847514005602241) 85%),url('" + image + "')";
+            }
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+    header.style.backgroundImage = "url('../images/newImage.jpeg')";
+}
+document.addEventListener('DOMContentLoaded', (event) => {
+    changeUserImage();
+});
