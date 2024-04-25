@@ -2802,3 +2802,34 @@ func (app *application) error404(c *gin.Context) {
 		return
 	}
 }
+
+func (app *application) logout(c *gin.Context) {
+	//userInfo.UserId != 0 && userInfo.Email != ""
+	userInfo.UserId = 0
+	userInfo.Email = ""
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User logged out successfully",
+		"success": true,
+	})
+}
+func (app *application) checkAdminAccess(c *gin.Context) {
+	/*c.JSON(http.StatusOK, gin.H{
+		"message": "User logged out successfully",
+		"success": true,
+	})*/
+
+	res, err := app.database.checkAdminAccess(userInfo.UserId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to check user access",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":     "User access checked successfully",
+		"success":     true,
+		"adminAccess": res,
+	})
+}

@@ -2524,3 +2524,22 @@ func (db *databaseConn) updateVideo(title string, description string, category s
 	}
 	return nil
 }
+
+func (db *databaseConn) checkAdminAccess(userID int) (int, error) {
+	//SELECT
+	//CASE
+	//WHEN Dashboard = 1 OR Upload = 1 OR Edit_Delete = 1 OR Analytics = 1 OR ServerLogs = 1 OR UserAccess = 1 THEN 1
+	//ELSE 0
+	//END AS AnyValueIs1
+	//FROM
+	//useraccesslevels;
+
+	query := "SELECT CASE WHEN Dashboard = 1 OR Upload = 1 OR Edit_Delete = 1 OR Analytics = 1 OR ServerLogs = 1 OR UserAccess = 1 THEN 1 ELSE 0 END AS AnyValueIs1 FROM useraccesslevels WHERE UserID = ?"
+	row := db.DB.QueryRow(query, userID)
+	var anyValueIs1 int
+	err := row.Scan(&anyValueIs1)
+	if err != nil {
+		return 0, err
+	}
+	return anyValueIs1, nil
+}

@@ -1,5 +1,31 @@
 console.log('profile.js loaded');
 
+function checkAdminAccess() {
+    // Fetch user details from the server
+    fetch('/checkAdminAccess', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Check if the request was successful
+            if (data.success) {
+                console.log(data)
+                // Check if the user is an admin
+                if (!data.adminAccess) {
+                    // hide the dropdown-item class
+                    document.querySelector('.admin-dropdownshow').style.display = 'none';
+                }
+            } else {
+                console.error('Failed to fetch user details:', data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+checkAdminAccess();
+
 function displayQuote() {
     // Fetch quotes from the server
     fetch('/quotes', {
@@ -47,8 +73,11 @@ fetch('/userDetails', {
             // Select the 'user-name' element
             const userNameElement = document.querySelector('.user-name');
 
-            // Update the 'user-name' element with the received user name
+            // Update the 'user-name' element with the received username
             userNameElement.textContent = data.userName;
+
+            // update the value of button with id dropdownMenuButton1
+            document.getElementById('dropdownMenuButton1').textContent = data.userName;
         } else {
             console.error('Failed to fetch user details:', data.message);
         }
@@ -86,6 +115,9 @@ fetch('/watchingVideos', {
     .then(response => response.json())
     .then(data => {
         console.log(data);
+        if (data.videos.length === 0) {
+            document.querySelector('.waatch').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.watching'); // Select the HTML element where you want to display the videos
 
@@ -124,6 +156,9 @@ fetch('/onHoldVideos', {
     .then(response => response.json())
     .then(data => {
         console.log(data);
+        if (data.videos.length === 0) {
+            document.querySelector('.hoold').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.on-hold'); // Select the HTML element where you want to display the videos
 
@@ -162,6 +197,9 @@ fetch('/consideringVideos', {
     .then(response => response.json())
     .then(data => {
         console.log(data);
+        if (data.videos.length === 0) {
+            document.querySelector('.considered').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.considered-anime'); // Select the HTML element where you want to display the videos
 
@@ -197,6 +235,9 @@ fetch('/recentlyCompletedVideos', {
     .then(response => response.json())
     .then(data => {
         console.log(data);
+        if (data.videos.length === 0) {
+            document.querySelector('.recent').style.display = 'none';
+        }
         const videos = data.videos;
         const videoContainer = document.querySelector('.recently-completed');
 
@@ -243,3 +284,33 @@ fetch('/recentlyCompletedVideos', {
         }
     })
     .catch(error => console.error(error));
+
+function changeUserImage() {
+    // Select the header element
+    let header = document.querySelector('header');
+    fetch('/userProfileImage', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            let success = data.success;
+            if (success === false) {
+                return;
+            } else {
+                let image = "../../" + data.imagePath;
+                console.log(image);
+                header.style.backgroundImage = "linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7847514005602241) 85%),url('" + image + "')";
+            }
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+    header.style.backgroundImage = "url('../images/newImage.jpeg')";
+}
+document.addEventListener('DOMContentLoaded', (event) => {
+    changeUserImage();
+});

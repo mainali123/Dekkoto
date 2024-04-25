@@ -1,5 +1,21 @@
 console.log('user_profile.js');
 
+// Add event listener to bx-log-out class
+document.querySelector('.logout-now').addEventListener('click', function () {
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/login';
+        }
+    });
+});
+
 fetch('/userDetails', {
     method: 'POST',
     headers: {
