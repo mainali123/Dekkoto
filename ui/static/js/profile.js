@@ -281,3 +281,33 @@ fetch('/recentlyCompletedVideos', {
         }
     })
     .catch(error => console.error(error));
+
+function changeUserImage() {
+    // Select the header element
+    let header = document.querySelector('header');
+    fetch('/userProfileImage', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            let success = data.success;
+            if (success === false) {
+                return;
+            } else {
+                let image = "../../" + data.imagePath;
+                console.log(image);
+                header.style.backgroundImage = "linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7847514005602241) 85%),url('" + image + "')";
+            }
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+    header.style.backgroundImage = "url('../images/newImage.jpeg')";
+}
+document.addEventListener('DOMContentLoaded', (event) => {
+    changeUserImage();
+});

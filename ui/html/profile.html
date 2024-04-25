@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.2/css/all.css">
     <link rel="stylesheet" href="../static/css/login.css"/>
     <link rel="stylesheet" href="../static/css/navbar.css"/>
     <link rel="stylesheet" href="../static/css/profile.css"/>
@@ -36,7 +37,19 @@
             <li><a href="/userProfile" class="active">profile</a></li>
             <li><a href="/search">search</a></li>
             <li><a href="/about">about</a></li>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown"
+                    aria-expanded="false">username
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li><a class="dropdown-item" href="/profile"><i class="fa-solid fa-user-vneck"></i>  Profile</a></li>
+                    <!--        <li><a class="dropdown-item" href="#"><img src="../../internal/dropdown/Share.png" alt="Another Action Image" /></a></li>-->
+                    <li><a class="dropdown-item admin-dropdownshow" href="/adminPanel"><i class="fa-solid fa-screwdriver-wrench"></i>  Admin</a>
+                    </li>
+                </ul>
+            </div>
         </ul>
+     
     </div>
     <div class="user-info">
         <!-- <div class="user-level"> -->
@@ -49,20 +62,7 @@
         </p>
 
 
-        <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="../../internalImages/dropdown/dropdown.png" alt="Dropdown Image"/>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                <li><a class="dropdown-item" href="/profile"><img src="../../internalImages/dropdown/UserSetting.png"
-                                                                  class="dropdown-image" alt="User Settings"/></a></li>
-                <!--        <li><a class="dropdown-item" href="#"><img src="../../internal/dropdown/Share.png" alt="Another Action Image" /></a></li>-->
-                <li><a class="dropdown-item admin-dropdownshow" href="/adminPanel"><img src="../../internalImages/dropdown/Admin.png"
-                                                                     class="dropdown-image" alt="Admin Control"/></a>
-                </li>
-            </ul>
-        </div>
+      
     </div>
 </header>
 

@@ -253,29 +253,7 @@ strong {
     top: -20.6rem;
 }*/
 
-.dropdown:focus-within {
-    outline: none;
-}
 
-.dropdown-item {
-    padding: 1rem;
-    display: flex;
-    justify-content: end;
-}
-
-.dropdown-item:hover {
-    background-color: #151820;
-}
-
-
-.dropdown-image {
-    height: 40px;
-}
-
-.dropdown-menu {
-    min-width: 0 !important;
-    width: 10%;
-}
 
 
 @media only screen and (max-width: 750px) {
