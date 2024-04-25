@@ -73,8 +73,11 @@ fetch('/userDetails', {
             // Select the 'user-name' element
             const userNameElement = document.querySelector('.user-name');
 
-            // Update the 'user-name' element with the received user name
+            // Update the 'user-name' element with the received username
             userNameElement.textContent = data.userName;
+
+            // update the value of button with id dropdownMenuButton1
+            document.getElementById('dropdownMenuButton1').textContent = data.userName;
         } else {
             console.error('Failed to fetch user details:', data.message);
         }
