@@ -2546,7 +2546,7 @@ func (app *application) deviceInfo(r *http.Request) {
 	var result map[string]string
 	json.Unmarshal([]byte(body), &result)
 
-	fmt.Println(result)
+	//fmt.Println(result)
 
 	publicIP := result["ip"]
 
@@ -2602,10 +2602,10 @@ func (app *application) deviceInfo(r *http.Request) {
 		browser = "Other"
 	}
 
-	fmt.Println("IP:", publicIP)
-	fmt.Println("Device Type:", deviceType)
-	fmt.Println("Device OS:", deviceOS)
-	fmt.Println("Browser:", browser)
+	//fmt.Println("IP:", publicIP)
+	//fmt.Println("Device Type:", deviceType)
+	//fmt.Println("Device OS:", deviceOS)
+	//fmt.Println("Browser:", browser)
 
 	type networkInfo struct {
 		IP          string  `json:"ip"`
@@ -2651,7 +2651,7 @@ func (app *application) deviceInfo(r *http.Request) {
 	// Format the date and time as a string
 	currentTimeString := currentTime.Format("2006-01-02 15:04:05 MST")
 
-	fmt.Printf("Network Info: %+v\n", network_info)
+	//fmt.Printf("Network Info: %+v\n", network_info)
 
 	lastLoginJSON := fmt.Sprintf(`{"login_time": "%s"}`, currentTimeString)
 
@@ -2661,7 +2661,7 @@ func (app *application) deviceInfo(r *http.Request) {
 	if err != nil {
 		fmt.Println("Error inserting device info into the database:", err)
 	} else {
-		fmt.Println("Device Info inserted successfully")
+		//fmt.Println("Device Info inserted successfully")
 	}
 }
 
