@@ -1,12 +1,3 @@
-// Package main provides various handlers for handling user requests.
-//
-// The functions in this file handle user requests for login, registration, video upload, video termination,
-// video display, video editing, video deletion, and other related operations.
-// The handlers interact with the database and the user interface to provide the required functionality.
-//
-// Global Variables:
-// Data is a global variable of type map with string keys and values of any type (interface{}).
-// It is used to hold various data, such as video information, that needs to be accessed across different functions.
 package main
 
 import (

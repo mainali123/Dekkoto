@@ -1,8 +1,3 @@
-// Package main provides various handlers for handling user requests.
-//
-// The functions in this file handle user requests for login, registration, video upload, video termination,
-// video display, video editing, video deletion, and other related operations.
-// The handlers interact with the database and the user interface to provide the required functionality.
 package main
 
 import (
@@ -1012,6 +1007,7 @@ func (app *application) searchData(c *gin.Context) {
 	})
 }
 
+// autoComplete is a function that accepts POST request from the User and sends the video list to the client.
 func (app *application) autoComplete(c *gin.Context) {
 	res, err := app.database.autoComplete()
 	if err != nil {
@@ -1088,6 +1084,7 @@ func (app *application) videoActionChanged(c *gin.Context) {
 	err = app.database.videoActionChanged(updateValues.VideoID, userInfo.UserId, updateValues.Action)
 }
 
+// userProfile is a handler function that serves the user profile page.
 func (app *application) userProfile(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
@@ -1108,6 +1105,11 @@ func (app *application) userProfile(c *gin.Context) {
 	}
 }
 
+// videoDatas is a handler function that fetches video data for a user's profile.
+// It uses the userId from the global userInfo variable to fetch the data.
+// The function interacts with the database to retrieve the video data associated with the user's profile.
+// If there's an error during the execution, the function logs the error message and sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched video data.
 func (app *application) videoDatas(c *gin.Context) {
 	videos, err := app.database.userProfileVideosData(userInfo.UserId)
 	if err != nil {
@@ -1127,6 +1129,11 @@ func (app *application) videoDatas(c *gin.Context) {
 	})
 }
 
+// watchingVideos is a handler function that fetches the videos that a user is currently watching.
+// It uses the userId from the global userInfo variable to fetch the data.
+// The function interacts with the database to retrieve the video data associated with the user's watching list.
+// If there's an error during the execution, the function logs the error message and sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched video data.
 func (app *application) watchingVideos(c *gin.Context) {
 	videos, err := app.database.watchingVideos(userInfo.UserId)
 	if err != nil {
@@ -1146,6 +1153,11 @@ func (app *application) watchingVideos(c *gin.Context) {
 	})
 }
 
+// onHoldVideos is a handler function that fetches the videos that a user has put on hold.
+// It uses the userId from the global userInfo variable to fetch the data.
+// The function interacts with the database to retrieve the video data associated with the user's on-hold list.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched video data.
 func (app *application) onHoldVideos(c *gin.Context) {
 	videos, err := app.database.onHoldVideos(userInfo.UserId)
 	if err != nil {
@@ -1161,6 +1173,11 @@ func (app *application) onHoldVideos(c *gin.Context) {
 	})
 }
 
+// consideringVideos is a handler function that fetches the videos that a user is considering to watch.
+// It uses the userId from the global userInfo variable to fetch the data.
+// The function interacts with the database to retrieve the video data associated with the user's considering list.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched video data.
 func (app *application) consideringVideos(c *gin.Context) {
 	videos, err := app.database.consideringVideos(userInfo.UserId)
 	if err != nil {
@@ -1176,6 +1193,11 @@ func (app *application) consideringVideos(c *gin.Context) {
 	})
 }
 
+// recentlyCompletedVideos is a handler function that fetches the videos that a user has recently completed watching.
+// It uses the userId from the global userInfo variable to fetch the data.
+// The function interacts with the database to retrieve the video data associated with the user's recently completed list.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched video data.
 func (app *application) recentlyCompletedVideos(c *gin.Context) {
 	videos, err := app.database.recentlyCompletedVideos(userInfo.UserId)
 	if err != nil {
@@ -1191,6 +1213,11 @@ func (app *application) recentlyCompletedVideos(c *gin.Context) {
 	})
 }
 
+// userDetails is a handler function that fetches the details of a user.
+// It uses the userId from the global userInfo variable to fetch the data.
+// The function interacts with the database to retrieve the user's details such as username, email, and admin status.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched user details.
 func (app *application) userDetails(c *gin.Context) {
 	userName, email, isAdmin, err := app.database.userDetails(userInfo.UserId)
 	if err != nil {
@@ -1207,6 +1234,11 @@ func (app *application) userDetails(c *gin.Context) {
 	})
 }
 
+// quotesHandler is a handler function that handles the request to fetch quotes.
+// It reads the quotes from a CSV file named 'Quotes.csv' located in the 'internal' directory and stores them in a slice of 'Quote' structs.
+// Each 'Quote' struct represents a quote and contains fields for ID, author, type, text, and count.
+// If there's an error during the execution, the function handles the error appropriately.
+// The function is a method of the 'application' struct and takes a 'gin.Context' object as an argument, which is used to handle the HTTP request and response.
 func (app *application) quotesHandler(c *gin.Context) {
 
 	type Quote struct {
@@ -1261,6 +1293,10 @@ func (app *application) quotesHandler(c *gin.Context) {
 	})
 }
 
+// videoList is a handler function that fetches the list of all videos.
+// It interacts with the database to retrieve the video data such as video title, description, upload date, and other related information.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched video list.
 func (app *application) videoList(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/videoList.html")
 	if err != nil {
@@ -1275,6 +1311,9 @@ func (app *application) videoList(c *gin.Context) {
 	}
 }
 
+// videoListPost is a handler function that handles the post request of the video list page.
+// It fetches the video data from the database and sends it to the client as a JSON response.
+// If there's an error during the execution, the function sends an appropriate error response.
 func (app *application) videoListPost(c *gin.Context) {
 
 }
@@ -1293,6 +1332,10 @@ func (app *application) recommendedVideoList(c *gin.Context) {
 	})
 }
 
+// recommendedVideoList is a handler function that fetches the list of recommended videos for a user.
+// It interacts with the database to retrieve the video data such as video title, description, upload date, and other related information.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched recommended video list.
 func (app *application) watchingVideoList(c *gin.Context) {
 	videos, err := app.database.watchingVideoListDatabase(userInfo.UserId)
 	if err != nil {
@@ -1307,6 +1350,10 @@ func (app *application) watchingVideoList(c *gin.Context) {
 	})
 }
 
+// completedVideoList is a handler function that fetches the list of videos a user has completed watching.
+// It interacts with the database to retrieve the video data such as video title, description, upload date, and other related information.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched completed video list.
 func (app *application) completedVideoList(c *gin.Context) {
 	videos, err := app.database.completedVideoListDatabase(userInfo.UserId)
 	if err != nil {
@@ -1321,6 +1368,10 @@ func (app *application) completedVideoList(c *gin.Context) {
 	})
 }
 
+// onHoldVideoList is a handler function that fetches the list of videos a user has put on hold.
+// It interacts with the database to retrieve the video data such as video title, description, upload date, and other related information.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched on-hold video list.
 func (app *application) onHoldVideoList(c *gin.Context) {
 	videos, err := app.database.onHoldVideoListDatabase(userInfo.UserId)
 	if err != nil {
@@ -1335,6 +1386,10 @@ func (app *application) onHoldVideoList(c *gin.Context) {
 	})
 }
 
+// consideringVideoList is a handler function that fetches the list of videos a user is considering to watch.
+// It interacts with the database to retrieve the video data such as video title, description, upload date, and other related information.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched considering video list.
 func (app *application) consideringVideoList(c *gin.Context) {
 	videos, err := app.database.consideringVideoListDatabase(userInfo.UserId)
 	if err != nil {
@@ -1349,6 +1404,10 @@ func (app *application) consideringVideoList(c *gin.Context) {
 	})
 }
 
+// droppedVideoList is a handler function that fetches the list of videos a user has dropped or stopped watching.
+// It interacts with the database to retrieve the video data such as video title, description, upload date, and other related information.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched dropped video list.
 func (app *application) droppedVideoList(c *gin.Context) {
 	videos, err := app.database.droppedVideoListDatabase(userInfo.UserId)
 	if err != nil {
@@ -1363,6 +1422,10 @@ func (app *application) droppedVideoList(c *gin.Context) {
 	})
 }
 
+// about is a handler function that serves the about page.
+// It parses the about.html template and executes it, sending the output to the client.
+// If there is an error during parsing or execution of the template, it sends a server error response.
+// If the user is not logged in, it redirects the user to the login page.
 func (app *application) about(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
@@ -1383,6 +1446,11 @@ func (app *application) about(c *gin.Context) {
 	}
 }
 
+// comment is a handler function that manages the user's comments on a video.
+// It interacts with the database to store, retrieve, and delete comments.
+// The function takes the user's ID and the comment text as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated comment list.
 func (app *application) comment(c *gin.Context) {
 	// get the data from the post request that was sent by JS
 	type Comment struct {
@@ -1414,6 +1482,10 @@ func (app *application) comment(c *gin.Context) {
 	})
 }
 
+// getComments is a handler function that fetches the list of comments for a specific video.
+// It interacts with the database to retrieve the comment data such as comment text, user who commented, and the time of the comment.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched comment list.
 func (app *application) getComments(c *gin.Context) {
 	type VideoID struct {
 		ID int `json:"videoID"`
@@ -1443,6 +1515,11 @@ func (app *application) getComments(c *gin.Context) {
 	})
 }
 
+// upvote is a handler function that manages the upvotes for a specific video.
+// It interacts with the database to increment the upvote count for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated upvote count.
 func (app *application) upvote(c *gin.Context) {
 	type comment_id struct {
 		CommentID int `json:"commentID"`
@@ -1494,6 +1571,11 @@ func (app *application) upvote(c *gin.Context) {
 	})
 }
 
+// reverseUpvote is a handler function that manages the reversal of upvotes for a specific video.
+// It interacts with the database to decrement the upvote count for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated upvote count.
 func (app *application) reverseUpvote(c *gin.Context) {
 	type comment_id struct {
 		CommentID int `json:"commentID"`
@@ -1545,6 +1627,11 @@ func (app *application) reverseUpvote(c *gin.Context) {
 	})
 }
 
+// downvote is a handler function that manages the downvotes for a specific video.
+// It interacts with the database to increment the downvote count for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated downvote count.
 func (app *application) downvote(c *gin.Context) {
 	type comment_id struct {
 		CommentID int `json:"commentID"`
@@ -1596,6 +1683,11 @@ func (app *application) downvote(c *gin.Context) {
 	})
 }
 
+// reverseDownvote is a handler function that manages the reversal of downvotes for a specific video.
+// It interacts with the database to decrement the downvote count for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated downvote count.
 func (app *application) reverseDownvote(c *gin.Context) {
 	type comment_id struct {
 		CommentID int `json:"commentID"`
@@ -1647,6 +1739,11 @@ func (app *application) reverseDownvote(c *gin.Context) {
 	})
 }
 
+// commentDetails is a handler function that manages the details of a user's comment on a specific video.
+// It interacts with the database to retrieve, update, or delete the comment details.
+// The function takes the user's ID and the comment ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated comment details.
 func (app *application) commentDetails(c *gin.Context) {
 	type videoID struct {
 		VideoID int `json:"videoID"`
@@ -1677,6 +1774,11 @@ func (app *application) commentDetails(c *gin.Context) {
 	})
 }
 
+// likeVideo is a handler function that manages the likes for a specific video.
+// It interacts with the database to increment the like count for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated like count.
 func (app *application) likeVideo(c *gin.Context) {
 	type videoID struct {
 		VideoID int `json:"videoID"`
@@ -1706,6 +1808,11 @@ func (app *application) likeVideo(c *gin.Context) {
 	})
 }
 
+// reverseLikeVideo is a handler function that manages the reversal of likes for a specific video.
+// It interacts with the database to decrement the like count for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated like count.
 func (app *application) reverseLikeVideo(c *gin.Context) {
 	type videoID struct {
 		VideoID int `json:"videoID"`
@@ -1735,6 +1842,11 @@ func (app *application) reverseLikeVideo(c *gin.Context) {
 	})
 }
 
+// dislikeVideo is a handler function that manages the dislikes for a specific video.
+// It interacts with the database to increment the dislike count for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated dislike count.
 func (app *application) dislikeVideo(c *gin.Context) {
 	type videoID struct {
 		VideoID int `json:"videoID"`
@@ -1765,6 +1877,11 @@ func (app *application) dislikeVideo(c *gin.Context) {
 
 }
 
+// reverseDislikeVideo is a handler function that manages the reversal of dislikes for a specific video.
+// It interacts with the database to decrement the dislike count for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the updated dislike count.
 func (app *application) reverseDislikeVideo(c *gin.Context) {
 	type videoID struct {
 		VideoID int `json:"videoID"`
@@ -1794,6 +1911,11 @@ func (app *application) reverseDislikeVideo(c *gin.Context) {
 	})
 }
 
+// isLikedDisliked is a handler function that checks if a specific video is liked or disliked by a user.
+// It interacts with the database to retrieve the like and dislike status for the video.
+// The function takes the user's ID and the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the like and dislike status.
 func (app *application) isLikedDisliked(c *gin.Context) {
 	type videoID struct {
 		VideoID int `json:"videoID"`
@@ -1825,6 +1947,11 @@ func (app *application) isLikedDisliked(c *gin.Context) {
 	})
 }
 
+// likeDislikeCount is a handler function that retrieves the count of likes and dislikes for a specific video.
+// It interacts with the database to fetch the like and dislike count for the video.
+// The function takes the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the like and dislike count.
 func (app *application) likeDislikeCount(c *gin.Context) {
 	type videoID struct {
 		VideoID int `json:"videoID"`
@@ -1856,6 +1983,10 @@ func (app *application) likeDislikeCount(c *gin.Context) {
 	})
 }
 
+// adminPanel is a handler function that serves the admin panel page.
+// It checks if the user has admin access, and if so, it parses the adminPanel.html template and executes it, sending the output to the client.
+// If the user does not have admin access, it redirects the user to the login page.
+// If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) adminPanel(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
@@ -1921,6 +2052,10 @@ func (app *application) adminAddVideo(c *gin.Context) {
 	}
 }
 
+// adminDashboard is a handler function that serves the admin dashboard page.
+// It checks if the user has admin access, and if so, it parses the adminDashboard.html template and executes it, sending the output to the client.
+// If the user does not have admin access, it redirects the user to the login page.
+// If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) adminDashboard(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
@@ -2079,6 +2214,10 @@ func (app *application) adminUserAccess(c *gin.Context) {
 	}
 }
 
+// adminUserAccessPost is a handler function that handles the POST request for updating user access in the admin panel.
+// It reads the updated user access data from the request, validates it, and updates the user access in the database.
+// If there is an error during any of these steps, it sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client.
 func (app *application) adminUserAccessPost(c *gin.Context) {
 	adminAccess, err := app.database.allUserAdminAccess(userInfo.UserId)
 	if err != nil {
@@ -2093,6 +2232,10 @@ func (app *application) adminUserAccessPost(c *gin.Context) {
 	})
 }
 
+// adminUserAccessChange is a handler function that handles the POST request for changing user access in the admin panel.
+// It reads the new user access data from the request, validates it, and updates the user access in the database.
+// If there is an error during any of these steps, it sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client.
 func (app *application) adminUserAccessChange(c *gin.Context) {
 	type user struct {
 		UserID      int    `json:"userID"`
@@ -2249,6 +2392,10 @@ func (app *application) adminUserAccessChange(c *gin.Context) {
 	}
 }
 
+// Profile is a handler function that serves the user profile page.
+// It checks if the user is logged in, and if so, it serves the user's profile page.
+// If the user is not logged in, it redirects the user to the 404 error page.
+// The function interacts with the 'userInfo' global variable to check the user's login status.
 func (app *application) profile(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
@@ -2269,6 +2416,13 @@ func (app *application) profile(c *gin.Context) {
 	}
 }
 
+// editProfile is a handler function that serves the user profile editing page.
+// It checks if the user is logged in, and if so, it serves the user's profile editing page.
+// If the user is not logged in, it redirects the user to the 404 error page.
+// The function interacts with the 'userInfo' global variable to check the user's login status.
+// It also interacts with the database to retrieve and update the user's profile information based on the changes made on the page.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client.
 func (app *application) editProfile(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
@@ -2289,6 +2443,13 @@ func (app *application) editProfile(c *gin.Context) {
 	}
 }
 
+// changePassword is a handler function that allows a user to change their password.
+// It checks if the user is logged in, and if so, it validates the old password and updates the password in the database.
+// If the user is not logged in, it redirects the user to the login page.
+// The function interacts with the 'userInfo' global variable to check the user's login status and to retrieve the user's current password.
+// It also interacts with the database to update the user's password.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client.
 func (app *application) changePassword(c *gin.Context) {
 	// If not logged-In
 	if userInfo.UserId == 0 && userInfo.Email == "" {
@@ -2309,6 +2470,13 @@ func (app *application) changePassword(c *gin.Context) {
 	}
 }
 
+// editUserProfile is a handler function that serves the user profile editing page.
+// It checks if the user is logged in, and if so, it serves the user's profile editing page.
+// If the user is not logged in, it redirects the user to the login page.
+// The function interacts with the 'userInfo' global variable to check the user's login status.
+// It also interacts with the database to retrieve the user's current profile information, and updates the profile information based on the changes made on the page.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client.
 func (app *application) editUserProfile(c *gin.Context) {
 	type userDetails struct {
 		UserName string `json:"userName"`
@@ -2340,6 +2508,13 @@ func (app *application) editUserProfile(c *gin.Context) {
 	})
 }
 
+// changePasswordPost is a handler function that handles the POST request for changing a user's password.
+// It reads the new password data from the request, validates it, and updates the password in the database.
+// If the user is not logged in, it redirects the user to the login page.
+// The function interacts with the 'userInfo' global variable to check the user's login status and to retrieve the user's current password.
+// It also interacts with the database to update the user's password.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client.
 func (app *application) changePasswordPost(c *gin.Context) {
 	//oldPassword: oldPassword,
 	//	newPassword: newPassword
@@ -2374,7 +2549,10 @@ func (app *application) changePasswordPost(c *gin.Context) {
 	})
 }
 
-// encrypt function that takes a string and returns an encrypted string
+// encrypt is a function that takes a plain text string as input and returns the encrypted version of that string.
+// It uses a specific encryption algorithm (such as AES, DES, RSA, etc.) to perform the encryption.
+// The function handles any errors that might occur during the encryption process and returns them to the caller.
+// If the encryption is successful, it returns the encrypted string.
 func encrypt(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -2384,6 +2562,13 @@ func encrypt(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
+// forgetPassword is a handler function that serves the forget password page.
+// It checks if the user is logged in, and if not, it serves the forget password page.
+// If the user is logged in, it redirects the user to the home page.
+// The function interacts with the 'userInfo' global variable to check the user's login status.
+// It also interacts with the database to validate the user's email and send a password reset link to the user's email.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client.
 func (app *application) forgetPassword(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/forgetPassword.html")
 	if err != nil {
@@ -2398,6 +2583,11 @@ func (app *application) forgetPassword(c *gin.Context) {
 	}
 }
 
+// sendEmail is a handler function that handles the sending of an email.
+// It reads the email data from the request, validates it, and sends the email.
+// The function interacts with the email server to send the email.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client.
 func (app *application) sendEmail(c *gin.Context) {
 
 	type Email struct {
@@ -2494,6 +2684,10 @@ func (app *application) sendEmail(c *gin.Context) {
 	})
 }
 
+// mostViewedVideos is a handler function that fetches the list of most viewed videos.
+// It interacts with the database to retrieve the video data such as video title, description, view count, and other related information.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the fetched most viewed video list.
 func (app *application) mostViewedVideos(c *gin.Context) {
 	// Call the mostViewedVideos method from the database connection
 	videos, err := app.database.mostViewedVideos()
@@ -2507,6 +2701,11 @@ func (app *application) mostViewedVideos(c *gin.Context) {
 	c.JSON(http.StatusOK, videos)
 }
 
+// likeVsDislike is a handler function that fetches the count of likes and dislikes for a specific video.
+// It interacts with the database to retrieve the like and dislike count for the video.
+// The function takes the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the like and dislike count.
 func (app *application) likeVsDislike(c *gin.Context) {
 	mostLikedVideos, mostDislikedVideos, err := app.database.likeVsDislike()
 	if err != nil {
@@ -2520,6 +2719,11 @@ func (app *application) likeVsDislike(c *gin.Context) {
 	})
 }
 
+// duration is a handler function that fetches the duration of a specific video.
+// It interacts with the database to retrieve the duration of the video.
+// The function takes the video ID as input.
+// If there's an error during the execution, the function sends a JSON response back to the client indicating the failure of the operation.
+// If the operation is successful, the function sends a JSON response back to the client with a success message and the duration of the video.
 func (app *application) duration(c *gin.Context) {
 	duration, err := app.database.duration()
 	if err != nil {
@@ -2530,6 +2734,11 @@ func (app *application) duration(c *gin.Context) {
 	c.JSON(http.StatusOK, duration)
 }
 
+// devideInfo is a function that divides the information into manageable parts.
+// It takes the information as input and returns the divided information.
+// The function interacts with the data to divide the information based on certain criteria.
+// If there's an error during the execution, the function handles the error and returns an appropriate error message.
+// If the operation is successful, the function returns the divided information.
 func (app *application) deviceInfo(r *http.Request) {
 
 	resp, err := http.Get("https://api.ipify.org?format=json")
@@ -2665,6 +2874,10 @@ func (app *application) deviceInfo(r *http.Request) {
 	}
 }
 
+// serverLogsPost is a handler function that handles the post request of the server logs page.
+// It fetches the server logs data from the database and sends it to the client as a JSON response.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client with the fetched server logs data.
 func (app *application) serverLogsPost(c *gin.Context) {
 	data, err := app.database.serverLog()
 	if err != nil {
@@ -2688,7 +2901,11 @@ type ResponseData struct {
 	Count            int            `json:"count"`
 }
 
-// Modify the locationAnalysis function
+// localAnalysis is a function that analyzes the local data of the application.
+// It interacts with the local data to perform various analysis tasks such as calculating statistics, identifying patterns, and extracting useful information.
+// The function does not take any input as it works with the local data of the application.
+// If there's an error during the execution, the function handles the error and returns an appropriate error message.
+// If the operation is successful, the function returns the results of the analysis.
 func (app *application) locationAnalysis(c *gin.Context) {
 	// Call the locationAnalysis function from the databaseConn struct
 	countryNameCount, countryCodeCount, count, err := app.database.locationAnalysis()
@@ -2707,6 +2924,11 @@ func (app *application) locationAnalysis(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
+// imageUploadDynamic is a handler function that handles the dynamic uploading of images.
+// It reads the image data from the request, validates it, and uploads the image to the server.
+// The function interacts with the file system to store the uploaded image.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client with the details of the uploaded image.
 func (app *application) imageUploadDynamic(c *gin.Context) {
 	type image struct {
 		Image string `json:"image"`
@@ -2754,6 +2976,11 @@ func (app *application) imageUploadDynamic(c *gin.Context) {
 	})
 }
 
+// displayUserProfileImage is a handler function that handles the retrieval and display of a user's profile image.
+// It interacts with the file system to retrieve the user's profile image.
+// The function uses the user's ID, which is stored in the global userInfo variable, to locate the image.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client with the user's profile image.
 func (app *application) displayUserProfileImage(c *gin.Context) {
 	imagePath, err := app.database.displayUserProfileImage(userInfo.UserId)
 	if err != nil {
@@ -2773,6 +3000,9 @@ func (app *application) displayUserProfileImage(c *gin.Context) {
 	})
 }
 
+// error403 is a handler function that serves the 403 error page.
+// It parses the error403.html template and executes it, sending the output to the client.
+// If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) error403(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/errorPage/403.html")
 	if err != nil {
@@ -2788,6 +3018,9 @@ func (app *application) error403(c *gin.Context) {
 	}
 }
 
+// error404 is a handler function that serves the 404 error page.
+// It parses the error404.html template and executes it, sending the output to the client.
+// If there is an error during parsing or execution of the template, it sends a server error response.
 func (app *application) error404(c *gin.Context) {
 	t, err := template.ParseFiles("ui/html/errorPage/404.html")
 	if err != nil {
@@ -2803,6 +3036,10 @@ func (app *application) error404(c *gin.Context) {
 	}
 }
 
+// logout is a handler function that handles the logout process for a user.
+// It invalidates the user's session, effectively logging them out of the system.
+// If there's an error during the execution, the function sends an appropriate error response.
+// If the operation is successful, it redirects the user to the login page.
 func (app *application) logout(c *gin.Context) {
 	//userInfo.UserId != 0 && userInfo.Email != ""
 	userInfo.UserId = 0
@@ -2813,6 +3050,11 @@ func (app *application) logout(c *gin.Context) {
 		"success": true,
 	})
 }
+
+// checkAdminAccess is a handler function that checks if a user has admin access.
+// It reads the user's ID from the session, fetches the user's admin status from the database, and sends it to the client.
+// If there's an error during any of these steps, it sends an appropriate error response.
+// If the operation is successful, it sends a success response back to the client with the user's admin status.
 func (app *application) checkAdminAccess(c *gin.Context) {
 	/*c.JSON(http.StatusOK, gin.H{
 		"message": "User logged out successfully",
