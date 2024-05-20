@@ -1,20 +1,91 @@
-<h2 class="graph-title">Views count</h2>
-<canvas id="viewsChart"></canvas>
-<h2 class="graph-title">Likes and Dislikes count</h2>
-<canvas id="likesDislikesChart"></canvas>
-<h2 class="graph-title">Video durations</h2>
-<canvas id="durationChart"></canvas>
+<div class="card-container">
+    <div class="card" id="views-count-graph">
+        <h2 class="graph-title views-count-title">Views count</h2>
+        <canvas id="viewsChart" class="views-count-graph"></canvas>
+    </div>
+    <div class="card" id="likes-dislikes-graph">
+        <h2 class="graph-title like-dislike-title">Likes and Dislikes count</h2>
+        <canvas id="likesDislikesChart" class="views-count-graph"></canvas>
+    </div>
+    <div class="card" id="video-duration-graph">
+        <h2 class="graph-title video-duration-title">Video durations</h2>
+        <canvas id="durationChart" class="video-duration-graph"></canvas>
+    </div>
+</div>
+
+<!-- Add a modal that will contain the expanded graph -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="modal-title"></h2>
+    <canvas id="modalChart"></canvas>
+  </div>
+</div>
 
 <style>
-    .graph-title {
-        text-align: center;
-        margin-top: 20px;
-        color: white;
-    }
+.card-container {
+    display: flex;
+    flex-direction: row;
+}
 
-    canvas {
-        width: 100%;
-        height: 300px;
-        margin-top: 20px;
-    }
+.card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 5px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    width: 40%; /* Adjust this value as needed */
+}
+
+.graph-title {
+    text-align: center;
+    margin-top: 20px;
+    color: white;
+}
+
+canvas {
+    height: 60px; /* Adjust this value as needed */
+    margin-top: 20px;
+}
+
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #0e121a;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    color: #ffffff; /* Add this line to change the text color to white */
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 </style>
