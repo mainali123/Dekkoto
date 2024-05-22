@@ -720,6 +720,11 @@ type videoActionInfo struct {
 	Dropped     int
 }
 
+// userProfileVideosData is a function that retrieves the video action data for a user.
+// It takes in one parameter: userID.
+// It queries the database for the count of different video actions (like recommends, watching, completed, on-hold, considering, dropped) performed by the user with the provided userID.
+// It returns a struct of type videoActionInfo containing the counts of different video actions and nil if the query is successful.
+// It returns an empty videoActionInfo struct and an error if the query fails.
 func (db *databaseConn) userProfileVideosData(userID int) (videoActionInfo, error) {
 	// set value fo videoActionInfo to 0 by default
 	videoActionInfo := videoActionInfo{
@@ -771,6 +776,11 @@ func (db *databaseConn) userProfileVideosData(userID int) (videoActionInfo, erro
 	return videoActionInfo, nil
 }
 
+// watchingVideos is a function that retrieves the videos that a user is currently watching.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID is currently watching.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) watchingVideos(userID int) ([]VideoDesc, error) {
 	// Query the videoactions table for videos that the user is currently watching
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Watching = 1 ORDER BY ActionsDate DESC, ActionTime DESC LIMIT 8", userID)
@@ -817,6 +827,11 @@ func (db *databaseConn) watchingVideos(userID int) ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// onHoldVideos is a function that retrieves the videos that a user has put on hold.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID has put on hold.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) onHoldVideos(userID int) ([]VideoDesc, error) {
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND On_hold = 1 ORDER BY ActionsDate DESC, ActionTime DESC LIMIT 8", userID)
 	if err != nil {
@@ -861,6 +876,11 @@ func (db *databaseConn) onHoldVideos(userID int) ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// consideringVideos is a function that retrieves the videos that a user is considering to watch.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID is considering to watch.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) consideringVideos(userID int) ([]VideoDesc, error) {
 	// Query the videoactions table for videos that the user is considering to watch
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Considering = 1 ORDER BY ActionsDate DESC, ActionTime DESC LIMIT 8", userID)
@@ -924,7 +944,11 @@ type recentlyCompletedVideoStruct struct {
 	CompletedDate string
 }
 
-// recentlyCompletedVideos
+// recentlyCompletedVideos is a function that retrieves the videos that a user has recently completed watching.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID has recently marked as completed.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) recentlyCompletedVideos(userID int) ([]recentlyCompletedVideoStruct, error) {
 	// Query the videoactions table for videos that the user has recently completed
 	rows, err := db.DB.Query("SELECT VideoID, ActionsDate FROM videoactions WHERE UserID = ? AND Completed = 1 ORDER BY ActionsDate DESC, ActionTime DESC LIMIT 10", userID)
@@ -980,6 +1004,11 @@ func (db *databaseConn) recentlyCompletedVideos(userID int) ([]recentlyCompleted
 	return videos, nil
 }
 
+// userDetails is a function that retrieves the details of a user.
+// It takes in one parameter: userID.
+// It queries the database for the username, email, and admin status of the user with the provided userID.
+// It returns the username, email, admin status, and nil if the user exists.
+// It returns empty strings and an error if the user does not exist or if the query fails.
 func (db *databaseConn) userDetails(userID int) (string, string, string, error) {
 	var userName, email, isAdmin string
 	query := "SELECT UserName, Email, Admin FROM users WHERE UserID = ?"
@@ -993,6 +1022,11 @@ func (db *databaseConn) userDetails(userID int) (string, string, string, error) 
 	return userName, email, isAdmin, nil
 }
 
+// recommendedVideoListDatabase is a function that retrieves the videos that a user has recommended.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID has recommended.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) recommendedVideoListDatabase(userID int) ([]VideoDesc, error) {
 	// Query the videoactions table for videos that the user has recommended
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Recommends = 1", userID)
@@ -1039,6 +1073,11 @@ func (db *databaseConn) recommendedVideoListDatabase(userID int) ([]VideoDesc, e
 	return videos, nil
 }
 
+// watchingVideoListDatabase is a function that retrieves the videos that a user is currently watching.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID is currently watching.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) watchingVideoListDatabase(userID int) ([]VideoDesc, error) {
 	// Query the videoactions table for videos that the user is currently watching
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Watching = 1", userID)
@@ -1085,6 +1124,11 @@ func (db *databaseConn) watchingVideoListDatabase(userID int) ([]VideoDesc, erro
 	return videos, nil
 }
 
+// completedVideoListDatabase is a function that retrieves the videos that a user has completed watching.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID has marked as completed.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) completedVideoListDatabase(userID int) ([]VideoDesc, error) {
 	// Query the videoactions table for videos that the user has completed
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Completed = 1", userID)
@@ -1131,6 +1175,11 @@ func (db *databaseConn) completedVideoListDatabase(userID int) ([]VideoDesc, err
 	return videos, nil
 }
 
+// onHoldVideoListDatabase is a function that retrieves the videos that a user has put on hold.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID has put on hold.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) onHoldVideoListDatabase(userID int) ([]VideoDesc, error) {
 	// Query the videoactions table for videos that the user has put on hold
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND On_hold = 1", userID)
@@ -1177,6 +1226,11 @@ func (db *databaseConn) onHoldVideoListDatabase(userID int) ([]VideoDesc, error)
 	return videos, nil
 }
 
+// consideringVideoListDatabase is a function that retrieves the videos that a user is considering to watch.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID is considering to watch.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) consideringVideoListDatabase(userID int) ([]VideoDesc, error) {
 	// Query the videoactions table for videos that the user is considering
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Considering = 1", userID)
@@ -1223,6 +1277,11 @@ func (db *databaseConn) consideringVideoListDatabase(userID int) ([]VideoDesc, e
 	return videos, nil
 }
 
+// droppedVideoListDatabase is a function that retrieves the videos that a user has dropped.
+// It takes in one parameter: userID.
+// It queries the database for the video descriptions of the videos that the user with the provided userID has dropped.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) droppedVideoListDatabase(userID int) ([]VideoDesc, error) {
 	// Query the videoactions table for videos that the user has dropped
 	rows, err := db.DB.Query("SELECT VideoID FROM videoactions WHERE UserID = ? AND Dropped = 1", userID)
@@ -1269,6 +1328,10 @@ func (db *databaseConn) droppedVideoListDatabase(userID int) ([]VideoDesc, error
 	return videos, nil
 }
 
+// commentOnVideo is a function that allows a user to comment on a video.
+// It takes in three parameters: userID, videoID, and comment.
+// It inserts a new record into the comments table in the database with the provided userID, videoID, and comment.
+// It returns an error if the insertion fails.
 func (db *databaseConn) commentOnVideo(userID int, videoID int, comment string) error {
 
 	// Check if the user has already commented on the video
@@ -1317,6 +1380,12 @@ type Comment struct {
 	ImageURL    string
 }
 
+// getComments is a function that retrieves the comments for a video.
+// It takes in one parameter: videoID.
+// It queries the database for the comments on the video with the provided videoID.
+// It returns a slice of Comment structs and nil if the query is successful.
+// Each Comment struct contains the comment ID, user ID, video ID, username, comment text, comment date, upvotes, downvotes, and image URL.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
 	query := `SELECT C.CommentID, C.UserID, C.VideoID, U.UserName, C.CommentText, C.CommentDate, 
 				COALESCE(SUM(CA.Upvotes), 0) AS Upvotes, COALESCE(SUM(CA.Downvotes), 0) AS Downvotes, 
@@ -1350,6 +1419,10 @@ func (db *databaseConn) getComments(videoID int) ([]Comment, error) {
 	return comments, nil
 }
 
+// upvoteComment is a function that allows a user to upvote a comment.
+// It takes in two parameters: commentID and userID.
+// It updates the upvotes count for the comment with the provided commentID in the database.
+// It returns an error if the update fails.
 func (db *databaseConn) upvoteComment(commentID int, userID int) error {
 	// Check if the comment exists
 	var exists int
@@ -1393,6 +1466,10 @@ func (db *databaseConn) upvoteComment(commentID int, userID int) error {
 	return err
 }
 
+// reverseUpvoteComment is a function that allows a user to reverse their upvote on a comment.
+// It takes in two parameters: commentID and userID.
+// It updates the upvotes count for the comment with the provided commentID in the database, effectively reversing the upvote.
+// It returns an error if the update fails.
 func (db *databaseConn) reverseUpvoteComment(commentID int, userID int) error {
 	// Check if the comment exists
 	//var exists int
@@ -1418,6 +1495,10 @@ func (db *databaseConn) reverseUpvoteComment(commentID int, userID int) error {
 	return err
 }
 
+// downvoteComment is a function that allows a user to downvote a comment.
+// It takes in two parameters: commentID and userID.
+// It updates the downvotes count for the comment with the provided commentID in the database.
+// It returns an error if the update fails.
 func (db *databaseConn) downvoteComment(commentID int, userID int) error {
 	// Check if the comment exists
 	var exists int
@@ -1462,6 +1543,10 @@ func (db *databaseConn) downvoteComment(commentID int, userID int) error {
 	return err
 }
 
+// reverseDownvoteComment is a function that allows a user to reverse their downvote on a comment.
+// It takes in two parameters: commentID and userID.
+// It updates the downvotes count for the comment with the provided commentID in the database, effectively reversing the downvote.
+// It returns an error if the update fails.
 func (db *databaseConn) reverseDownvoteComment(commentID int, userID int) error {
 	// Check if the comment exists
 	var exists int
@@ -1502,6 +1587,12 @@ type commentDetails struct {
 	VideoID   int
 }
 
+// commentDetails is a function that retrieves the details of a comment.
+// It takes in two parameters: videoID and userID.
+// It queries the database for the upvotes, downvotes, commentID, and videoID of the comment on the video with the provided videoID made by the user with the provided userID.
+// It returns a slice of commentDetails structs and nil if the query is successful.
+// Each commentDetails struct contains the upvotes, downvotes, commentID, and videoID.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) commentDetails(videoID int, userID int) ([]commentDetails, error) {
 	// Prepare the SQL query
 	query := `SELECT c.CommentID, c.VideoID, ca.Upvotes, ca.Downvotes
@@ -1535,6 +1626,10 @@ func (db *databaseConn) commentDetails(videoID int, userID int) ([]commentDetail
 	return details, nil
 }
 
+// likeVideo is a function that allows a user to like a video.
+// It takes in two parameters: videoID and userID.
+// It updates the likes count for the video with the provided videoID in the database.
+// It returns an error if the update fails.
 func (db *databaseConn) likeVideo(videoID int, userID int) error {
 
 	queryToCheck := "SELECT Recommends FROM videoactions WHERE VideoID = ? AND UserID = ?"
@@ -1580,6 +1675,10 @@ func (db *databaseConn) likeVideo(videoID int, userID int) error {
 	return nil
 }
 
+// reverseLikeVideo is a function that allows a user to reverse their like on a video.
+// It takes in two parameters: videoID and userID.
+// It updates the likes count for the video with the provided videoID in the database, effectively reversing the like.
+// It returns an error if the update fails.
 func (db *databaseConn) reverseLikeVideo(videoID int, userID int) error {
 	// Prepare the SQL query to decrement the LikesCount field
 	query := "UPDATE videos SET LikesCount = LikesCount - 1 WHERE VideoID = ?"
@@ -1607,6 +1706,10 @@ func (db *databaseConn) reverseLikeVideo(videoID int, userID int) error {
 	return nil
 }
 
+// dislikeVideo is a function that allows a user to dislike a video.
+// It takes in two parameters: videoID and userID.
+// It updates the dislikes count for the video with the provided videoID in the database.
+// It returns an error if the update fails.
 func (db *databaseConn) dislikeVideo(videoID int, userID int) error {
 
 	queryToCheck := "SELECT Recommends FROM videoactions WHERE VideoID = ? AND UserID = ?"
@@ -1653,6 +1756,10 @@ func (db *databaseConn) dislikeVideo(videoID int, userID int) error {
 	return nil
 }
 
+// reverseDislikeVideo is a function that allows a user to reverse their dislike on a video.
+// It takes in two parameters: videoID and userID.
+// It updates the dislikes count for the video with the provided videoID in the database, effectively reversing the dislike.
+// It returns an error if the update fails.
 func (db *databaseConn) reverseDislikeVideo(videoID int, userID int) error {
 	// Prepare the SQL query to decrement the DislikesCount field
 	query := "UPDATE videos SET DislikesCount = DislikesCount - 1 WHERE VideoID = ?"
@@ -1679,6 +1786,11 @@ func (db *databaseConn) reverseDislikeVideo(videoID int, userID int) error {
 	return nil
 }
 
+// isLikedDisliked is a function that checks if a user has liked or disliked a video.
+// It takes in two parameters: videoID and userID.
+// It queries the database for the 'Recommends' status of the video with the provided videoID for the user with the provided userID.
+// It returns the 'Recommends' status, which is 1 if the user has liked the video, -1 if the user has disliked the video, and 0 if the user has not actioned on the video.
+// It also returns an error if the query fails.
 func (db *databaseConn) isLikedDisliked(videoID int, userID int) (int, int, error) {
 	// Prepare the SQL query to check if the user has liked or disliked the video
 	query := "SELECT Recommends FROM videoactions WHERE VideoID = ? AND UserID = ?"
@@ -1707,6 +1819,11 @@ func (db *databaseConn) isLikedDisliked(videoID int, userID int) (int, int, erro
 	}
 }
 
+// likeDislikeCount is a function that retrieves the count of likes and dislikes for a video.
+// It takes in one parameter: videoID.
+// It queries the database for the count of 'Recommends' status of the video with the provided videoID.
+// It returns the count of likes and dislikes, and nil if the query is successful.
+// It returns 0 for both counts and an error if the query fails.
 func (db *databaseConn) likeDislikeCount(videoID int) (int, int, error) {
 	// Prepare the SQL query to get the LikesCount and DislikesCount fields
 	query := "SELECT LikesCount, DislikesCount FROM videos WHERE VideoID = ?"
@@ -1729,6 +1846,12 @@ func (db *databaseConn) likeDislikeCount(videoID int) (int, int, error) {
 	return likesCount, dislikesCount, nil
 }
 
+// autoComplete is a function that retrieves a list of video descriptions for auto-completion purposes.
+// It does not take any parameters.
+// It queries the database for the video descriptions of all videos.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// Each VideoDesc struct contains the details of a video, including the video ID, title, description, uploader ID, upload date, duration, category ID, genre, likes count, dislikes count, views count, and video URL.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) autoComplete() ([]VideoDesc, error) {
 	// Prepare the SQL query
 	query := "SELECT * FROM videos"
@@ -1757,6 +1880,11 @@ func (db *databaseConn) autoComplete() ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// editUserProfile is a function that allows a user to edit their profile.
+// It takes in three parameters: userName, email, and prevEmail.
+// It first checks if a user with the provided prevEmail exists in the database.
+// If the user exists, it updates the user's userName and email in the database to the provided userName and email.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) editUserProfile(userName string, email string, prevEmail string) error {
 	query := "UPDATE users SET UserName = ?, Email = ? WHERE Email = ?"
 	_, err := db.DB.Exec(query, userName, email, prevEmail)
@@ -1766,7 +1894,12 @@ func (db *databaseConn) editUserProfile(userName string, email string, prevEmail
 	return nil
 }
 
-// pass.OldPassword, pass.NewPassword, userInfo.Email
+// ChangePassword is a function that allows a user to change their password.
+// It takes in three parameters: oldPassword, newPassword, and email.
+// It first checks if a user with the provided email exists in the database.
+// If the user exists, it verifies the oldPassword with the password in the database.
+// If the oldPassword is correct, it updates the user's password in the database to the provided newPassword.
+// It returns an error if the user does not exist, if the oldPassword is incorrect, or if the update fails.
 func (db *databaseConn) changePassword(oldPassword string, newPassword string, email string) error {
 	query := "SELECT Password FROM users WHERE Email = ?"
 	row := db.DB.QueryRow(query, email)
@@ -1794,6 +1927,11 @@ func (db *databaseConn) changePassword(oldPassword string, newPassword string, e
 	return nil
 }
 
+// resetPassword is a function that allows a user to reset their password.
+// It takes in two parameters: email and password.
+// It first checks if a user with the provided email exists in the database.
+// If the user exists, it updates the user's password in the database to the provided password.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) resetPassword(email string, password string) error {
 	fmt.Println("Reset password is triggered with email: ", email, "and password: ", password)
 	query := "SELECT Email FROM users WHERE Email = ?"
@@ -1816,6 +1954,12 @@ func (db *databaseConn) resetPassword(email string, password string) error {
 	return nil
 }
 
+// mostViewedVideos is a function that retrieves the most viewed videos.
+// It does not take any parameters.
+// It queries the database for the video descriptions of the videos sorted by views count in descending order.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// Each VideoDesc struct contains the details of a video, including the video ID, title, description, uploader ID, upload date, duration, category ID, genre, likes count, dislikes count, views count, and video URL.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) mostViewedVideos() ([]VideoDesc, error) {
 	// Prepare the SQL query
 	query := "SELECT * FROM videos ORDER BY ViewsCount DESC LIMIT 10"
@@ -1844,6 +1988,13 @@ func (db *databaseConn) mostViewedVideos() ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// likeVsDislike is a function that retrieves the videos with the most likes and dislikes.
+// It does not take any parameters.
+// It queries the database for the video descriptions of the videos sorted by likes count and dislikes count in descending order.
+// It returns two slices of VideoDesc structs and nil if the query is successful.
+// The first slice contains the videos with the most likes, and the second slice contains the videos with the most dislikes.
+// Each VideoDesc struct contains the details of a video, including the video ID, title, description, uploader ID, upload date, duration, category ID, genre, likes count, dislikes count, views count, and video URL.
+// It returns nil for both slices and an error if the query fails.
 func (db *databaseConn) likeVsDislike() ([]VideoDesc, []VideoDesc, error) {
 	// Initialize a map to keep track of already selected video IDs
 	selectedVideoIDs := make(map[int]bool)
@@ -1909,6 +2060,12 @@ func (db *databaseConn) likeVsDislike() ([]VideoDesc, []VideoDesc, error) {
 	return likedVideos, dislikedVideos, nil
 }
 
+// duration is a function that retrieves the duration of videos.
+// It does not take any parameters.
+// It queries the database for the duration of all videos.
+// It returns a slice of VideoDesc structs and nil if the query is successful.
+// Each VideoDesc struct contains the details of a video, including the video ID, title, description, uploader ID, upload date, duration, category ID, genre, likes count, dislikes count, views count, and video URL.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) duration() ([]VideoDesc, error) {
 	// Prepare the SQL query
 	query := "SELECT * FROM videos ORDER BY ViewsCount"
@@ -1937,6 +2094,12 @@ func (db *databaseConn) duration() ([]VideoDesc, error) {
 	return videos, nil
 }
 
+// deviceInfo is a function that retrieves the information about a device.
+// It does not take any parameters.
+// It queries the system or database for the details of the device, including the device ID, model, manufacturer, OS version, and other relevant details.
+// It returns a struct containing the device details and nil if the query is successful.
+// Each device detail struct contains the details of a device, including the device ID, model, manufacturer, OS version, and other relevant details.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) deviceInfo(IP string, deviceType string, deviceOS string, browser string, loginTime string, countryCode string, countryName string, regionName string, cityName string, latitude float64, longitude float64, zipCode string, timeZone string, asn string, as_ string, isProxy bool) error {
 	// Prepare the SQL query to select a record
 	query := `SELECT LastLogin FROM ServerLogs WHERE IP = ? AND device_type = ? AND device_os = ? AND Browser = ? AND country_code = ? AND country_name = ? AND region_name = ? AND city_name = ?`
@@ -2017,6 +2180,13 @@ type ServerLog struct {
 	IsProxy     bool
 }
 
+// serverLog is a function that retrieves the server logs.
+// It does not take any parameters.
+// It queries the database for all server logs.
+// Each server log contains details such as IP, device type, device OS, browser, login time, country code, country name, region name, city name, latitude, longitude, zip code, time zone, ASN, AS, and whether it is a proxy.
+// It returns a slice of ServerLog structs and nil if the query is successful.
+// Each ServerLog struct contains the details of a server log.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) serverLog() ([]ServerLog, error) {
 	// Prepare the SQL query
 	//query := "SELECT * FROM serverlogs"
@@ -2047,6 +2217,16 @@ func (db *databaseConn) serverLog() ([]ServerLog, error) {
 	return logs, nil
 }
 
+// locationAnalysis is a function that performs an analysis of user locations.
+// It does not take any parameters.
+// It queries the database for all server logs and groups them by country name and country code.
+// It counts the number of occurrences for each country name and country code.
+// It also counts the total number of server logs.
+// It returns four values:
+// 1. A map where the keys are country names and the values are the counts of each country name.
+// 2. A map where the keys are country codes and the values are the counts of each country code.
+// 3. The total count of server logs.
+// 4. An error if the query fails.
 func (db *databaseConn) locationAnalysis() (map[string]int, map[string]int, int, error) {
 	// Prepare the SQL query
 	query := "SELECT country_name, country_code FROM ServerLogs"
@@ -2098,6 +2278,12 @@ type VideoDescEdit struct {
 	GenreName     string
 }
 
+// allVideoList is a function that retrieves a list of all videos.
+// It does not take any parameters.
+// It queries the database for the details of all videos, including the video ID, title, description, URL, thumbnail URL, uploader ID, upload date, views count, likes count, dislikes count, duration, category ID, genre ID, category name, and genre name.
+// It returns a slice of VideoDescEdit structs and nil if the query is successful.
+// Each VideoDescEdit struct contains the details of a video, including the video ID, title, description, URL, thumbnail URL, uploader ID, upload date, views count, likes count, dislikes count, duration, category ID, genre ID, category name, and genre name.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) allVideoList() ([]VideoDescEdit, error) {
 	// Prepare the SQL query
 	query := "SELECT * FROM videos"
@@ -2127,6 +2313,13 @@ func (db *databaseConn) allVideoList() ([]VideoDescEdit, error) {
 	return videos, nil
 }
 
+// saveUserProfile is a function that saves the profile image of a user.
+// It takes in two parameters: imageFileName and userID.
+// The imageFileName is the name of the image file to be saved.
+// The userID is the ID of the user whose profile image is to be saved.
+// It first checks if a user with the provided userID exists in the database.
+// If the user exists, it updates the user's profile image in the database to the provided imageFileName.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) saveUserProfile(imageFileName string, userID int) error {
 	// check if the user exists
 	query := "SELECT COUNT(*) FROM users WHERE UserID = ?"
@@ -2180,6 +2373,12 @@ func (db *databaseConn) saveUserProfile(imageFileName string, userID int) error 
 	return nil
 }
 
+// displayUserProfileImage is a function that retrieves the profile image of a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user whose profile image is to be retrieved.
+// It queries the database for the profile image URL of the user with the provided userID.
+// It returns the profile image URL and nil if the user exists and has a profile image.
+// It returns an empty string and an error if the user does not exist, does not have a profile image, or if the query fails.
 func (db *databaseConn) displayUserProfileImage(userID int) (string, error) {
 	query := "SELECT ImageURL FROM userprofileimages WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2204,6 +2403,14 @@ type access struct {
 	UserAccess       int    `json:"user_access"`
 }
 
+// allUserAdminAccess is a function that retrieves the admin access details for all users.
+// It takes in one parameter: userID.
+// The userID is the ID of the user whose admin access details are to be retrieved.
+// It queries the database for the admin access details of the user with the provided userID.
+// The admin access details include user ID, user name, email, dashboard access, upload access, edit/delete access, analytics access, server log access, and user access.
+// It returns a slice of 'access' structs and nil if the query is successful.
+// Each 'access' struct contains the admin access details of a user.
+// It returns nil and an error if the query fails.
 func (db *databaseConn) allUserAdminAccess(userID int) ([]access, error) {
 	// Initialize a slice to hold the access objects
 	var accesses []access
@@ -2234,6 +2441,11 @@ func (db *databaseConn) allUserAdminAccess(userID int) ([]access, error) {
 	return accesses, nil
 }
 
+// giveDashboardAccess is a function that grants dashboard access to a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to be granted dashboard access.
+// It updates the 'Dashboard' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively granting them dashboard access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) giveDashboardAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2258,6 +2470,11 @@ func (db *databaseConn) giveDashboardAccess(userID int) error {
 	return nil
 }
 
+// removeDashboardAccess is a function that revokes dashboard access from a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to have their dashboard access revoked.
+// It updates the 'Dashboard' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively revoking their dashboard access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) removeDashboardAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2277,6 +2494,11 @@ func (db *databaseConn) removeDashboardAccess(userID int) error {
 	return nil
 }
 
+// giveUploadAccess is a function that grants upload access to a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to be granted upload access.
+// It updates the 'Upload' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively granting them upload access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) giveUploadAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2301,6 +2523,11 @@ func (db *databaseConn) giveUploadAccess(userID int) error {
 	return nil
 }
 
+// removeUploadAccess is a function that revokes upload access from a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to have their upload access revoked.
+// It updates the 'Upload' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively revoking their upload access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) removeUploadAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2320,6 +2547,11 @@ func (db *databaseConn) removeUploadAccess(userID int) error {
 	return nil
 }
 
+// giveEditDeleteAccess is a function that grants edit and delete access to a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to be granted edit and delete access.
+// It updates the 'Edit_Delete' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively granting them edit and delete access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) giveEditDeleteAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2344,6 +2576,11 @@ func (db *databaseConn) giveEditDeleteAccess(userID int) error {
 	return nil
 }
 
+// removeEditDeleteAccess is a function that revokes edit and delete access from a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to have their edit and delete access revoked.
+// It updates the 'Edit_Delete' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively revoking their edit and delete access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) removeEditDeleteAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2363,6 +2600,11 @@ func (db *databaseConn) removeEditDeleteAccess(userID int) error {
 	return nil
 }
 
+// giveAnalyticsAccess is a function that grants analytics access to a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to be granted analytics access.
+// It updates the 'Analytics' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively granting them analytics access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) giveAnalyticsAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2387,6 +2629,11 @@ func (db *databaseConn) giveAnalyticsAccess(userID int) error {
 	return nil
 }
 
+// removeAnalyticsAccess is a function that revokes analytics access from a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to have their analytics access revoked.
+// It updates the 'Analytics' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively revoking their analytics access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) removeAnalyticsAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2406,6 +2653,11 @@ func (db *databaseConn) removeAnalyticsAccess(userID int) error {
 	return nil
 }
 
+// giveServerLogAccess is a function that grants server log access to a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to be granted server log access.
+// It updates the 'Server_Log' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively granting them server log access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) giveServerLogAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2430,6 +2682,11 @@ func (db *databaseConn) giveServerLogAccess(userID int) error {
 	return nil
 }
 
+// removeServerLogAccess is a function that revokes server log access from a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to have their server log access revoked.
+// It updates the 'Server_Log' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively revoking their server log access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) removeServerLogAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2449,6 +2706,11 @@ func (db *databaseConn) removeServerLogAccess(userID int) error {
 	return nil
 }
 
+// giveUserAccess is a function that grants general user access to a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to be granted user access.
+// It updates the 'User_Access' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively granting them user access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) giveUserAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2473,6 +2735,11 @@ func (db *databaseConn) giveUserAccess(userID int) error {
 	return nil
 }
 
+// removeUserAccess is a function that revokes general user access from a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user who is to have their user access revoked.
+// It updates the 'User_Access' field in the 'useraccesslevels' table in the database for the user with the provided userID, effectively revoking their user access.
+// It returns an error if the user does not exist or if the update fails.
 func (db *databaseConn) removeUserAccess(userID int) error {
 	query := "SELECT COUNT(*) FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2492,6 +2759,12 @@ func (db *databaseConn) removeUserAccess(userID int) error {
 	return nil
 }
 
+// userAccess is a function that retrieves the access level of a user.
+// It takes in one parameter: userID.
+// The userID is the ID of the user whose access level is to be retrieved.
+// It queries the 'useraccesslevels' table in the database for the access level of the user with the provided userID.
+// It returns the access level and nil if the user exists and has an access level.
+// It returns an empty string and an error if the user does not exist, does not have an access level, or if the query fails.
 func (db *databaseConn) userAccess(userID int) (int, int, int, int, int, int, error) {
 	query := "SELECT Dashboard, Upload, Edit_Delete, Analytics, ServerLogs, UserAccess FROM useraccesslevels WHERE UserID = ?"
 	row := db.DB.QueryRow(query, userID)
@@ -2503,6 +2776,12 @@ func (db *databaseConn) userAccess(userID int) (int, int, int, int, int, int, er
 	return dashboard, upload, editDelete, analytics, serverLogs, userAccess, nil
 }
 
+// updateVideo is a function that updates the details of a video.
+// It takes in several parameters including videoID, title, description, category, and genre.
+// The videoID is the ID of the video to be updated.
+// The title, description, category, and genre are the new details to be updated in the video record.
+// It updates the video record in the database with the provided parameters.
+// It returns an error if the video does not exist or if the update fails.
 func (db *databaseConn) updateVideo(title string, description string, category string, genre string, videoID int) error {
 	categoryID, err := db.getCategoryID(genre)
 	if err != nil {
@@ -2525,6 +2804,12 @@ func (db *databaseConn) updateVideo(title string, description string, category s
 	return nil
 }
 
+// checkAdminAccess is a function that checks if a user has administrative access.
+// It takes in one parameter: userID.
+// The userID is the ID of the user whose admin access status is to be checked.
+// It queries the 'useraccesslevels' table in the database for the admin access status of the user with the provided userID.
+// It returns the admin access status and nil if the user exists and has an admin access status.
+// It returns false and an error if the user does not exist, does not have an admin access status, or if the query fails.
 func (db *databaseConn) checkAdminAccess(userID int) (int, error) {
 	//SELECT
 	//CASE
